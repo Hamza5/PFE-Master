@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">Distances car controller</string>
+    <string name="log_label">History</string>
+    <string name="send_button_text">Send</string>
+    <string name="send_input_hint">Command</string>
+    <string name="start_button_text">Start</string>
+    <string name="end_button_text">Stop</string>
+    <string name="reset_button_label">Reset</string>
+
+    <string name="serial_connection_opened">Serial connection opened !</string>
+    <string name="serial_connection_closed">Serial connection closed !</string>
+    <string name="no_serial_port">No serial port is available !</string>
+    <string name="serial_permission_rejected">Serial port permission rejected !</string>
+    <string name="serial_device_connected">New serial device detected : Vendor ID = %d</string>
+    <string name="no_serial_device">No serial device attached !</string>
+    <string name="serial_open_error">"Failed to open the serial port !"</string>
+    <string name="serial_device_message">Arduino> %s</string>
+
+    <string name="camera_open_error">Can not create camera !</string>
+    <string name="camera_preview_error">Can not start preview !</string>
+
+    <string name="bluetooth_adapter_error">Device doesn\'t support bluetooth !</string>
+    <string name="bluetooth_connection_error">Bluetooth connection failed !</string>
+    <string name="bluetooth_stream_error">Can not open I/O streams !</string>
+    <string name="bluetooth_socket_name">Distances car</string>
+    <string name="bluetooth_server_starting">Starting the bluetooth server socket</string>
+    <string name="bluetooth_server_waiting">Waiting for a bluetooth connection</string>
+    <string name="bluetooth_client_connected">Bluetooth device connected</string>
+    <string name="bluetooth_client_disconnected">Bluetooth device disconnected</string>
+    <string name="bluetooth_client_message">Computer> %s</string>
+    <string name="bluetooth_connection_label">Bluetooth</string>
+</resources>

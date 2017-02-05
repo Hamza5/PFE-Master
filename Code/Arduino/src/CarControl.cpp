@@ -12,6 +12,7 @@ double * distances;
 bool stopped = true;
 DISTANCE_SENSOR direction;
 int speed = 255;
+unsigned long started;
 
 void setup() {
   // Distance sensors
@@ -36,9 +37,15 @@ void setup() {
   Serial.setTimeout(SERIAL_TIMEOUT);
   // Random number generation. This pin is not connected
   randomSeed(analogRead(0));
+  started = millis();
 }
 
 void loop() {
+  if ((millis() - started) % 1000 == 0) {
+    DHTSensor.read22(DHT_DATA);
+    Serial.print("Temp = ");
+    Serial.println(DHTSensor.temperature);
+  }
   if (Serial.available()) {
     char command = Serial.read();
     switch (command) {

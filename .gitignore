@@ -1,4 +1,9 @@
 # Hidden files
 .*
+# Folders
+doc/
+build/
+gradle/
+gradle*
 # Except .gitignore
 !.gitignore
