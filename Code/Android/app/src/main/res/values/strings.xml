@@ -15,6 +15,8 @@
     <string name="no_serial_device">No serial device attached !</string>
     <string name="serial_open_error">"Failed to open the serial port !"</string>
     <string name="serial_device_message">Arduino> %s</string>
+    <string name="serial_label">Serial</string>
+    <string name="serial_driver_not_found">This device has no driver !</string>
 
     <string name="camera_open_error">Can not create camera !</string>
     <string name="camera_preview_error">Can not start preview !</string>

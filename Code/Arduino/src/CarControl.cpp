@@ -42,9 +42,13 @@ void setup() {
 
 void loop() {
   if ((millis() - started) % 1000 == 0) {
-    DHTSensor.read22(DHT_DATA);
-    Serial.print("Temp = ");
-    Serial.println(DHTSensor.temperature);
+    distances = getDistances();
+    Serial.print("|");
+    for (size_t i = 0; i < 3; i++) {
+      Serial.print(distances[i]);
+      Serial.print("|");
+    }
+    Serial.println();
   }
   if (Serial.available()) {
     char command = Serial.read();

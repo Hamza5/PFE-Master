@@ -70,15 +70,6 @@
         android:layout_toLeftOf="@+id/bluetoothConnectButton"
         android:layout_toStartOf="@+id/bluetoothConnectButton" />
 
-    <TextView
-        android:text="@string/log_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/logTitleTextView"
-        android:layout_below="@+id/bluetoothConnectButton"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
     <Button
         android:text="@string/reset_button_label"
         android:layout_width="wrap_content"
@@ -88,5 +79,34 @@
         android:layout_below="@+id/surfaceView"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:text="@string/serial_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/serialTextView"
+        android:layout_alignBaseline="@+id/button"
+        android:layout_alignBottom="@+id/button"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="@string/reset_button_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button"
+        android:layout_below="@+id/bluetoothConnectButton"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:onClick="resetSerialButtonClicked" />
+
+    <TextView
+        android:text="@string/log_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/logTitleTextView"
+        android:layout_below="@+id/button"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>
