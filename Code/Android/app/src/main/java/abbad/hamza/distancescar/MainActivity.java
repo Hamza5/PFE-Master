@@ -1,4 +1,4 @@
-package abbad.hamza.carcontroller;
+package abbad.hamza.distancescar;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -10,6 +10,8 @@ import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -24,9 +26,9 @@ public class MainActivity extends Activity {
 
     private TextView logView;
     private EditText commandInput;
-//    private Camera camera;
-//    private SurfaceHolder cameraSurfaceHolder;
+    private CameraCaptureManager captureManager;
     private UsbManager usbManager;
+    SurfaceHolder cameraSurfaceHolder;
     BluetoothConnectionManager bluetoothConnectionManager;
     SerialConnectionManager serialConnectionManager;
 
@@ -34,7 +36,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        cameraSurfaceHolder = ((SurfaceView) findViewById(R.id.surfaceView)).getHolder();
+        cameraSurfaceHolder = ((SurfaceView) findViewById(R.id.surfaceView)).getHolder();
         logView = (TextView) findViewById(R.id.logTextView);
         commandInput = (EditText) findViewById(R.id.messageEditText);
         usbManager = (UsbManager) getSystemService(USB_SERVICE);
@@ -45,6 +47,7 @@ public class MainActivity extends Activity {
         }
         serialConnectionManager = new SerialConnectionManager(this, usbManager);
         bluetoothConnectionManager = new BluetoothConnectionManager(this, bluetoothAdapter);
+        captureManager = new CameraCaptureManager(this);
     }
 
     @Override
@@ -77,11 +80,13 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        captureManager.startCamera();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        captureManager.stopCamera();
     }
 
     @Override
@@ -201,6 +206,10 @@ public class MainActivity extends Activity {
                 requestUSBPermission(usbDevice);
             else serialConnectionManager.openSerialConnection(usbDevice);
         } else showMessage(getString(R.string.no_serial_device));
+    }
+
+    public void captureButtonClicked(View view) {
+        captureManager.takePicture();
     }
 
 }

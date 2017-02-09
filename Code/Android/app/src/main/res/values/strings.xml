@@ -6,6 +6,7 @@
     <string name="start_button_text">Start</string>
     <string name="end_button_text">Stop</string>
     <string name="reset_button_label">Reset</string>
+    <string name="capture_picture_label">Capture</string>
 
     <string name="serial_connection_opened">Serial connection opened !</string>
     <string name="serial_connection_closed">Serial connection closed !</string>
@@ -20,6 +21,7 @@
 
     <string name="camera_open_error">Can not create camera !</string>
     <string name="camera_preview_error">Can not start preview !</string>
+    <string name="camera_photo_save_error">Can not save the photo !</string>
 
     <string name="bluetooth_adapter_error">Device doesn\'t support bluetooth !</string>
     <string name="bluetooth_connection_error">Bluetooth connection failed !</string>
