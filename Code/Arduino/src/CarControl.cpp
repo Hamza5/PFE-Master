@@ -11,7 +11,7 @@ dht DHTSensor;
 double * distances;
 bool stopped = true;
 DISTANCE_SENSOR direction;
-int speed = 255;
+int speed = 127;
 unsigned long started;
 
 void setup() {
@@ -41,17 +41,9 @@ void setup() {
 }
 
 void loop() {
-  if ((millis() - started) % 1000 == 0) {
-    distances = getDistances();
-    Serial.print("|");
-    for (size_t i = 0; i < 3; i++) {
-      Serial.print(distances[i]);
-      Serial.print("|");
-    }
-    Serial.println();
-  }
   if (Serial.available()) {
     char command = Serial.read();
+    int action_delay = MOVE_ACTION_TIME;
     switch (command) {
       case GET_DISTANCES:
         distances = getDistances();
@@ -64,22 +56,34 @@ void loop() {
         break;
       case MOVE_FORWARD:
         moveForward(speed);
-        delay(MOVE_ACTION_TIME*2);
+        if (Serial.available()) {
+          action_delay = Serial.parseInt();
+        }
+        delay(action_delay);
         stop();
         break;
       case MOVE_BACKWARD:
         moveBackward(speed);
-        delay(MOVE_ACTION_TIME*2);
+        if (Serial.available()) {
+          action_delay = Serial.parseInt();
+        }
+        delay(action_delay);
         stop();
         break;
       case TURN_RIGHT:
         turnRight(speed);
-        delay(MOVE_ACTION_TIME*2);
+        if (Serial.available()) {
+          action_delay = Serial.parseInt();
+        }
+        delay(action_delay);
         stop();
         break;
       case TURN_LEFT:
         turnLeft(speed);
-        delay(MOVE_ACTION_TIME*2);
+        if (Serial.available()) {
+          action_delay = Serial.parseInt();
+        }
+        delay(action_delay);
         stop();
         break;
       case STOP:
@@ -87,13 +91,12 @@ void loop() {
         break;
       case TEMP:
         DHTSensor.read22(DHT_DATA);
-        Serial.print("Temp = ");
+        Serial.print("T");
         Serial.println(DHTSensor.temperature);
         break;
       case SET_SPEED:
-        speed = random(256);
-        Serial.print("Speed = ");
-        Serial.println(speed);
+        speed = Serial.parseInt();
+        Serial.println("P"+speed);
         break;
       case NAVIGATE:
         stopped = false;

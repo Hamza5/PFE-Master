@@ -7,6 +7,14 @@
     <string name="end_button_text">Stop</string>
     <string name="reset_button_label">Reset</string>
     <string name="capture_picture_label">Capture</string>
+    <string name="enabled_label">Enabled</string>
+    <string name="disabled_label">Disabled</string>
+    <string name="power_label">Engines power</string>
+    <string name="distances_label">Distance</string>
+    <string name="temperature_label">Temperature</string>
+    <string name="not_available_label">not available</string>
+    <string name="connected_label">Connected</string>
+    <string name="disconnected_label">disconnected</string>
 
     <string name="serial_connection_opened">Serial connection opened !</string>
     <string name="serial_connection_closed">Serial connection closed !</string>

@@ -63,7 +63,7 @@ unsigned int argmin(double *, unsigned int);
 #define SOUND_SPEED_FACTOR 0.6
 #define MAX_OBSTACLE_DISTANCE 0.5  // meters
 #define MIN_OBSTACLE_DISTANCE 0.2  // meters
-#define SERIAL_TIMEOUT 50 // milliseconds
+#define SERIAL_TIMEOUT 100 // milliseconds
 #define MOVE_ACTION_TIME 100
 
 #endif

@@ -34,12 +34,9 @@ class BluetoothConnectionManager {
 
         @Override
         public void run() {
-            mainActivity.appendLog(mainActivity.getString(R.string.bluetooth_server_starting));
             try {
                 BluetoothServerSocket smartphoneSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(mainActivity.getString(R.string.bluetooth_socket_name), DISTANCES_CAR_SERVICE_UUID);
-                mainActivity.appendLog(mainActivity.getString(R.string.bluetooth_server_waiting));
                 computerSocket = smartphoneSocket.accept();
-                mainActivity.appendLog(mainActivity.getString(R.string.bluetooth_client_connected));
                 smartphoneSocket.close();
                 receivingThread = new BluetoothReceivingThread();
                 receivingThread.start();
@@ -60,11 +57,11 @@ class BluetoothConnectionManager {
                 try {
                     bluetoothInput = computerSocket.getInputStream();
                     bluetoothOutput = computerSocket.getOutputStream();
+                    mainActivity.setBluetoothConnectionStatus(true);
                     while (!isInterrupted()) {
                         bytesCount = bluetoothInput.read(buffer);
                         if (bytesCount > 0) {
                             byte[] info = Arrays.copyOfRange(buffer, 0, bytesCount);
-                            mainActivity.appendLog(String.format(mainActivity.getString(R.string.bluetooth_client_message), new String(info)));
                             mainActivity.serialConnectionManager.sendSerialData(info);
                         }
                     }
@@ -75,7 +72,7 @@ class BluetoothConnectionManager {
                 bluetoothOutput = null;
                 computerSocket.close();
                 computerSocket = null;
-                mainActivity.appendLog(mainActivity.getString(R.string.bluetooth_client_disconnected));
+                mainActivity.setBluetoothConnectionStatus(false);
                 if (!isInterrupted()) {
                     initialisationThread = new BluetoothServerInitialisationThread();
                     initialisationThread.start();

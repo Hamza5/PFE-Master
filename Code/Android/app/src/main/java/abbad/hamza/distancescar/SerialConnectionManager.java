@@ -11,11 +11,15 @@ import com.felhr.usbserial.UsbSerialInterface;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class SerialConnectionManager {
 
     private static final int SERIAL_BAUD_RATE = 9600;
     private static final List<Integer> VENDOR_IDS = Arrays.asList(1027, 9025, 5824, 4292, 1659, 6790);
+    private static final Pattern DISTANCES_REGEXP = Pattern.compile("\\|([0-9]+\\.[0-9]+)\\|([0-9]+\\.[0-9]+)\\|([0-9]+\\.[0-9]+)\\|");
+    private static final Pattern TEMPERATURE_REGEXP = Pattern.compile("T([0-9]+\\.[0-9]+)");
 
     private UsbManager usbManager;
     private UsbDeviceConnection arduinoSerialConnection;
@@ -30,7 +34,16 @@ class SerialConnectionManager {
     private UsbSerialInterface.UsbReadCallback serialReadCallback = new UsbSerialInterface.UsbReadCallback() {
         @Override
         public void onReceivedData(byte[] bytes) {
-            mainActivity.appendLog(String.format(mainActivity.getString(R.string.serial_device_message), new String(bytes)));
+            String response = new String(bytes);
+            Matcher m;
+            m = DISTANCES_REGEXP.matcher(response);
+            if (m.find()) {
+                mainActivity.updateDistance(new float[]{Float.parseFloat(m.group(1)), Float.parseFloat(m.group(2)), Float.parseFloat(m.group(3))});
+            }
+            m = TEMPERATURE_REGEXP.matcher(response);
+            if (m.find()) {
+                mainActivity.updateTemperature(Float.parseFloat(m.group(1)));
+            }
             mainActivity.bluetoothConnectionManager.sendToComputer(bytes);
         }
     };
@@ -73,8 +86,8 @@ class SerialConnectionManager {
             }
             @Override
             protected void onPostExecute(Boolean connectionOpened) {
-                if (connectionOpened) mainActivity.appendLog(mainActivity.getString(R.string.serial_connection_opened));
-                else mainActivity.showMessage(mainActivity.getString(R.string.serial_open_error));
+                if (!connectionOpened) mainActivity.showMessage(mainActivity.getString(R.string.serial_open_error));
+                else mainActivity.serialConnectionOpened();
             }
         };
         deviceInitialisation.execute(device);
@@ -85,8 +98,35 @@ class SerialConnectionManager {
             arduinoSerialPort.close();
             arduinoSerialPort = null;
             arduinoSerialConnection.close();
-            mainActivity.appendLog(mainActivity.getString(R.string.serial_connection_closed));
         }
+    }
+
+    void setEnginesPower(int power) {
+        sendSerialData(("P"+power).getBytes());
+    }
+
+    void requestDistances() {
+        sendSerialData("D".getBytes());
+    }
+
+    void requestTemperature() {
+        sendSerialData("T".getBytes());
+    }
+
+    void moveForward(int milliseconds) {
+        sendSerialData(("F"+milliseconds).getBytes());
+    }
+
+    void moveBackward(int milliseconds) {
+        sendSerialData(("B"+milliseconds).getBytes());
+    }
+
+    void turnLeft(int milliseconds) {
+        sendSerialData(("L"+milliseconds).getBytes());
+    }
+
+    void turnRight(int milliseconds) {
+        sendSerialData(("R"+milliseconds).getBytes());
     }
 
 }

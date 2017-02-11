@@ -4,5 +4,6 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="surfaceView_height">250dp</dimen>
     <dimen name="textView_text_size">15sp</dimen>
-    <dimen name="log_height">100dp</dimen>
+    <dimen name="horizontal_space_height">5dp</dimen>
+    <dimen name="value_textViews_min_width">70dp</dimen>
 </resources>
