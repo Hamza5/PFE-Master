@@ -299,10 +299,26 @@ public class MainActivity extends Activity {
                     openSerialConnection(usbDevice);
                 }
             } else {
-                showMessage(getString(R.string.no_serial_device));
+                showMessage(getString(R.string.serial_no_device));
                 serialButton.setChecked(false);
             }
         } else closeSerialConnection();
+    }
+
+    public void forwardButtonClicked(View view) {
+        serialConnectionManager.moveForward(200);
+    }
+
+    public void backwardButtonClicked(View view) {
+        serialConnectionManager.moveBackward(200);
+    }
+
+    public void leftButtonClicked(View view) {
+        serialConnectionManager.turnLeft(200);
+    }
+
+    public void rightButtonClicked(View view) {
+        serialConnectionManager.turnRight(200);
     }
 
 }

@@ -1,12 +1,5 @@
 <resources>
     <string name="app_name">Distances car controller</string>
-    <string name="log_label">History</string>
-    <string name="send_button_text">Send</string>
-    <string name="send_input_hint">Command</string>
-    <string name="start_button_text">Start</string>
-    <string name="end_button_text">Stop</string>
-    <string name="reset_button_label">Reset</string>
-    <string name="capture_picture_label">Capture</string>
     <string name="enabled_label">Enabled</string>
     <string name="disabled_label">Disabled</string>
     <string name="power_label">Engines power</string>
@@ -15,15 +8,15 @@
     <string name="not_available_label">not available</string>
     <string name="connected_label">Connected</string>
     <string name="disconnected_label">disconnected</string>
+    <string name="forward_label">Forward</string>
+    <string name="backward_label">Backward</string>
+    <string name="left_label">Left</string>
+    <string name="right_label">Right</string>
 
-    <string name="serial_connection_opened">Serial connection opened !</string>
-    <string name="serial_connection_closed">Serial connection closed !</string>
-    <string name="no_serial_port">No serial port is available !</string>
+    <string name="serial_no_port">No serial port is available !</string>
     <string name="serial_permission_rejected">Serial port permission rejected !</string>
-    <string name="serial_device_connected">New serial device detected : Vendor ID = %d</string>
-    <string name="no_serial_device">No serial device attached !</string>
+    <string name="serial_no_device">No serial device attached !</string>
     <string name="serial_open_error">"Failed to open the serial port !"</string>
-    <string name="serial_device_message">Arduino> %s</string>
     <string name="serial_label">Serial</string>
     <string name="serial_driver_not_found">This device has no driver !</string>
 
@@ -39,6 +32,5 @@
     <string name="bluetooth_server_waiting">Waiting for a bluetooth connection</string>
     <string name="bluetooth_client_connected">Bluetooth device connected</string>
     <string name="bluetooth_client_disconnected">Bluetooth device disconnected</string>
-    <string name="bluetooth_client_message">Computer> %s</string>
     <string name="bluetooth_connection_label">Bluetooth</string>
 </resources>

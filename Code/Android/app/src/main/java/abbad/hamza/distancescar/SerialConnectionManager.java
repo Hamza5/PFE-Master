@@ -51,7 +51,7 @@ class SerialConnectionManager {
     void sendSerialData(byte[] data) {
         if (arduinoSerialPort != null)
             arduinoSerialPort.write(data);
-        else mainActivity.showMessage(mainActivity.getString(R.string.no_serial_port));
+        else mainActivity.showMessage(mainActivity.getString(R.string.serial_no_port));
     }
 
     UsbDevice getConnectedUSBDevice() {

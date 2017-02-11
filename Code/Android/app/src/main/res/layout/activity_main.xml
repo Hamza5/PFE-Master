@@ -105,7 +105,8 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:paddingEnd="@dimen/horizontal_space_height" />
+        android:paddingEnd="@dimen/horizontal_space_height"
+        android:paddingRight="@dimen/horizontal_space_height" />
 
     <Space
         android:layout_width="match_parent"
@@ -150,9 +151,62 @@
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/serialTextView"
         android:layout_toRightOf="@+id/distanceValueTextView"
+        android:layout_toEndOf="@+id/distanceValueTextView"
         android:id="@+id/bluetoothConnectedTextView"
         android:layout_toLeftOf="@+id/serialTextView"
         android:layout_toStartOf="@+id/serialTextView" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/powerSeekBar" >
+
+        <Button
+            android:text="@string/right_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/rightButton"
+            android:onClick="rightButtonClicked"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignTop="@+id/forwardButton" />
+
+        <Button
+            android:text="@string/left_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/leftbButton"
+            android:onClick="leftButtonClicked"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignTop="@+id/forwardButton" />
+
+        <Button
+            android:text="@string/backward_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/backwardButton"
+            android:onClick="backwardButtonClicked"
+            android:layout_alignParentBottom="true"
+            android:layout_toLeftOf="@+id/rightButton"
+            android:layout_toRightOf="@+id/leftbButton"
+            android:layout_toEndOf="@+id/leftbButton" />
+
+        <Button
+            android:text="@string/forward_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/forwardButton"
+            android:onClick="forwardButtonClicked"
+            android:layout_above="@+id/backwardButton"
+            android:layout_toLeftOf="@+id/rightButton"
+            android:layout_toRightOf="@+id/leftbButton"
+            android:layout_toEndOf="@+id/leftbButton" />
+    </RelativeLayout>
 
 
 </RelativeLayout>
