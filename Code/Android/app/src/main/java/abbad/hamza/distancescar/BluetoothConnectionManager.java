@@ -3,6 +3,7 @@ package abbad.hamza.distancescar;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +15,13 @@ class BluetoothConnectionManager {
 
     private static final UUID DISTANCES_CAR_SERVICE_UUID = UUID.fromString("ad6e04a5-2ae4-4c80-9140-34016e468ee7");
     private static final int BLUETOOTH_BUFFER_SIZE = 1024;
+    private static final String FORWARD_COMMAND = "F";
+    private static final String BACKWARD_COMMAND = "B";
+    private static final String LEFT_COMMAND = "L";
+    private static final String RIGHT_COMMAND = "R";
+    private static final String POWER_COMMAND = "P";
+    private static final String PICTURE_COMMAND = "C";
+    private static final String MOVING_COMMAND = "M";
 
     private BluetoothSocket computerSocket;
     private InputStream bluetoothInput;
@@ -36,8 +44,10 @@ class BluetoothConnectionManager {
         public void run() {
             try {
                 BluetoothServerSocket smartphoneSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(mainActivity.getString(R.string.bluetooth_socket_name), DISTANCES_CAR_SERVICE_UUID);
+                Log.i(BluetoothConnectionManager.class.getName(), "Waiting for a client to connect");
                 computerSocket = smartphoneSocket.accept();
                 smartphoneSocket.close();
+                Log.i(BluetoothConnectionManager.class.getName(), "Client connected");
                 receivingThread = new BluetoothReceivingThread();
                 receivingThread.start();
             } catch (IOException ignored) {
@@ -61,8 +71,75 @@ class BluetoothConnectionManager {
                     while (!isInterrupted()) {
                         bytesCount = bluetoothInput.read(buffer);
                         if (bytesCount > 0) {
-                            byte[] info = Arrays.copyOfRange(buffer, 0, bytesCount);
-                            mainActivity.serialConnectionManager.sendSerialData(info);
+                            final String command = new String(Arrays.copyOfRange(buffer, 0, bytesCount));
+                            switch (command) {
+                                case FORWARD_COMMAND:
+                                    mainActivity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mainActivity.serialConnectionManager.moveForward();
+                                        }
+                                    });
+                                    break;
+                                case BACKWARD_COMMAND:
+                                    mainActivity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mainActivity.serialConnectionManager.moveBackward();
+                                        }
+                                    });
+                                    break;
+                                case LEFT_COMMAND:
+                                    mainActivity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mainActivity.serialConnectionManager.turnLeft();
+                                        }
+                                    });
+                                    break;
+                                case RIGHT_COMMAND:
+                                    mainActivity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mainActivity.serialConnectionManager.turnRight();
+                                        }
+                                    });
+                                    break;
+                                case PICTURE_COMMAND:
+                                    mainActivity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mainActivity.captureManager.takePicture();
+                                        }
+                                    });
+                                    break;
+                                default:
+                                if (command.startsWith(POWER_COMMAND)) {
+                                    final int power = Integer.parseInt(command.substring(POWER_COMMAND.length()));
+                                    mainActivity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mainActivity.powerSeekBar.setProgress(power);
+                                            mainActivity.serialConnectionManager.setEnginesPower(power);
+                                        }
+                                    });
+                                } else if (command.startsWith(MOVING_COMMAND)) {
+                                    final int move_delay = Integer.parseInt(command.substring(MOVING_COMMAND.length()));
+                                    mainActivity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mainActivity.delayEditText.setText(String.valueOf(move_delay));
+                                            mainActivity.serialConnectionManager.setMovingTime(move_delay);
+                                        }
+                                    });
+                                } else
+                                mainActivity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mainActivity.serialConnectionManager.sendSerialData(command.getBytes());
+                                    }
+                                });
+                            }
                         }
                     }
                 } catch (IOException ignored) { }
@@ -72,6 +149,7 @@ class BluetoothConnectionManager {
                 bluetoothOutput = null;
                 computerSocket.close();
                 computerSocket = null;
+                Log.i(BluetoothConnectionManager.class.getName(), "Client disconnected");
                 mainActivity.setBluetoothConnectionStatus(false);
                 if (!isInterrupted()) {
                     initialisationThread = new BluetoothServerInitialisationThread();

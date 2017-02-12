@@ -55,6 +55,7 @@ unsigned int argmin(double *, unsigned int);
 #define STOP 'S'
 #define TEMP 'T'
 #define SET_SPEED 'P'
+#define SET_MOVING_TIME 'M'
 #define NAVIGATE 'N'
 
 // Other

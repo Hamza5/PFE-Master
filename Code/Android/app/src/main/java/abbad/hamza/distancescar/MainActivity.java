@@ -11,9 +11,13 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,11 +35,13 @@ public class MainActivity extends Activity {
     private TextView bluetoothConnectionTextView;
     private TextView distanceValueTextView;
     private TextView temperatureValueTextView;
-    private CameraCaptureManager captureManager;
     private UsbManager usbManager;
     SurfaceHolder cameraSurfaceHolder;
     BluetoothConnectionManager bluetoothConnectionManager;
     SerialConnectionManager serialConnectionManager;
+    CameraCaptureManager captureManager;
+    SeekBar powerSeekBar;
+    EditText delayEditText;
     private Handler handler;
     private Toast messagesToast;
 
@@ -49,7 +55,8 @@ public class MainActivity extends Activity {
         bluetoothConnectionTextView = (TextView) findViewById(R.id.bluetoothConnectedTextView);
         distanceValueTextView = (TextView) findViewById(R.id.distanceValueTextView);
         temperatureValueTextView = (TextView) findViewById(R.id.temperatureValueTextView);
-        SeekBar powerSeekBar = (SeekBar) findViewById(R.id.powerSeekBar);
+        delayEditText = (EditText) findViewById(R.id.delayEditText);
+        powerSeekBar = (SeekBar) findViewById(R.id.powerSeekBar);
         usbManager = (UsbManager) getSystemService(USB_SERVICE);
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
@@ -76,11 +83,25 @@ public class MainActivity extends Activity {
 
             }
         });
-    }
+        delayEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-    @Override
-    protected void onStart() {
-        super.onStart();
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String text = editable.toString();
+                if (!text.isEmpty())
+                    serialConnectionManager.setMovingTime(Integer.parseInt(text));
+            }
+        });
+
         // USB serial connection
         IntentFilter usbDeviceIntents = new IntentFilter();
         usbDeviceIntents.addAction(ACTION_USB_PERMISSION);
@@ -115,17 +136,17 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onPause() {
-        super.onPause();
         captureManager.stopCamera();
+        super.onPause();
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
         closeBluetoothConnection();
         closeSerialConnection();
         unregisterReceiver(bluetoothEventsReceiver);
         unregisterReceiver(usbEventsReceiver);
+        super.onDestroy();
     }
 
     private void requestUSBPermission(UsbDevice device) {
@@ -306,19 +327,19 @@ public class MainActivity extends Activity {
     }
 
     public void forwardButtonClicked(View view) {
-        serialConnectionManager.moveForward(200);
+        serialConnectionManager.moveForward();
     }
 
     public void backwardButtonClicked(View view) {
-        serialConnectionManager.moveBackward(200);
+        serialConnectionManager.moveBackward();
     }
 
     public void leftButtonClicked(View view) {
-        serialConnectionManager.turnLeft(200);
+        serialConnectionManager.turnLeft();
     }
 
     public void rightButtonClicked(View view) {
-        serialConnectionManager.turnRight(200);
+        serialConnectionManager.turnRight();
     }
 
 }

@@ -206,6 +206,38 @@
             android:layout_toLeftOf="@+id/rightButton"
             android:layout_toRightOf="@+id/leftbButton"
             android:layout_toEndOf="@+id/leftbButton" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="5"
+            android:id="@+id/delayEditText"
+            android:text="@string/delay_default_value"
+            android:layout_above="@+id/forwardButton"
+            android:layout_toRightOf="@+id/delayTextView"
+            android:layout_toLeftOf="@+id/delayUnitTextView"
+            android:layout_toStartOf="@+id/delayUnitTextView" />
+
+        <TextView
+            android:text="@string/ms_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/delayUnitTextView"
+            android:layout_alignBaseline="@+id/delayEditText"
+            android:layout_alignBottom="@+id/delayEditText"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+        <TextView
+            android:text="@string/delay_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/delayTextView"
+            android:layout_alignBaseline="@+id/delayEditText"
+            android:layout_alignBottom="@+id/delayEditText"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
     </RelativeLayout>
 
 

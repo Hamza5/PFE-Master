@@ -4,6 +4,7 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
@@ -44,6 +45,7 @@ class SerialConnectionManager {
             if (m.find()) {
                 mainActivity.updateTemperature(Float.parseFloat(m.group(1)));
             }
+            Log.i(SerialConnectionManager.class.getName(), response);
             mainActivity.bluetoothConnectionManager.sendToComputer(bytes);
         }
     };
@@ -68,10 +70,10 @@ class SerialConnectionManager {
             protected Boolean doInBackground(UsbDevice... devices) {
                 UsbDevice device = devices[0];
                 arduinoSerialConnection = usbManager.openDevice(device);
-                if (arduinoSerialConnection == null) mainActivity.showMessage("USB connection failed");
+                if (arduinoSerialConnection == null) mainActivity.showMessage(mainActivity.getString(R.string.serial_open_error));
                 arduinoSerialPort = UsbSerialDevice.createUsbSerialDevice(device, arduinoSerialConnection);
                 if (arduinoSerialPort == null) mainActivity.showMessage(mainActivity.getString(R.string.serial_driver_not_found));
-                else{
+                else {
                     if (arduinoSerialPort.open()) {
                         arduinoSerialPort.setBaudRate(SERIAL_BAUD_RATE);
                         arduinoSerialPort.setDataBits(UsbSerialInterface.DATA_BITS_8);
@@ -80,14 +82,17 @@ class SerialConnectionManager {
                         arduinoSerialPort.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
                         arduinoSerialPort.read(serialReadCallback);
                         return true;
-                    } else mainActivity.showMessage("USB serial port opening failed");
+                    } else mainActivity.showMessage(mainActivity.getString(R.string.serial_open_error));
                 }
                 return false;
             }
             @Override
             protected void onPostExecute(Boolean connectionOpened) {
                 if (!connectionOpened) mainActivity.showMessage(mainActivity.getString(R.string.serial_open_error));
-                else mainActivity.serialConnectionOpened();
+                else {
+                    Log.i(SerialConnectionManager.class.getName(), "Connection opened");
+                    mainActivity.serialConnectionOpened();
+                }
             }
         };
         deviceInitialisation.execute(device);
@@ -97,6 +102,7 @@ class SerialConnectionManager {
         if (arduinoSerialPort != null) {
             arduinoSerialPort.close();
             arduinoSerialPort = null;
+            Log.i(SerialConnectionManager.class.getName(), "Connection closed");
             arduinoSerialConnection.close();
         }
     }
@@ -113,20 +119,24 @@ class SerialConnectionManager {
         sendSerialData("T".getBytes());
     }
 
-    void moveForward(int milliseconds) {
-        sendSerialData(("F"+milliseconds).getBytes());
+    void moveForward() {
+        sendSerialData("F".getBytes());
     }
 
-    void moveBackward(int milliseconds) {
-        sendSerialData(("B"+milliseconds).getBytes());
+    void moveBackward() {
+        sendSerialData("B".getBytes());
     }
 
-    void turnLeft(int milliseconds) {
-        sendSerialData(("L"+milliseconds).getBytes());
+    void turnLeft() {
+        sendSerialData("L".getBytes());
     }
 
-    void turnRight(int milliseconds) {
-        sendSerialData(("R"+milliseconds).getBytes());
+    void turnRight() {
+        sendSerialData("R".getBytes());
+    }
+
+    void setMovingTime(int milliseconds) {
+        sendSerialData(("M"+milliseconds).getBytes());
     }
 
 }

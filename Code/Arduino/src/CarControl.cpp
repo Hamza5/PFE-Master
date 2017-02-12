@@ -12,7 +12,8 @@ double * distances;
 bool stopped = true;
 DISTANCE_SENSOR direction;
 int speed = 127;
-unsigned long started;
+int action_delay = MOVE_ACTION_TIME;
+char command;
 
 void setup() {
   // Distance sensors
@@ -37,13 +38,11 @@ void setup() {
   Serial.setTimeout(SERIAL_TIMEOUT);
   // Random number generation. This pin is not connected
   randomSeed(analogRead(0));
-  started = millis();
 }
 
 void loop() {
   if (Serial.available()) {
-    char command = Serial.read();
-    int action_delay = MOVE_ACTION_TIME;
+    command = Serial.read();
     switch (command) {
       case GET_DISTANCES:
         distances = getDistances();
@@ -56,33 +55,21 @@ void loop() {
         break;
       case MOVE_FORWARD:
         moveForward(speed);
-        if (Serial.available()) {
-          action_delay = Serial.parseInt();
-        }
         delay(action_delay);
         stop();
         break;
       case MOVE_BACKWARD:
         moveBackward(speed);
-        if (Serial.available()) {
-          action_delay = Serial.parseInt();
-        }
         delay(action_delay);
         stop();
         break;
       case TURN_RIGHT:
         turnRight(speed);
-        if (Serial.available()) {
-          action_delay = Serial.parseInt();
-        }
         delay(action_delay);
         stop();
         break;
       case TURN_LEFT:
         turnLeft(speed);
-        if (Serial.available()) {
-          action_delay = Serial.parseInt();
-        }
         delay(action_delay);
         stop();
         break;
@@ -96,7 +83,13 @@ void loop() {
         break;
       case SET_SPEED:
         speed = Serial.parseInt();
-        Serial.println("P"+speed);
+        Serial.print("P");
+        Serial.println(speed);
+        break;
+      case SET_MOVING_TIME:
+        action_delay = Serial.parseInt();
+        Serial.print("M");
+        Serial.println(action_delay);
         break;
       case NAVIGATE:
         stopped = false;
@@ -104,7 +97,7 @@ void loop() {
     }
   } else if (!stopped) {
     navigate(speed);
-    delay(MOVE_ACTION_TIME);
+    delay(action_delay);
   }
 }
 
