@@ -219,16 +219,19 @@ unsigned int argmin(double * array, unsigned int length) {
 
 void navigate(byte speed) {
   double * distances = getDistances();
-  if (distances[CENTER] < MIN_OBSTACLE_DISTANCE) moveBackward(speed);
-  else
-  if (distances[LEFT] > 0 && distances[LEFT] < MAX_OBSTACLE_DISTANCE && argmin(distances, 3) == LEFT) direction = RIGHT;
-  else if (distances[RIGHT] > 0 && distances[RIGHT] < MAX_OBSTACLE_DISTANCE && argmin(distances, 3) == RIGHT) direction = LEFT;
-  else direction = CENTER;
-  #ifdef DEBUG
-  Serial.print(direction == CENTER ? "^" : (direction == RIGHT ? ">" : "<"));
-  #else
-  if (direction == CENTER) moveForward(speed);
-  else if (direction == RIGHT) turnRight(speed);
-  else turnLeft(speed);
-  #endif
+  for (size_t i = 0; i < 3; i++) if (distances[i] == 0) distances[i] = 5;
+  if (min(min(distances[0], distances[1]), distances[2]) < MIN_OBSTACLE_DISTANCE) {
+    moveBackward(speed);
+  } else {
+    if (distances[LEFT] < MAX_OBSTACLE_DISTANCE) direction = RIGHT;
+    else if (distances[RIGHT] < MAX_OBSTACLE_DISTANCE) direction = LEFT;
+    else direction = CENTER;
+    #ifdef DEBUG
+    Serial.print(direction == CENTER ? "^" : (direction == RIGHT ? ">" : "<"));
+    #else
+    if (direction == CENTER) moveForward(speed);
+    else if (direction == RIGHT) turnRight(speed);
+    else turnLeft(speed);
+    #endif
+  }
 }

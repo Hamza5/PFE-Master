@@ -6,7 +6,7 @@
     <string name="distances_label">Distance</string>
     <string name="temperature_label">Temperature</string>
     <string name="not_available_label">not available</string>
-    <string name="connected_label">Connected</string>
+    <string name="connected_label">connected</string>
     <string name="disconnected_label">disconnected</string>
     <string name="forward_label">Forward</string>
     <string name="backward_label">Backward</string>

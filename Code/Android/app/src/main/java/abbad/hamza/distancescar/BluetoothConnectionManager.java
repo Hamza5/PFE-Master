@@ -22,6 +22,8 @@ class BluetoothConnectionManager {
     private static final String POWER_COMMAND = "P";
     private static final String PICTURE_COMMAND = "C";
     private static final String MOVING_COMMAND = "M";
+    private static final String NAVIGATE_COMMAND = "N";
+    private static final String STOP_COMMAND = "S";
 
     private BluetoothSocket computerSocket;
     private InputStream bluetoothInput;
@@ -74,44 +76,26 @@ class BluetoothConnectionManager {
                             final String command = new String(Arrays.copyOfRange(buffer, 0, bytesCount));
                             switch (command) {
                                 case FORWARD_COMMAND:
-                                    mainActivity.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mainActivity.serialConnectionManager.moveForward();
-                                        }
-                                    });
+                                    mainActivity.serialConnectionManager.moveForward();
                                     break;
                                 case BACKWARD_COMMAND:
-                                    mainActivity.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mainActivity.serialConnectionManager.moveBackward();
-                                        }
-                                    });
-                                    break;
+                                    mainActivity.serialConnectionManager.moveBackward();
                                 case LEFT_COMMAND:
-                                    mainActivity.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mainActivity.serialConnectionManager.turnLeft();
-                                        }
-                                    });
+                                    mainActivity.serialConnectionManager.turnLeft();
                                     break;
                                 case RIGHT_COMMAND:
-                                    mainActivity.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mainActivity.serialConnectionManager.turnRight();
-                                        }
-                                    });
+                                    mainActivity.serialConnectionManager.turnRight();
                                     break;
                                 case PICTURE_COMMAND:
-                                    mainActivity.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mainActivity.captureManager.takePicture();
-                                        }
-                                    });
+                                    mainActivity.captureManager.takePicture();
+                                    break;
+                                case NAVIGATE_COMMAND:
+                                    mainActivity.serialConnectionManager.startNavigation();
+                                    mainActivity.taskHandler.postDelayed(new CapturingTask(mainActivity, mainActivity.taskHandler), CapturingTask.TASK_REPEATING_FREQUENCY);
+                                    break;
+                                case STOP_COMMAND:
+                                    mainActivity.taskHandler.removeCallbacksAndMessages(null);
+                                    mainActivity.serialConnectionManager.stop();
                                     break;
                                 default:
                                 if (command.startsWith(POWER_COMMAND)) {
@@ -120,7 +104,6 @@ class BluetoothConnectionManager {
                                         @Override
                                         public void run() {
                                             mainActivity.powerSeekBar.setProgress(power);
-                                            mainActivity.serialConnectionManager.setEnginesPower(power);
                                         }
                                     });
                                 } else if (command.startsWith(MOVING_COMMAND)) {
@@ -129,16 +112,10 @@ class BluetoothConnectionManager {
                                         @Override
                                         public void run() {
                                             mainActivity.delayEditText.setText(String.valueOf(move_delay));
-                                            mainActivity.serialConnectionManager.setMovingTime(move_delay);
                                         }
                                     });
                                 } else
-                                mainActivity.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mainActivity.serialConnectionManager.sendSerialData(command.getBytes());
-                                    }
-                                });
+                                    mainActivity.serialConnectionManager.sendSerialData(command.getBytes());
                             }
                         }
                     }
@@ -151,10 +128,6 @@ class BluetoothConnectionManager {
                 computerSocket = null;
                 Log.i(BluetoothConnectionManager.class.getName(), "Client disconnected");
                 mainActivity.setBluetoothConnectionStatus(false);
-                if (!isInterrupted()) {
-                    initialisationThread = new BluetoothServerInitialisationThread();
-                    initialisationThread.start();
-                }
             } catch (IOException ex) {
                 mainActivity.showMessage(mainActivity.getString(R.string.bluetooth_stream_error));
             }

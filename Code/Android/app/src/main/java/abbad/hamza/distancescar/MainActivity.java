@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -42,7 +41,7 @@ public class MainActivity extends Activity {
     CameraCaptureManager captureManager;
     SeekBar powerSeekBar;
     EditText delayEditText;
-    private Handler handler;
+    Handler taskHandler;
     private Toast messagesToast;
 
     @Override
@@ -66,7 +65,7 @@ public class MainActivity extends Activity {
         serialConnectionManager = new SerialConnectionManager(this, usbManager);
         bluetoothConnectionManager = new BluetoothConnectionManager(this, bluetoothAdapter);
         captureManager = new CameraCaptureManager(this);
-        handler = new Handler();
+        taskHandler = new Handler();
         powerSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -142,6 +141,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        taskHandler.removeCallbacksAndMessages(null);
         closeBluetoothConnection();
         closeSerialConnection();
         unregisterReceiver(bluetoothEventsReceiver);
@@ -162,11 +162,9 @@ public class MainActivity extends Activity {
 
     void serialConnectionOpened() {
         serialButton.setChecked(true);
-        handler.postDelayed(new CapturingTask(this, handler), CapturingTask.TASK_REPEATING_FREQUENCY);
     }
 
     private void closeSerialConnection() {
-        handler.removeCallbacksAndMessages(null);
         serialConnectionManager.closeConnection();
         serialButton.setChecked(false);
     }
@@ -244,8 +242,14 @@ public class MainActivity extends Activity {
                     }
                     break;
                 case BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED:
-                    if (extras.getInt(BluetoothAdapter.EXTRA_CONNECTION_STATE) == BluetoothAdapter.STATE_DISCONNECTING)
-                        closeBluetoothConnection();
+                    switch (extras.getInt(BluetoothAdapter.EXTRA_CONNECTION_STATE)) {
+                        case BluetoothAdapter.STATE_DISCONNECTING:
+                            closeBluetoothConnection();
+                            break;
+                        case BluetoothAdapter.STATE_DISCONNECTED:
+                            bluetoothConnectionManager.startServer();
+                            break;
+                    }
                     break;
             }
 
@@ -275,12 +279,8 @@ public class MainActivity extends Activity {
         }
     }
 
-    void updateDistance(float[] distances) {
-        for (int i=0; i<distances.length; i++) {
-            if (distances[i] == 0) distances[i] = Float.MAX_VALUE;
-        }
-        float min = Math.min(Math.min(distances[0], distances[1]), distances[2]);
-        distanceValueTextView.post(new DistanceUpdate(min));
+    void updateDistance(float distance) {
+        distanceValueTextView.post(new DistanceUpdate(distance));
     }
 
     class TemperatureUpdate implements Runnable {

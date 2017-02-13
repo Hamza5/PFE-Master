@@ -39,7 +39,14 @@ class SerialConnectionManager {
             Matcher m;
             m = DISTANCES_REGEXP.matcher(response);
             if (m.find()) {
-                mainActivity.updateDistance(new float[]{Float.parseFloat(m.group(1)), Float.parseFloat(m.group(2)), Float.parseFloat(m.group(3))});
+                float[] distances = new float[]{Float.parseFloat(m.group(1)), Float.parseFloat(m.group(2)), Float.parseFloat(m.group(3))};
+                for (int i=0; i<distances.length; i++) {
+                    if (distances[i] == 0) distances[i] = Float.MAX_VALUE;
+                }
+                float min = Math.min(Math.min(distances[0], distances[1]), distances[2]);
+                mainActivity.updateDistance(min);
+                CapturingTask.Distance distance = new CapturingTask.Distance(min);
+                CapturingTask.distancesQueue.add(distance);
             }
             m = TEMPERATURE_REGEXP.matcher(response);
             if (m.find()) {
@@ -50,7 +57,7 @@ class SerialConnectionManager {
         }
     };
 
-    void sendSerialData(byte[] data) {
+    synchronized void sendSerialData(byte[] data) {
         if (arduinoSerialPort != null)
             arduinoSerialPort.write(data);
         else mainActivity.showMessage(mainActivity.getString(R.string.serial_no_port));
@@ -137,6 +144,14 @@ class SerialConnectionManager {
 
     void setMovingTime(int milliseconds) {
         sendSerialData(("M"+milliseconds).getBytes());
+    }
+
+    void startNavigation() {
+        sendSerialData("N".getBytes());
+    }
+
+    void stop() {
+        sendSerialData("S".getBytes());
     }
 
 }

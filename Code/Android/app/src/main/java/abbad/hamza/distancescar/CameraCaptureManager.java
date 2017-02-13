@@ -4,23 +4,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
-import android.os.Environment;
 import android.view.SurfaceHolder;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 class CameraCaptureManager {
 
     private static final String FLASH_MODE = Camera.Parameters.FLASH_MODE_OFF;
     private static final String FOCUS_MODE = Camera.Parameters.FOCUS_MODE_FIXED;
     private static final String SCENE_MODE = Camera.Parameters.SCENE_MODE_STEADYPHOTO;
-    private static final String FILENAME_FORMAT = "'IMG_'yyyyMMdd_HHmmss'.jpg'";
     private static final int ORIENTATION_ANGLE = 270;
 
     private Camera camera;
@@ -28,17 +21,9 @@ class CameraCaptureManager {
     private Camera.PictureCallback pictureCapturedCallback = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(byte[] bytes, Camera camera) {
-            File photo = new File(mainActivity.getExternalFilesDir(Environment.DIRECTORY_PICTURES), new SimpleDateFormat(FILENAME_FORMAT, Locale.ENGLISH).format(new Date()));
-            try {
-                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                FileOutputStream photoOutputStream = new FileOutputStream(photo);
-                Bitmap processed = process(bitmap);
-                if (!processed.compress(Bitmap.CompressFormat.JPEG, 10, photoOutputStream))
-                    throw new IOException();
-                photoOutputStream.close();
-            } catch (IOException ex) {
-                mainActivity.showMessage(mainActivity.getString(R.string.camera_photo_save_error));
-            }
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            Bitmap processed = process(bitmap);
+            CapturingTask.picturesQueue.add(new CapturingTask.Picture(processed));
         }
     };
 
