@@ -14,6 +14,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 class CapturingTask implements Runnable {
 
+    private static final String DISTANCES_FILE_NAME = "Distances.txt";
+
     static class Distance implements Comparable<Distance> {
         float dist;
         private long id;
@@ -26,7 +28,7 @@ class CapturingTask implements Runnable {
             return (int) (id - distance.id);
         }
         void save(File directory) throws IOException {
-            File file = new File(directory, "Distances.txt");
+            File file = new File(directory, DISTANCES_FILE_NAME);
             FileWriter textWriter = new FileWriter(file, true);
             textWriter.write(new DecimalFormat("0.00").format(dist));
             textWriter.write('\n');
@@ -47,7 +49,7 @@ class CapturingTask implements Runnable {
         void save(File directory) throws IOException {
             File file = new File(directory, "IMG_"+id+".jpg");
             FileOutputStream photoOutputStream = new FileOutputStream(file);
-            if (!img.compress(Bitmap.CompressFormat.JPEG, 5, photoOutputStream))
+            if (!img.compress(Bitmap.CompressFormat.JPEG, 100, photoOutputStream))
                 throw new IOException();
             photoOutputStream.close();
         }
@@ -59,10 +61,14 @@ class CapturingTask implements Runnable {
 
     private MainActivity mainActivity;
     private Handler h;
+    private File savingDirectory;
 
     CapturingTask(MainActivity parent, Handler handler) {
         mainActivity = parent;
         h = handler;
+        File[] externalDirs = mainActivity.getExternalFilesDirs(Environment.DIRECTORY_PICTURES);
+        savingDirectory = externalDirs[externalDirs.length-1];
+        Log.i(getClass().getName(), savingDirectory.getAbsolutePath());
     }
 
     @Override
@@ -71,13 +77,14 @@ class CapturingTask implements Runnable {
             try {
                 Distance distance = distancesQueue.poll();
                 Picture picture = picturesQueue.poll();
-                if (distance.dist == 0) continue;
-                picture.save(mainActivity.getExternalFilesDir(Environment.DIRECTORY_PICTURES));
+                picture.save(savingDirectory);
                 Log.i(CapturingTask.class.getName(), "Picture "+picture.id+" saved");
-                distance.save(mainActivity.getExternalFilesDir(Environment.DIRECTORY_PICTURES));
+                distance.save(savingDirectory);
                 Log.i(CapturingTask.class.getName(), "Distance "+distance.id+" saved");
             } catch (IOException ex) {
-                mainActivity.showMessage(mainActivity.getString(R.string.camera_photo_save_error));
+                String errorMessage = mainActivity.getString(R.string.camera_photo_save_error);
+                mainActivity.showMessage(errorMessage);
+                Log.e(getClass().getName(), errorMessage);
             }
         }
         mainActivity.serialConnectionManager.requestDistances();

@@ -129,7 +129,9 @@ class BluetoothConnectionManager {
                 Log.i(BluetoothConnectionManager.class.getName(), "Client disconnected");
                 mainActivity.setBluetoothConnectionStatus(false);
             } catch (IOException ex) {
-                mainActivity.showMessage(mainActivity.getString(R.string.bluetooth_stream_error));
+                String errorMessage = mainActivity.getString(R.string.bluetooth_stream_error);
+                mainActivity.showMessage(errorMessage);
+                Log.e(BluetoothConnectionManager.class.getName(), errorMessage);
             }
         }
 
@@ -140,7 +142,9 @@ class BluetoothConnectionManager {
             try {
                 bluetoothOutput.write(data);
             } catch (IOException ex) {
-                mainActivity.showMessage(mainActivity.getString(R.string.bluetooth_stream_error));
+                String errorMessage = mainActivity.getString(R.string.bluetooth_stream_error);
+                mainActivity.showMessage(errorMessage);
+                Log.e(getClass().getName(), errorMessage);
             }
     }
 

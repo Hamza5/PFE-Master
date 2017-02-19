@@ -4,17 +4,17 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import java.io.IOException;
-import java.util.List;
 
 class CameraCaptureManager {
 
     private static final String FLASH_MODE = Camera.Parameters.FLASH_MODE_OFF;
-    private static final String FOCUS_MODE = Camera.Parameters.FOCUS_MODE_FIXED;
-    private static final String SCENE_MODE = Camera.Parameters.SCENE_MODE_STEADYPHOTO;
     private static final int ORIENTATION_ANGLE = 270;
+    private static final int JPEG_QUALITY = 50;
+    private static final int CORP_MARGIN = 80;
 
     private Camera camera;
     private MainActivity mainActivity;
@@ -22,7 +22,7 @@ class CameraCaptureManager {
         @Override
         public void onPictureTaken(byte[] bytes, Camera camera) {
             Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-            Bitmap processed = process(bitmap);
+            Bitmap processed = postProcess(bitmap);
             CapturingTask.picturesQueue.add(new CapturingTask.Picture(processed));
         }
     };
@@ -45,7 +45,9 @@ class CameraCaptureManager {
                             camera.startPreview();
                         }
                     } catch (IOException ex) {
-                        mainActivity.showMessage(mainActivity.getString(R.string.camera_preview_error));
+                        String errorMessage = mainActivity.getString(R.string.camera_preview_error);
+                        mainActivity.showMessage(errorMessage);
+                        Log.e(CameraCaptureManager.class.getName(), errorMessage);
                     }
                 }
             }
@@ -64,28 +66,25 @@ class CameraCaptureManager {
                 Camera.Parameters parameters = camera.getParameters();
                 if (parameters.getSupportedFlashModes() != null)
                     parameters.setFlashMode(FLASH_MODE);
-                if (parameters.getSupportedFocusModes() != null)
-                    parameters.setFocusMode(FOCUS_MODE);
-                if (parameters.getSupportedSceneModes() != null)
-                    parameters.setSceneMode(SCENE_MODE);
-                List<Camera.Size> sizes = parameters.getSupportedPictureSizes();
-                int argmin = 0;
-                for (int i=1; i<sizes.size(); i++)
-                    if (sizes.get(i).width < sizes.get(argmin).width) argmin = i;
-                parameters.setPictureSize(sizes.get(argmin).width, sizes.get(argmin).height);  // Minimum supported size
+                parameters.setPictureSize(640, 480);  // Minimum supported size
+                parameters.setJpegQuality(JPEG_QUALITY);
                 camera.setParameters(parameters);
                 camera.setDisplayOrientation(ORIENTATION_ANGLE);
                 camera.setPreviewDisplay(mainActivity.cameraSurfaceHolder);
                 camera.startPreview();
             } catch (IOException ex) {
-                mainActivity.showMessage(mainActivity.getString(R.string.camera_preview_error));
+                String errorMessage = mainActivity.getString(R.string.camera_preview_error);
+                mainActivity.showMessage(errorMessage);
+                Log.e(getClass().getName(), errorMessage);
             }
         } else {
             camera = Camera.open();
-            if (camera == null)
-                mainActivity.showMessage(mainActivity.getString(R.string.camera_open_error));
+            if (camera == null) {
+                String errorMessage = mainActivity.getString(R.string.camera_open_error);
+                mainActivity.showMessage(errorMessage);
+                Log.e(getClass().getName(), errorMessage);
+            }
             else startCamera();
-
         }
     }
 
@@ -102,10 +101,11 @@ class CameraCaptureManager {
             camera.takePicture(null, null, pictureCapturedCallback);
     }
 
-    private Bitmap process(Bitmap image) {
+    private Bitmap postProcess(Bitmap image) {
         Matrix transformationMatrix = new Matrix();
         transformationMatrix.postRotate(ORIENTATION_ANGLE);
-        return Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(), transformationMatrix, true);
+        Bitmap rotated = Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(), transformationMatrix, true);
+        return Bitmap.createBitmap(rotated, 0, CORP_MARGIN, rotated.getWidth(), rotated.getHeight()-2*CORP_MARGIN);
     }
 
 }

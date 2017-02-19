@@ -60,7 +60,11 @@ class SerialConnectionManager {
     synchronized void sendSerialData(byte[] data) {
         if (arduinoSerialPort != null)
             arduinoSerialPort.write(data);
-        else mainActivity.showMessage(mainActivity.getString(R.string.serial_no_port));
+        else {
+            String errorMessage = mainActivity.getString(R.string.serial_no_port);
+            mainActivity.showMessage(errorMessage);
+            Log.e(getClass().getName(), errorMessage);
+        }
     }
 
     UsbDevice getConnectedUSBDevice() {

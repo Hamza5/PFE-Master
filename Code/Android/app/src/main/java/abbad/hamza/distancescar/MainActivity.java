@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -26,7 +27,7 @@ import java.text.DecimalFormat;
 
 public class MainActivity extends Activity {
 
-    private static final int BLUETOOTH_DISCOVERABILITY_DURATION = 60; // seconds
+    private static final int BLUETOOTH_DISCOVERABILITY_DURATION = 120; // seconds
     private static final String ACTION_USB_PERMISSION = "abbad.hamza.permission.ACTION_USB_PERMISSION";
 
     private ToggleButton serialButton;
@@ -59,7 +60,9 @@ public class MainActivity extends Activity {
         usbManager = (UsbManager) getSystemService(USB_SERVICE);
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
-            showMessage(getString(R.string.bluetooth_adapter_error));
+            String errorMessage = getString(R.string.bluetooth_adapter_error);
+            showMessage(errorMessage);
+            Log.e(getClass().getName(), errorMessage);
             finish();
         }
         serialConnectionManager = new SerialConnectionManager(this, usbManager);
@@ -125,22 +128,12 @@ public class MainActivity extends Activity {
             bluetoothConnectionManager.startServer();
             bluetoothButton.setChecked(true);
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         captureManager.startCamera();
     }
 
     @Override
-    protected void onPause() {
-        captureManager.stopCamera();
-        super.onPause();
-    }
-
-    @Override
     protected void onDestroy() {
+        captureManager.stopCamera();
         taskHandler.removeCallbacksAndMessages(null);
         closeBluetoothConnection();
         closeSerialConnection();
@@ -238,7 +231,8 @@ public class MainActivity extends Activity {
                             bluetoothButton.setChecked(false);
                             break;
                         default:
-                            requestEnableBluetoothDiscoverability();
+                            if (bluetoothConnectionManager.isWaiting())
+                                requestEnableBluetoothDiscoverability();
                     }
                     break;
                 case BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED:
@@ -320,7 +314,9 @@ public class MainActivity extends Activity {
                     openSerialConnection(usbDevice);
                 }
             } else {
-                showMessage(getString(R.string.serial_no_device));
+                String errorMessage = getString(R.string.serial_no_device);
+                showMessage(errorMessage);
+                Log.w(getClass().getName(), errorMessage);
                 serialButton.setChecked(false);
             }
         } else closeSerialConnection();
