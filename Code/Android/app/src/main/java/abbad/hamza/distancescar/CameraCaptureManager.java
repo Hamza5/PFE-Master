@@ -15,6 +15,8 @@ class CameraCaptureManager {
     private static final int ORIENTATION_ANGLE = 270;
     private static final int JPEG_QUALITY = 50;
     private static final int CORP_MARGIN = 80;
+    private static final int PICTURE_WIDTH = 100;
+    private static final int PICTURE_HEIGHT = 100;
 
     private Camera camera;
     private MainActivity mainActivity;
@@ -105,7 +107,8 @@ class CameraCaptureManager {
         Matrix transformationMatrix = new Matrix();
         transformationMatrix.postRotate(ORIENTATION_ANGLE);
         Bitmap rotated = Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(), transformationMatrix, true);
-        return Bitmap.createBitmap(rotated, 0, CORP_MARGIN, rotated.getWidth(), rotated.getHeight()-2*CORP_MARGIN);
+        Bitmap corped = Bitmap.createBitmap(rotated, 0, CORP_MARGIN, rotated.getWidth(), rotated.getHeight()-2*CORP_MARGIN);
+        return Bitmap.createScaledBitmap(corped, PICTURE_WIDTH, PICTURE_HEIGHT, false);
     }
 
 }
