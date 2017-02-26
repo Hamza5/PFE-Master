@@ -162,14 +162,11 @@ def train(conv_net, pictures_distances, train_batch_size, dropout, model_path=os
                 print('Variables initialised')
             train_set, validation_set, test_set = get_train_validation_test_sets(pictures_distances)
             print('Beginning training...')
+            pictures_val, distances_val = random_batch(validation_set, len(validation_set))
             for i in range(20):
                 pictures, distances = random_batch(train_set, train_batch_size)
-                pictures_val, distances_val = random_batch(validation_set, len(validation_set))
                 print('Step {}'.format(i+1))
                 train_loss = cross_entropy.eval(feed_dict={conv_net[0]: pictures, labels: distances})
-                if tf.is_nan(train_loss).eval():
-                    print('Loss is NaN !', file=sys.stderr)
-                    break
                 print("Loss : Train = {:.4f} , Validation = {:.4f} | Accuracy : Train = {:.4f}, Validation = {:.4f}".format(
                     train_loss,
                     cross_entropy.eval(feed_dict={conv_net[0]: pictures_val, labels: distances_val}),
