@@ -12,7 +12,6 @@ double * distances;
 bool stopped = true;
 DISTANCE_SENSOR direction;
 int speed = 127;
-int action_delay = MOVE_ACTION_TIME;
 char command;
 
 void setup() {
@@ -55,23 +54,15 @@ void loop() {
         break;
       case MOVE_FORWARD:
         moveForward(speed);
-        delay(action_delay);
-        stop();
         break;
       case MOVE_BACKWARD:
         moveBackward(speed);
-        delay(action_delay);
-        stop();
         break;
       case TURN_RIGHT:
         turnRight(speed);
-        delay(action_delay);
-        stop();
         break;
       case TURN_LEFT:
         turnLeft(speed);
-        delay(action_delay);
-        stop();
         break;
       case STOP:
         stop();
@@ -86,18 +77,7 @@ void loop() {
         Serial.print("P");
         Serial.println(speed);
         break;
-      case SET_MOVING_TIME:
-        action_delay = Serial.parseInt();
-        Serial.print("M");
-        Serial.println(action_delay);
-        break;
-      case NAVIGATE:
-        stopped = false;
-        break;
     }
-  } else if (!stopped) {
-    navigate(speed);
-    delay(action_delay);
   }
 }
 
@@ -132,29 +112,24 @@ void stop() {
   digitalWrite(RIGHT_MOTOR_PIN2, LOW);
   digitalWrite(LEFT_MOTOR_PIN1, LOW);
   digitalWrite(LEFT_MOTOR_PIN2, LOW);
-  stopped = true;
 }
 
 void moveForward(byte speed) {
-  stopped = false;
   forwardLeft(speed);
   forwardRight(speed);
 }
 
 void moveBackward(byte speed) {
-  stopped = false;
   backwardLeft(speed);
   backwardRight(speed);
 }
 
 void turnRight(byte speed) {
-  stopped = false;
   backwardRight(speed);
   forwardLeft(speed);
 }
 
 void turnLeft(byte speed) {
-  stopped = false;
   backwardLeft(speed);
   forwardRight(speed);
 }
@@ -215,23 +190,4 @@ unsigned int argmin(double * array, unsigned int length) {
   for (size_t i = 1; i < length; i++)
     if (array[i] < array[minIndex]) minIndex = i;
   return minIndex;
-}
-
-void navigate(byte speed) {
-  double * distances = getDistances();
-  for (size_t i = 0; i < 3; i++) if (distances[i] == 0) distances[i] = 5;
-  if (min(min(distances[0], distances[1]), distances[2]) < MIN_OBSTACLE_DISTANCE) {
-    moveBackward(speed);
-  } else {
-    if (distances[LEFT] < MAX_OBSTACLE_DISTANCE) direction = RIGHT;
-    else if (distances[RIGHT] < MAX_OBSTACLE_DISTANCE) direction = LEFT;
-    else direction = CENTER;
-    #ifdef DEBUG
-    Serial.print(direction == CENTER ? "^" : (direction == RIGHT ? ">" : "<"));
-    #else
-    if (direction == CENTER) moveForward(speed);
-    else if (direction == RIGHT) turnRight(speed);
-    else turnLeft(speed);
-    #endif
-  }
 }

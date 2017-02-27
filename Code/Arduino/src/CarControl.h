@@ -27,9 +27,6 @@ enum DISTANCE_SENSOR { LEFT = 0, CENTER = 1, RIGHT = 2 };
 #define RIGHT_MOTOR_SPEED_PIN 12
 #define LEFT_MOTOR_SPEED_PIN 13
 
-#define BASE_TURN_DELAY 400
-#define FORWARD_DELAY 400
-
 double getSoundSpeed(double);
 double getDistance(DISTANCE_SENSOR sensor);
 double * getDistances();
@@ -55,7 +52,6 @@ unsigned int argmin(double *, unsigned int);
 #define STOP 'S'
 #define TEMP 'T'
 #define SET_SPEED 'P'
-#define SET_MOVING_TIME 'M'
 #define NAVIGATE 'N'
 
 // Other
@@ -65,6 +61,5 @@ unsigned int argmin(double *, unsigned int);
 #define MAX_OBSTACLE_DISTANCE 0.5  // meters
 #define MIN_OBSTACLE_DISTANCE 0.2  // meters
 #define SERIAL_TIMEOUT 100 // milliseconds
-#define MOVE_ACTION_TIME 100
 
 #endif

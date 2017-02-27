@@ -87,10 +87,10 @@ class BluetoothConnectionManager {
                                     mainActivity.serialConnectionManager.turnRight();
                                     break;
                                 case PICTURE_COMMAND:
+                                    mainActivity.serialConnectionManager.requestDistances();
                                     mainActivity.captureManager.takePicture();
                                     break;
                                 case NAVIGATE_COMMAND:
-                                    mainActivity.serialConnectionManager.startNavigation();
                                     mainActivity.taskHandler.postDelayed(new CapturingTask(mainActivity, mainActivity.taskHandler), CapturingTask.TASK_REPEATING_FREQUENCY);
                                     break;
                                 case STOP_COMMAND:
@@ -104,14 +104,6 @@ class BluetoothConnectionManager {
                                         @Override
                                         public void run() {
                                             mainActivity.powerSeekBar.setProgress(power);
-                                        }
-                                    });
-                                } else if (command.startsWith(MOVING_COMMAND)) {
-                                    final int move_delay = Integer.parseInt(command.substring(MOVING_COMMAND.length()));
-                                    mainActivity.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mainActivity.delayEditText.setText(String.valueOf(move_delay));
                                         }
                                     });
                                 } else

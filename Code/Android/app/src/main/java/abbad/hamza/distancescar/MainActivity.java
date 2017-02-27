@@ -41,9 +41,9 @@ public class MainActivity extends Activity {
     SerialConnectionManager serialConnectionManager;
     CameraCaptureManager captureManager;
     SeekBar powerSeekBar;
-    EditText delayEditText;
     Handler taskHandler;
     private Toast messagesToast;
+    private boolean moving;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +55,6 @@ public class MainActivity extends Activity {
         bluetoothConnectionTextView = (TextView) findViewById(R.id.bluetoothConnectedTextView);
         distanceValueTextView = (TextView) findViewById(R.id.distanceValueTextView);
         temperatureValueTextView = (TextView) findViewById(R.id.temperatureValueTextView);
-        delayEditText = (EditText) findViewById(R.id.delayEditText);
         powerSeekBar = (SeekBar) findViewById(R.id.powerSeekBar);
         usbManager = (UsbManager) getSystemService(USB_SERVICE);
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -85,24 +84,6 @@ public class MainActivity extends Activity {
 
             }
         });
-        delayEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                String text = editable.toString();
-                if (!text.isEmpty())
-                    serialConnectionManager.setMovingTime(Integer.parseInt(text));
-            }
-        });
 
         // USB serial connection
         IntentFilter usbDeviceIntents = new IntentFilter();
@@ -128,6 +109,7 @@ public class MainActivity extends Activity {
             bluetoothConnectionManager.startServer();
             bluetoothButton.setChecked(true);
         }
+        moving = false;
         captureManager.startCamera();
     }
 
@@ -323,19 +305,35 @@ public class MainActivity extends Activity {
     }
 
     public void forwardButtonClicked(View view) {
-        serialConnectionManager.moveForward();
+        if (moving)
+            serialConnectionManager.stop();
+        else
+            serialConnectionManager.moveForward();
+        moving = !moving;
     }
 
     public void backwardButtonClicked(View view) {
-        serialConnectionManager.moveBackward();
+        if (moving)
+            serialConnectionManager.stop();
+        else
+            serialConnectionManager.moveBackward();
+        moving = !moving;
     }
 
     public void leftButtonClicked(View view) {
-        serialConnectionManager.turnLeft();
+        if (moving)
+            serialConnectionManager.stop();
+        else
+            serialConnectionManager.turnLeft();
+        moving = !moving;
     }
 
     public void rightButtonClicked(View view) {
-        serialConnectionManager.turnRight();
+        if (moving)
+            serialConnectionManager.stop();
+        else
+            serialConnectionManager.turnRight();
+        moving = !moving;
     }
 
 }

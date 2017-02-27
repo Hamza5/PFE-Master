@@ -55,13 +55,18 @@ class CapturingTask implements Runnable {
         }
     }
 
-    static final long TASK_REPEATING_FREQUENCY = 500; // milliseconds
+    private static final float NEEDED_TURN_DISTANCE = 0.2f;
+    private static final float NEEDED_FORWARD_DISTANCE = 0.4f;
+    private static final long CAPTURE_SAVING_FREQUENCY = 500; // milliseconds
+    static final long TASK_REPEATING_FREQUENCY = 100; // milliseconds
     static ConcurrentLinkedQueue<Distance> distancesQueue = new ConcurrentLinkedQueue<>();
     static ConcurrentLinkedQueue<Picture> picturesQueue = new ConcurrentLinkedQueue<>();
 
     private MainActivity mainActivity;
     private Handler h;
     private File savingDirectory;
+    private long lastCaptureTime;
+    private boolean right;
 
     CapturingTask(MainActivity parent, Handler handler) {
         mainActivity = parent;
@@ -69,18 +74,24 @@ class CapturingTask implements Runnable {
         File[] externalDirs = mainActivity.getExternalFilesDirs(Environment.DIRECTORY_PICTURES);
         savingDirectory = externalDirs[externalDirs.length-1];
         Log.i(getClass().getName(), savingDirectory.getAbsolutePath());
+        lastCaptureTime = System.currentTimeMillis();
     }
 
     @Override
     public void run() {
-        while (!distancesQueue.isEmpty() && !picturesQueue.isEmpty()) {
+        if (!distancesQueue.isEmpty() && !picturesQueue.isEmpty()) {
             try {
                 Distance distance = distancesQueue.poll();
                 Picture picture = picturesQueue.poll();
-                picture.save(savingDirectory);
-                Log.i(CapturingTask.class.getName(), "Picture "+picture.id+" saved");
-                distance.save(savingDirectory);
-                Log.i(CapturingTask.class.getName(), "Distance "+distance.id+" saved");
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - lastCaptureTime >= CAPTURE_SAVING_FREQUENCY) {
+                    lastCaptureTime = currentTime;
+                    picture.save(savingDirectory);
+                    Log.i(CapturingTask.class.getName(), "Picture "+picture.id+" saved");
+                    distance.save(savingDirectory);
+                    Log.i(CapturingTask.class.getName(), "Distance "+distance.id+" saved");
+                }
+                navigate(distance.dist);
             } catch (IOException ex) {
                 String errorMessage = mainActivity.getString(R.string.camera_photo_save_error);
                 mainActivity.showMessage(errorMessage);
@@ -91,6 +102,17 @@ class CapturingTask implements Runnable {
         mainActivity.serialConnectionManager.requestTemperature();
         mainActivity.captureManager.takePicture();
         h.postDelayed(this, TASK_REPEATING_FREQUENCY);
+    }
+
+    private void navigate(float distance) {
+        if (distance < NEEDED_TURN_DISTANCE) {
+            mainActivity.serialConnectionManager.moveBackward();
+            right = Math.random() < 0.5;
+        } else if (distance < NEEDED_FORWARD_DISTANCE) {
+            if (right) mainActivity.serialConnectionManager.turnRight();
+            else mainActivity.serialConnectionManager.turnLeft();
+        } else
+            mainActivity.serialConnectionManager.moveForward();
     }
 
 }
