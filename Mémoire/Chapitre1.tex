@@ -1,0 +1,184 @@
+\chapter{Concepts de base}
+
+\section{Introduction}
+
+Ce chapitre représente une courte introduction concernant la robotique, et
+l'apprentissage automatique. Ils contient quelques définitions et explications
+sur les notions principales dans ces domaines qui sont requises pour ce sujet.
+
+\section{Robotique}
+
+\subsection{Définition}
+
+La \textbf{robotique}\footnote{\url{https://en.wikipedia.com/wiki/Robotics}}
+est une discipline qui fait partie de la mechanique,
+l'électrique, et l'informatique en même temps. Elle s'intéresse à la conception,
+la construction et le fonctionnement des \emph{robots}, ainsi que la création des
+systèmes informatiques qui les controlent.
+
+\subsection{Robot}
+
+Le mot \textbf{robot} refère à un agent électromechanique autonome ou
+semi-autonome, guidé par un programme informatique ou un circuit électronique.
+
+Ce terme a été publiquement utilisé pour la première fois par l'écrivain tchèque
+Karel Čapek en 1920 dans sa pièce de théâtre \emph{R.U.R.
+(Rossum's Universal Robots)}.
+
+Il existe plusieurs types de robots, parmi eux il y a les :
+
+\begin{itemize}
+  \item Robots mobiles : qui ont la possibilité de se déplacer dans leur
+  environnement pour accomplir leurs tâches.
+  \item Robots industriels : qui sont construits à partir des bras jointés. Ils
+  sont utilisés dans les lignes de production.
+  \item Robots de service : leur définition ressemble à celle des robots
+  industriels sauf qu'ils sont utilisés pour fournir des services autres que
+  la production.
+  \item Robots éducationnels : qui sont utilisés comme des assistants
+  éducationnels pour les enseignants afin d'aider les enfants à mieux comprendre
+  des concepts mathématiques, physiques, électronique et de programmation.
+\end{itemize}
+
+\subsection{Les aspects robotiques}
+
+Malgré les différences existantes entre les types de robots, ils partagent tous
+les même principes en point de vue de leur construction.
+
+\subsubsection{L'aspect mécanique}
+
+Tous les robots ont une construction mécanique qui lui permet d'accomplir sa
+tâche. Cette construction dépend du type de la machine et l'environnement où
+elle fonctionne. Elle définit la forme extérieure et la structure interne du
+robot.
+
+\subsubsection{L'aspect électrique}
+
+Un robot a besoin des composants électriques qui lui offre la possibilité de
+contrôler son corps mécanique et de capturer les caractéristiques de son
+environnement.
+
+\subsubsection{L'aspect programmation}
+
+Chaque robot doit avoir un certain niveau de programmation qui le permet de
+savoir comment réaliser une opération ou prendre une décision. Cette
+programmation peut être réalisée par une combinaison des circuits intégrés dans
+les cas simples, ou à l'aide d'une série des instructions exécutées sur un
+microprocesseur dans les cas les plus complexes.
+
+\subsection{Modules électroniques}
+Un module est un circuit spécialisé pour réaliser une tâche donnée. Chaque
+module contient tous les composantes électroniques nécessaire pour son
+fonctionnement et sa connexion avec les autres modules.
+
+\subsubsection{Microcontrôleur}
+Le microcontrôleur est module électronique programmable ayant une capacité
+limitée du traitement des données. Il inclut un microprocesseur, une mémoire
+centrale et une mémoire secondaire à lecture seule mais reinitialisable.
+Il peut lire les données reçus des autres modules et leurs envoyer des commandes
+pour contrôler leurs fonctionnement à travers ses ports. Chaque système embarqué
+contient au moins un microcontrôleur.
+
+\subsubsection{Capteurs}
+Les capteurs sont des modules qui permetent d'obtenir des données sur
+l'environnement sous forme d'un signal électrique (numérique ou analogique).
+Parmi ces capteurs, on trouve les capteurs de la temperature qui mésure le degré
+de la temperature de l'environnement où il se trouve. Il y a aussi les capteurs
+ultrasonique permettant d'envoyer et recevoir un ultrason, il sont utilisés
+fréquemment pour le calcul de la distance en mésurant le temps écoulé entre
+l'envoi et la réception du signal.
+
+\section{Apprentissage automatique}
+
+L'apprentissage automatique (\emph{Machine learning}) est une fillière de
+l'intelligence artificielle qui s'interrese aux techniques de conception des
+modèles ayant la capacité d'apprendre à réaliser une tâche sans les programmer
+explicitement. Il y existe de nombreux méthodes où chacune appartient à
+(au moins) une des trois classes principales :
+\emph{l'apprentissage supervisé}, \emph{l'apprentissage non supervisé}, et
+\emph{l'apprentissage par renforcement}.
+
+\subsection{Apprentissage supervisé}
+
+C'est un mode permettant de trouver une approximation d'une fonction en utilisant
+les données avec les résultats attendus de cette fonction. Un modèle appromximant
+la fonction sera généré en utilisant une des techniques de ce mode. Une fois le
+modèle est entraîné, il serait capable d'opérer sur de nouvelles données qui
+n'ont pas été vu lors de l'apprentissage. Parmi ces techniques on trouve
+\emph{les réseaux de neuronnes artificiels}.
+
+\subsection{Réseaux de neuronnes artificiels}
+
+C'est une technique inspirée du cerveau humain. Son architecture est composée de
+plusieurs \emph{couches} dont chacune contient plusieurs unités de calcul dites
+les \emph{perceptrons}.
+
+Il existe des connexions entre les perceptrons. Le nombre et le type des
+connexions dépend du type du réseau. Il y a plusieurs types de réseaux de
+neuronnes, dont chaque type est mieux adapté a un type de problèmes. Dans les
+problèmes liés aux images, le type préféré est \emph{les réseaux de neuronnes
+convolutionels}
+
+\subsection{Réseaux de neuronnes convolutionels}
+
+Ce type de réseaux se compose de plusieurs couches de qui peuvenet être de trois
+types différents : \emph{couches convolutionelles},
+\emph{couches de regroupement (mise en commun)} et les
+\emph{couches entièrement connectées (denses)}.
+
+\subsubsection{Couches convolutionelles}
+
+Chaque perceptron dans une couche de convolution est relié seulement à un peitit
+sous ensemble des perceptrons de la couche précédente. Cet ensemble représente
+une région rectangulaire dans une image. L'image peut être celle l'originale ou
+bien le résultat des opérations des couches précédentes. La fonction générant
+chaque région est appelée le \emph{filtre}. Ce type de couches est généralement
+placé au début et au milieu du réseau.
+
+Chaque couche convolutionelle nécessite un nombre de hyperparamètres qui doivent
+être fixés dans la conception :
+
+\begin{itemize}
+  \item La taille spatiale du filtre $F$ et sa profondeur $K$. La taille sert à
+  spécifier le nombre d'entrées pour chaque perceptron. La profondeur spécifie
+  le nombre de matrices de poids partagés.
+  \item Le pas de la convolution $S$. C'est la différence entre le bord d'un
+  filtre et le même bord du filtre du perceptron successif.
+  \item L'utilisation de rembourrage par zero $P$ : Il est possible d'entourer
+  l'entrée par des pixels nuls avant d'appliquer la convolution pour maintenir
+  sa taille.
+  \item La fonction d'activation. La sortie de chaque couche est passée par une
+  fonction mathématique qui modifie les valeurs avant de les transmettre à la
+  couche suivante.
+\end{itemize}
+
+\subsubsection{Couches de regroupement}
+
+Le rôle de ces couches est de réduire la taille spatiale du résultat des couches
+précédentes en gardant l'information essentielle. Cette opération est souvant
+appliquée en utilisant la valeur maximale entre les pixels ou par le calcul de
+la moyenne. Ces couches sont généralement placés après les couches
+convolutionelles.
+
+Les hyperparamètres requis pour cette couche sont :
+
+\begin{itemize}
+  \item La fonction du regroupement (maximum ou moyenne).
+  \item La taille spatiale du filtre $F$.
+  \item Le pas du mouvement $S$.
+  \item L'utilisation de rembourrage par zero $P$.
+  \item La fonction d'activation.
+\end{itemize}
+
+\subsubsection{Couches entièrement connectées}
+
+C'est le type classique des couches dans un réseau de neuronnes artificiels.
+Chaque perceptron dans ce type est connecté à tous les perceptrons de la couche
+précédente. Ces couches sont utilisées à la fin du réseau.
+
+Les hyperparamètres nécessaires pour ce type :
+
+\begin{itemize}
+  \item Le nombre de perceptrons $K$.
+  \item La fonction d'activation.
+\end{itemize}

@@ -1,0 +1,11 @@
+{
+  "projectPath": "/home/hamza/Data/Documents/Study/M2/PFE/Mémoire",
+  "title": "Mémoire de Master",
+  "root": "Mémoire.tex",
+  "program": "pdflatex",
+  "latexmkOptions": "-bibtex -pdf -shell-escape",
+  "output": "out",
+  "openOutput": "true",
+  "postAction": "link",
+  "postPath": ""
+}

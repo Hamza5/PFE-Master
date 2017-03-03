@@ -1,9 +1,15 @@
 # Hidden files
 .*
+# Generated files
+*.pdf
+*.synctex.gz
 # Folders
+out/
+bin/
 doc/
 build/
 gradle/
 gradle*
-# Except .gitignore
+# Except .latex.json and .gitignore
+!.latex.json
 !.gitignore
