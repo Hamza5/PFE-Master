@@ -1,162 +1,158 @@
 \chapter{Concepts de base}
 
-\section{Introduction}
+\section*{Introduction}
 
-Ce chapitre représente une courte introduction concernant la robotique, et
-l'apprentissage automatique. Ils contient quelques définitions et explications
-sur les notions principales dans ces domaines qui sont requises pour ce sujet.
+Ce chapitre représente une brièvement la robotique, et
+l'apprentissage automatique. Il contient quelques définitions et explications
+concernant les notions principales de robotique et d'apprentissage automatique
+qui sont requises pour ce sujet.
 
 \section{Robotique}
 
-\subsection{Définition}
-
 La \textbf{robotique}\footnote{\url{https://en.wikipedia.com/wiki/Robotics}}
-est une discipline qui fait partie de la mechanique,
+est une discipline qui fait partie de la mécanique, de
 l'électrique, et l'informatique en même temps. Elle s'intéresse à la conception,
-la construction et le fonctionnement des \emph{robots}, ainsi que la création des
-systèmes informatiques qui les controlent.
+à la construction et au fonctionnement des \emph{robots}, ainsi que la création
+des systèmes informatiques qui les contrôlent.
 
-\subsection{Robot}
+\subsection{Le robot}
 
-Le mot \textbf{robot} refère à un agent électromechanique autonome ou
+Le mot \textbf{robot} refère à un agent électromécanique autonome ou
 semi-autonome, guidé par un programme informatique ou un circuit électronique.
 
 Ce terme a été publiquement utilisé pour la première fois par l'écrivain tchèque
 Karel Čapek en 1920 dans sa pièce de théâtre \emph{R.U.R.
 (Rossum's Universal Robots)}.
 
-Il existe plusieurs types de robots, parmi eux il y a les :
+Il existe plusieurs types de robots répondant à différents fonctions. Nous
+citons les plus importants.
 
 \begin{itemize}
-  \item Robots mobiles : qui ont la possibilité de se déplacer dans leur
+  \item Les robots mobiles ont la possibilité de se déplacer dans leur
   environnement pour accomplir leurs tâches.
-  \item Robots industriels : qui sont construits à partir des bras jointés. Ils
+  \item Les robots industriels sont construits à partir de bras jointés et
   sont utilisés dans les lignes de production.
-  \item Robots de service : leur définition ressemble à celle des robots
-  industriels sauf qu'ils sont utilisés pour fournir des services autres que
+  \item Les robots de service ont un rôle proche de celui des robots
+  industriels, sauf qu'ils sont utilisés pour fournir des services autres que
   la production.
-  \item Robots éducationnels : qui sont utilisés comme des assistants
-  éducationnels pour les enseignants afin d'aider les enfants à mieux comprendre
-  des concepts mathématiques, physiques, électronique et de programmation.
+  \item Les robots éducationnels sont utilisés comme des assistants
+  éducationnels pour les enseignants afin d'aider les élèves à mieux comprendre
+  des concepts mathématiques, physiques, électroniques et programmatifs.
 \end{itemize}
 
-\subsection{Les aspects robotiques}
+La structure d'un robot comporte trois éléments de point de vue construction.
 
-Malgré les différences existantes entre les types de robots, ils partagent tous
-les même principes en point de vue de leur construction.
+\begin{itemize}
+  \item \emph{Sur le plan mécanique}, tous les robots sont conçus pour leurs
+  permettre d'accomplir leurs
+  tâches. Cette construction dépend du type de la machine et de l'environnement
+  où elle fonctionne. Elle définit la forme extérieure et la structure interne
+  du robot.
+  \item \emph{Sur le plan électrique}, un robot a besoin de composants
+  électriques qui lui offrent la possibilité de
+  contrôler son corps mécanique et de capturer les caractéristiques de son
+  environnement.
+  \item \emph{Sur le plan programmatif}, chaque robot doit avoir un certain
+  niveau de programmation qui le permet de
+  savoir comment réaliser une opération ou prendre une décision. Cette
+  programmation peut être réalisée par une combinaison des circuits intégrés dans
+  les cas simples, ou à l'aide d'une série d'instructions exécutées sur un
+  microprocesseur dans les cas les plus complexes.
+\end{itemize}
 
-\subsubsection{L'aspect mécanique}
-
-Tous les robots ont une construction mécanique qui lui permet d'accomplir sa
-tâche. Cette construction dépend du type de la machine et l'environnement où
-elle fonctionne. Elle définit la forme extérieure et la structure interne du
-robot.
-
-\subsubsection{L'aspect électrique}
-
-Un robot a besoin des composants électriques qui lui offre la possibilité de
-contrôler son corps mécanique et de capturer les caractéristiques de son
-environnement.
-
-\subsubsection{L'aspect programmation}
-
-Chaque robot doit avoir un certain niveau de programmation qui le permet de
-savoir comment réaliser une opération ou prendre une décision. Cette
-programmation peut être réalisée par une combinaison des circuits intégrés dans
-les cas simples, ou à l'aide d'une série des instructions exécutées sur un
-microprocesseur dans les cas les plus complexes.
-
-\subsection{Modules électroniques}
+\subsection{Les modules électroniques}
 Un module est un circuit spécialisé pour réaliser une tâche donnée. Chaque
-module contient tous les composantes électroniques nécessaire pour son
+module contient tous les composants électroniques nécessaires pour son
 fonctionnement et sa connexion avec les autres modules.
 
-\subsubsection{Microcontrôleur}
-Le microcontrôleur est un module électronique programmable ayant une capacité
-limitée de traitement des données. Il inclut un microprocesseur, une mémoire
-centrale et une mémoire secondaire à lecture seule mais reinitialisable.
-Il peut lire les données reçus des autres modules et leurs envoyer des commandes
-pour contrôler leurs fonctionnement à travers ses ports. Chaque système embarqué
-contient au moins un microcontrôleur.
-
-\subsubsection{Capteurs}
-Les capteurs sont des modules qui permetent d'obtenir des données sur
-l'environnement sous forme d'un signal électrique (numérique ou analogique).
-Parmi ces capteurs, on trouve les capteurs de la temperature qui mésure le degré
-de la temperature de l'environnement où il se trouve. Il y a aussi les capteurs
-ultrasonique permettant d'envoyer et recevoir un ultrason, il sont utilisés
-fréquemment pour le calcul de la distance en mésurant le temps écoulé entre
-l'envoi et la réception du signal.
-
-\subsubsection{Moteurs électriques}
-Les moteurs sont les composants qui transforment l'énergie électrique en
-mouvement mécanique. Ils tournent dans un seul sens à une vitesse dont ces deux
-sont déterminés respectivement par le sens et l'intensité du courant électrique.
+\begin{description}
+  \item[\emph{Le microcontrôleur}] est un module électronique programmable ayant une capacité
+  limitée de traitement de données. Il inclut un microprocesseur, une mémoire
+  centrale et une mémoire secondaire à lecture seule mais reinitialisable.
+  Il peut lire les données reçues des autres modules et leurs envoyer des commandes
+  pour contrôler leurs fonctionnement à travers ses ports. Chaque système embarqué
+  contient au moins un microcontrôleur.
+  \item[\emph{Les capteurs}] sont des modules qui permettent d'obtenir des données sur
+  l'environnement sous forme d'un signal électrique numérique ou analogique.
+  Parmi ces capteurs, on trouve les capteurs de la température qui mesure le degré
+  de la température de l'environnement où il se trouve. Il y a aussi les capteurs
+  ultrasoniques permettant d'envoyer et de recevoir un ultrason. Il sont utilisés
+  fréquemment pour le calcul de la distance en mesurant le temps écoulé entre
+  l'envoi et la réception du signal.
+  \item[\emph{Les moteurs}] sont les composants qui transforment l'énergie électrique en
+  mouvement mécanique. Ils tournent dans un seul sens et à une vitesse qui
+  sont déterminés respectivement par le sens et l'intensité du courant électrique.
+\end{description}
 
 \section{Apprentissage automatique}
 
-L'apprentissage automatique (\emph{Machine learning}) est une fillière de
-l'intelligence artificielle qui s'interrese aux techniques de conception des
+L'apprentissage automatique (\emph{machine learning}) est une filière de
+l'intelligence artificielle qui s'intérresse aux techniques de conception des
 modèles ayant la capacité d'apprendre à réaliser une tâche sans les programmer
-explicitement. Il y existe de nombreux méthodes où chacune appartient à
-une des trois classes principales :
+explicitement. Il y existe de nombreuses méthodes, chacune appartenant à
+une des trois classes :
 \emph{l'apprentissage supervisé}, \emph{l'apprentissage non supervisé}, et
 \emph{l'apprentissage par renforcement}.
+Pour le présent travail, c'est l'apprentissage supervisé qui est nécessaire.
 
 \subsection{Apprentissage supervisé}
 
 C'est un mode permettant de trouver une approximation d'une fonction en utilisant
-les données avec les résultats attendus de cette fonction. Un modèle appromximant
-la fonction sera généré en utilisant une des techniques de ce mode. Une fois le
-modèle est entraîné, il serait capable d'opérer sur de nouvelles données qui
-n'ont pas été vu lors de l'apprentissage. Parmi ces techniques on trouve
-\emph{les réseaux de neuronnes artificiels}.
-
-\subsection{Réseaux de neuronnes artificiels}
+les données avec les résultats attendus de cette fonction. Un modèle approximant
+la fonction sera généré en utilisant une des techniques de ce mode. Une fois que
+le modèle est entraîné, il serait capable d'opérer sur de nouvelles données qui
+n'ont pas été vues lors de l'apprentissage. Parmi ces techniques on trouve
+\emph{les réseaux de neuronnes artificiels} auxquelles nous avons recours dans
+ce projet.
 
 C'est une technique inspirée du cerveau humain. Son architecture est composée de
 plusieurs \emph{couches} dont chacune contient plusieurs unités de calcul dites
-les \emph{perceptrons}.
+\emph{perceptrons}.
+Il existe des connexions entre les perceptrons. Le nombre et le type de ces
+connexions dépend du type du réseau et il y a plusieurs types de réseaux de
+neuronnes possibles, chaque type étant adapté a un type de problèmes.
 
-Il existe des connexions entre les perceptrons. Le nombre et le type des
-connexions dépend du type du réseau. Il y a plusieurs types de réseaux de
-neuronnes, dont chaque type est mieux adapté a un type de problèmes. Dans les
-problèmes liés aux images, le type préféré est \emph{les réseaux convolutionels}
+Dans les
+problèmes liés aux images, le type préféré est celui des \emph{réseaux convolutionels}
+dont nous nous servirons et que nous détaillons au point suivant.
 
-\subsection{Réseaux convolutionels}
+\section{Les réseaux convolutionels}
 
-Ce type de réseaux se compose de plusieurs couches de qui peuvenet être de trois
-types différents : \emph{couches convolutionelles},
+Ce type de réseaux se compose de trois couches de
+types différents : les \emph{couches convolutionelles}, les
 \emph{couches de regroupement (mise en commun)} et les
 \emph{couches entièrement connectées (denses)}.
 
-\subsubsection{Couches convolutionelles}
+\subsection{Couches convolutionelles}
 
-Chaque perceptron dans une couche de convolution est relié seulement à un peitit
-sous ensemble des perceptrons de la couche précédente. Cet ensemble représente
-une région rectangulaire dans une image. L'image peut être celle l'originale ou
-bien le résultat des opérations des couches précédentes. La fonction générant
+Chaque perceptron dans une couche de convolution est relié seulement à un petit
+sous ensemble de perceptrons de la couche précédente. Cet ensemble représente
+une région rectangulaire dans une image. L'image peut être l'originale ou
+bien la résultante des opérations des couches précédentes. La fonction générant
 chaque région est appelée le \emph{filtre}. Ce type de couches est généralement
 placé au début et au milieu du réseau.
 
-Chaque couche convolutionelle nécessite un nombre de hyperparamètres qui doivent
-être fixés dans la conception :
+Chaque couche convolutionelle nécessite des hyperparamètres qui doivent
+être fixés dans la conception : la taille spatiale du filtre $F$ et la
+profondeur du filtre $K$, le pas de la convolution $S$, le rembourrage par zero
+$P$, et fonction d'activation.
 
 \begin{description}
-  \item[La taille spatiale du filtre $F$ et sa profondeur $K$.] La taille sert à
-  spécifier le nombre d'entrées pour chaque perceptron. La profondeur spécifie
+  \item[\emph{La taille spatiale du filtre $F$}] sert à
+  spécifier le nombre d'entrées pour chaque perceptron,
+  \emph{\textbf{la profondeur du filtre $K$}} spécifie
   le nombre de matrices de poids partagés.
-  \item[Le pas de la convolution $S$.] C'est la différence entre le bord d'un
+  \item[\emph{Le pas de la convolution $S$}] est la différence entre le bord d'un
   filtre et le même bord du filtre du perceptron successif.
-  \item[L'utilisation de rembourrage par zero $P$.] Il est possible d'entourer
+  \item[\emph{Le rembourrage par zero $P$}] permet d'entourer
   l'entrée par des pixels nuls avant d'appliquer la convolution pour maintenir
   sa taille.
-  \item[La fonction d'activation.] La sortie de chaque couche est passée par une
-  fonction mathématique qui modifie les valeurs avant de les transmettre à la
+  \item[\emph{La fonction d'activation}] qui, à la sortie de chaque couche, permet grâce
+  à une fonction mathématique de modifier les valeurs avant de les transmettre à la
   couche suivante.
 \end{description}
 
-\subsubsection{Couches de regroupement}
+\subsection{Couches de regroupement}
 
 Le rôle de ces couches est de réduire la taille spatiale du résultat des couches
 précédentes en gardant l'information essentielle. Cette opération est souvant
@@ -164,17 +160,11 @@ appliquée en utilisant la valeur maximale entre les pixels ou par le calcul de
 la moyenne. Ces couches sont généralement placés après les couches
 convolutionelles.
 
-Les hyperparamètres requis pour cette couche sont :
+Les hyperparamètres requis pour cette couche sont les mêmes que ceux des couches
+convolutionelles auxquelles il faut ajouter la La fonction du regroupement
+(maximum ou moyenne).
 
-\begin{itemize}
-  \item La fonction du regroupement (maximum ou moyenne).
-  \item La taille spatiale du filtre $F$.
-  \item Le pas du mouvement $S$.
-  \item L'utilisation de rembourrage par zero $P$.
-  \item La fonction d'activation.
-\end{itemize}
-
-\subsubsection{Couches entièrement connectées}
+\subsection{Couches entièrement connectées}
 
 C'est le type classique des couches dans un réseau de neuronnes artificiels.
 Chaque perceptron dans ce type est connecté à tous les perceptrons de la couche
@@ -183,12 +173,12 @@ précédente. Ces couches sont utilisées à la fin du réseau.
 Les hyperparamètres nécessaires pour ce type :
 
 \begin{itemize}
-  \item Le nombre de perceptrons $K$.
-  \item La fonction d'activation.
+  \item le nombre de perceptrons $K$,
+  \item la fonction d'activation.
 \end{itemize}
 
-\section{Conclusion}
+\section*{Conclusion}
 
-Dans ce chapitre, j'ai exposé les notions de la robotique et l'intelligence
-artificielle requises pour la compréhension du sujet. Dans le chapitre suivant
-je présenterai la description matérielle et logicielle de ma réalisation.
+Ce chapitre a été consacré aux notions de la robotique et l'intelligence
+artificielle requises pour la compréhension du sujet. Le chapitre suivant fera
+la description matérielle et logicielle de la réalisation présentée.
