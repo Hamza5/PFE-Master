@@ -72,8 +72,8 @@ module contient tous les composantes électroniques nécessaire pour son
 fonctionnement et sa connexion avec les autres modules.
 
 \subsubsection{Microcontrôleur}
-Le microcontrôleur est module électronique programmable ayant une capacité
-limitée du traitement des données. Il inclut un microprocesseur, une mémoire
+Le microcontrôleur est un module électronique programmable ayant une capacité
+limitée de traitement des données. Il inclut un microprocesseur, une mémoire
 centrale et une mémoire secondaire à lecture seule mais reinitialisable.
 Il peut lire les données reçus des autres modules et leurs envoyer des commandes
 pour contrôler leurs fonctionnement à travers ses ports. Chaque système embarqué
@@ -99,7 +99,7 @@ L'apprentissage automatique (\emph{Machine learning}) est une fillière de
 l'intelligence artificielle qui s'interrese aux techniques de conception des
 modèles ayant la capacité d'apprendre à réaliser une tâche sans les programmer
 explicitement. Il y existe de nombreux méthodes où chacune appartient à
-(au moins) une des trois classes principales :
+une des trois classes principales :
 \emph{l'apprentissage supervisé}, \emph{l'apprentissage non supervisé}, et
 \emph{l'apprentissage par renforcement}.
 
@@ -121,10 +121,9 @@ les \emph{perceptrons}.
 Il existe des connexions entre les perceptrons. Le nombre et le type des
 connexions dépend du type du réseau. Il y a plusieurs types de réseaux de
 neuronnes, dont chaque type est mieux adapté a un type de problèmes. Dans les
-problèmes liés aux images, le type préféré est \emph{les réseaux de neuronnes
-convolutionels}
+problèmes liés aux images, le type préféré est \emph{les réseaux convolutionels}
 
-\subsection{Réseaux de neuronnes convolutionels}
+\subsection{Réseaux convolutionels}
 
 Ce type de réseaux se compose de plusieurs couches de qui peuvenet être de trois
 types différents : \emph{couches convolutionelles},
@@ -143,19 +142,19 @@ placé au début et au milieu du réseau.
 Chaque couche convolutionelle nécessite un nombre de hyperparamètres qui doivent
 être fixés dans la conception :
 
-\begin{itemize}
-  \item La taille spatiale du filtre $F$ et sa profondeur $K$. La taille sert à
+\begin{description}
+  \item[La taille spatiale du filtre $F$ et sa profondeur $K$.] La taille sert à
   spécifier le nombre d'entrées pour chaque perceptron. La profondeur spécifie
   le nombre de matrices de poids partagés.
-  \item Le pas de la convolution $S$. C'est la différence entre le bord d'un
+  \item[Le pas de la convolution $S$.] C'est la différence entre le bord d'un
   filtre et le même bord du filtre du perceptron successif.
-  \item L'utilisation de rembourrage par zero $P$ : Il est possible d'entourer
+  \item[L'utilisation de rembourrage par zero $P$.] Il est possible d'entourer
   l'entrée par des pixels nuls avant d'appliquer la convolution pour maintenir
   sa taille.
-  \item La fonction d'activation. La sortie de chaque couche est passée par une
+  \item[La fonction d'activation.] La sortie de chaque couche est passée par une
   fonction mathématique qui modifie les valeurs avant de les transmettre à la
   couche suivante.
-\end{itemize}
+\end{description}
 
 \subsubsection{Couches de regroupement}
 
@@ -187,3 +186,9 @@ Les hyperparamètres nécessaires pour ce type :
   \item Le nombre de perceptrons $K$.
   \item La fonction d'activation.
 \end{itemize}
+
+\section{Conclusion}
+
+Dans ce chapitre, j'ai exposé les notions de la robotique et l'intelligence
+artificielle requises pour la compréhension du sujet. Dans le chapitre suivant
+je présenterai la description matérielle et logicielle de ma réalisation.
