@@ -20,7 +20,7 @@
 
 \graphicspath{ {pictures/} } % Spécifier le répertoire contenant les images
 \DisableLigatures[f]{encoding=*}
-\renewcommand \thechapter{\Roman{chapter}} % Utiliser la numéros romans pour les chapitres
+\renewcommand \thechapter{\Roman{chapter}} % Utiliser les numéros romans pour les chapitres
 \AtBeginDocument{ % Changer les légendes
   \renewcommand\tablename{\itshape Tableau}
   \renewcommand{\figurename}{\itshape Figure}
@@ -42,9 +42,39 @@
 \linespread{1.3}
 
 \begin{document}
-\tableofcontents
-\listoffigures
-\parskip=0.6em
+% Indexes
+% \tableofcontents
+% \listoffigures
+
+\setlength{\parskip}{0.6em plus 0.1em minus 0.1em}
+
+% Changer le style des listes de descriptions
+\let\olddescription\description
+\let\endolddescription\enddescription
+\renewenvironment{description}{
+\let\olditem\item
+\renewcommand\item[2][]{\olditem[\textit{##1}] ##2}
+\begin{olddescription}}
+{\end{olddescription}\ignorespacesafterend}
+
+% Redéfinition des chapitres et sections pour les inclure dans le sommaire
+\makeatletter
+\let\oldchapter\chapter
+\newcommand{\@chapterstar}[1]{\cleardoublepage\phantomsection\addcontentsline{toc}{chapter}{#1}{\oldchapter*{#1}}}
+\newcommand{\@chapternostar}[1]{{\oldchapter{#1}}}
+\renewcommand{\chapter}{\@ifstar{\@chapterstar}{\@chapternostar}}
+\let\oldsection\section
+\newcommand{\@sectionstar}[1]{\phantomsection\addcontentsline{toc}{section}{#1}{\oldsection*{#1}}}
+\newcommand{\@sectionnostar}[1]{{\oldsection{#1}}}
+\renewcommand\section{\@ifstar{\@sectionstar}{\@sectionnostar}}
+\makeatother
+
+% Changer les captions pour cacher les références dans la table des figures
+\let\oldcaption\caption
+\renewcommand{\caption}[2]{\oldcaption[#1]{#1#2}}
+
+% Mes commandes
+\newcommand{\keyword}[1]{\emph{#1}}
 
 % \include{Introduction}
 \include{Chapitre1}
@@ -54,8 +84,6 @@
 % \include{Conclusion}
 
 \bibliographystyle{babplain}
-\phantomsection
-\addcontentsline{toc}{chapter}{Bibliographie}
 \parskip=-1em
-% \bibliography{bibliographie}
+\bibliography{bibliographie}
 \end{document}
