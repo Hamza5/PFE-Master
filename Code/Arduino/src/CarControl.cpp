@@ -4,12 +4,10 @@ from the distance sensors and the digital temperature and humidity sensor.
 
 Hamza Abbad
 */
-// #define DEBUG
 #include "CarControl.h"
 
 dht DHTSensor;
 double * distances;
-bool stopped = true;
 DISTANCE_SENSOR direction;
 int speed = 127;
 char command;
@@ -169,25 +167,4 @@ double getDistance(DISTANCE_SENSOR sensor) {
 
 double getSoundSpeed(double temperature) {
   return SOUND_SPEED_FACTOR * temperature + SOUND_SPEED_CONSTANT;
-}
-
-double averageDistance() {
-  double * distances = getDistances();
-  int corrects = 0;
-  double sum = 0;
-  for (size_t i = 0; i < 3; i++) {
-    if (distances[i] > 0) {
-      corrects++;
-      sum += distances[i];
-    }
-  }
-  if (corrects > 0) return sum / corrects;
-  else return 0;
-}
-
-unsigned int argmin(double * array, unsigned int length) {
-  unsigned int minIndex = 0;
-  for (size_t i = 1; i < length; i++)
-    if (array[i] < array[minIndex]) minIndex = i;
-  return minIndex;
 }

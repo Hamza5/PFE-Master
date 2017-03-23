@@ -9,18 +9,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DecimalFormat;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 class CapturingTask implements Runnable {
 
     private static final String DISTANCES_FILE_NAME = "Distances.txt";
 
     static class Distance implements Comparable<Distance> {
-        float dist;
+        float[] dists;
         private long id;
-        Distance(float distance) {
-            dist = distance;
+        Distance(float[] distances) {
+            dists = distances;
             id = System.currentTimeMillis();
         }
         @Override
@@ -30,8 +31,8 @@ class CapturingTask implements Runnable {
         void save(File directory) throws IOException {
             File file = new File(directory, DISTANCES_FILE_NAME);
             FileWriter textWriter = new FileWriter(file, true);
-            textWriter.write(new DecimalFormat("0.00").format(dist));
-            textWriter.write('\n');
+            String distancesPrinted = String.format(Locale.ENGLISH, "%.2f|%.2f|%.2f%n", dists[0], dists[1], dists[2]);
+            textWriter.write(distancesPrinted);
             textWriter.close();
         }
     }
@@ -58,7 +59,8 @@ class CapturingTask implements Runnable {
     private static final float NEEDED_TURN_DISTANCE = 0.2f;
     private static final float NEEDED_FORWARD_DISTANCE = 0.4f;
     private static final long CAPTURE_SAVING_FREQUENCY = 500; // milliseconds
-    static final long TASK_REPEATING_FREQUENCY = 100; // milliseconds
+    private static final long TASK_REPEATING_FREQUENCY = 100; // milliseconds
+    private static AtomicBoolean navigation = new AtomicBoolean(false);
     static ConcurrentLinkedQueue<Distance> distancesQueue = new ConcurrentLinkedQueue<>();
     static ConcurrentLinkedQueue<Picture> picturesQueue = new ConcurrentLinkedQueue<>();
 
@@ -91,20 +93,32 @@ class CapturingTask implements Runnable {
                     distance.save(savingDirectory);
                     Log.i(CapturingTask.class.getName(), "Distance "+distance.id+" saved");
                 }
-                navigate(distance.dist);
+                String distancesString = String.format(Locale.ENGLISH, "%.2f|%.2f|%.2f",
+                        distance.dists[0], distance.dists[1], distance.dists[2]);
+                mainActivity.bluetoothConnectionManager.sendToComputer(distancesString.getBytes());
+                if (navigation.get())
+                    navigate(distance);
             } catch (IOException ex) {
                 String errorMessage = mainActivity.getString(R.string.camera_photo_save_error);
                 mainActivity.showMessage(errorMessage);
                 Log.e(getClass().getName(), errorMessage);
             }
         }
-        mainActivity.serialConnectionManager.requestDistances();
-        mainActivity.serialConnectionManager.requestTemperature();
-        mainActivity.captureManager.takePicture();
+        if (navigation.get()) {
+            mainActivity.serialConnectionManager.requestDistances();
+            mainActivity.serialConnectionManager.requestTemperature();
+            mainActivity.captureManager.takePicture();
+        }
         h.postDelayed(this, TASK_REPEATING_FREQUENCY);
     }
 
-    private void navigate(float distance) {
+    private void navigate(Distance d) {
+        Log.i(getClass().getName(), "navigate");
+        for (int i = 0; i < d.dists.length; i++) {
+            if (d.dists[i] == 0) d.dists[i] = Float.MAX_VALUE;
+        }
+        float distance = Float.MAX_VALUE;
+        for (float dist : d.dists) distance = Math.min(dist, distance);
         if (distance < NEEDED_TURN_DISTANCE) {
             mainActivity.serialConnectionManager.moveBackward();
             right = Math.random() < 0.5;
@@ -113,6 +127,10 @@ class CapturingTask implements Runnable {
             else mainActivity.serialConnectionManager.turnLeft();
         } else
             mainActivity.serialConnectionManager.moveForward();
+    }
+
+    static void setNavigation(boolean enabled) {
+        navigation.set(enabled);
     }
 
 }

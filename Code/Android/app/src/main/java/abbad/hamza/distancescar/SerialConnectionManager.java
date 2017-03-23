@@ -40,12 +40,9 @@ class SerialConnectionManager {
             m = DISTANCES_REGEXP.matcher(response);
             if (m.find()) {
                 float[] distances = new float[]{Float.parseFloat(m.group(1)), Float.parseFloat(m.group(2)), Float.parseFloat(m.group(3))};
-                for (int i=0; i<distances.length; i++) {
-                    if (distances[i] == 0) distances[i] = Float.MAX_VALUE;
-                }
                 float min = Math.min(Math.min(distances[0], distances[1]), distances[2]);
                 mainActivity.updateDistance(min);
-                CapturingTask.Distance distance = new CapturingTask.Distance(min);
+                CapturingTask.Distance distance = new CapturingTask.Distance(distances);
                 CapturingTask.distancesQueue.add(distance);
             }
             m = TEMPERATURE_REGEXP.matcher(response);
@@ -53,13 +50,13 @@ class SerialConnectionManager {
                 mainActivity.updateTemperature(Float.parseFloat(m.group(1)));
             }
             Log.i(SerialConnectionManager.class.getName(), response);
-            mainActivity.bluetoothConnectionManager.sendToComputer(bytes);
         }
     };
 
-    synchronized void sendSerialData(byte[] data) {
-        if (arduinoSerialPort != null)
+    void sendSerialData(byte[] data) {
+        if (arduinoSerialPort != null) {
             arduinoSerialPort.write(data);
+        }
         else {
             String errorMessage = mainActivity.getString(R.string.serial_no_port);
             mainActivity.showMessage(errorMessage);
@@ -101,7 +98,7 @@ class SerialConnectionManager {
             protected void onPostExecute(Boolean connectionOpened) {
                 if (!connectionOpened) mainActivity.showMessage(mainActivity.getString(R.string.serial_open_error));
                 else {
-                    Log.i(SerialConnectionManager.class.getName(), "Connection opened");
+                    Log.i(SerialConnectionManager.class.getName(), "Serial opened");
                     mainActivity.serialConnectionOpened();
                 }
             }
@@ -113,7 +110,7 @@ class SerialConnectionManager {
         if (arduinoSerialPort != null) {
             arduinoSerialPort.close();
             arduinoSerialPort = null;
-            Log.i(SerialConnectionManager.class.getName(), "Connection closed");
+            Log.i(SerialConnectionManager.class.getName(), "Serial closed");
             arduinoSerialConnection.close();
         }
     }
@@ -144,14 +141,6 @@ class SerialConnectionManager {
 
     void turnRight() {
         sendSerialData("R".getBytes());
-    }
-
-    void setMovingTime(int milliseconds) {
-        sendSerialData(("M"+milliseconds).getBytes());
-    }
-
-    void startNavigation() {
-        sendSerialData("N".getBytes());
     }
 
     void stop() {

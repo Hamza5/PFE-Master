@@ -11,13 +11,10 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -111,21 +108,22 @@ public class MainActivity extends Activity {
         }
         moving = false;
         captureManager.startCamera();
+
+        taskHandler.post(new CapturingTask(this, taskHandler));
     }
 
     @Override
     protected void onDestroy() {
         captureManager.stopCamera();
         taskHandler.removeCallbacksAndMessages(null);
-        closeBluetoothConnection();
-        closeSerialConnection();
         unregisterReceiver(bluetoothEventsReceiver);
         unregisterReceiver(usbEventsReceiver);
+        closeBluetoothConnection();
+        closeSerialConnection();
         super.onDestroy();
     }
 
     private void requestUSBPermission(UsbDevice device) {
-        serialButton.setChecked(false);
         Intent permissionIntent = new Intent(ACTION_USB_PERMISSION);
         PendingIntent pi = PendingIntent.getBroadcast(this, 0, permissionIntent, 0);
         usbManager.requestPermission(device, pi);
@@ -151,8 +149,6 @@ public class MainActivity extends Activity {
                 if (intent.getExtras().getBoolean(UsbManager.EXTRA_PERMISSION_GRANTED)) {
                     UsbDevice arduinoDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                     openSerialConnection(arduinoDevice);
-                } else {
-                    serialButton.setChecked(false);
                 }
             }
             else if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
@@ -168,7 +164,6 @@ public class MainActivity extends Activity {
     };
 
     private void requestEnableBluetoothDiscoverability() {
-        bluetoothButton.setChecked(false);
         Intent discoverabilityIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         discoverabilityIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, BLUETOOTH_DISCOVERABILITY_DURATION);
         startActivity(discoverabilityIntent);
@@ -177,7 +172,6 @@ public class MainActivity extends Activity {
     private void closeBluetoothConnection() {
         bluetoothConnectionManager.stopServer();
         bluetoothConnectionManager.stopReceiving();
-        setBluetoothConnectionStatus(false);
     }
 
     void setBluetoothConnectionStatus(final boolean connected) {
@@ -188,6 +182,10 @@ public class MainActivity extends Activity {
                 bluetoothConnectionTextView.setText(text);
             }
         });
+        if (!connected) {
+            CapturingTask.setNavigation(false);
+            serialConnectionManager.stop();
+        }
     }
 
     private BroadcastReceiver bluetoothEventsReceiver = new BroadcastReceiver() {
@@ -202,17 +200,18 @@ public class MainActivity extends Activity {
                 case BluetoothAdapter.ACTION_SCAN_MODE_CHANGED:
                     switch (extras.getInt(BluetoothAdapter.EXTRA_SCAN_MODE)) {
                         case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE:
-                            if (!bluetoothConnectionManager.isRunning()) {
-                                bluetoothButton.setChecked(true);
+                            bluetoothButton.setChecked(true);
+                            if (!bluetoothConnectionManager.isWaiting() && !bluetoothConnectionManager.isReceiving()) {
                                 bluetoothConnectionManager.startServer();
                             }
                             break;
                         case BluetoothAdapter.SCAN_MODE_NONE:
                         case BluetoothAdapter.ERROR:
                             closeBluetoothConnection();
+                            setBluetoothConnectionStatus(false);
                             bluetoothButton.setChecked(false);
                             break;
-                        default:
+                        default: // Not discoverable
                             if (bluetoothConnectionManager.isWaiting())
                                 requestEnableBluetoothDiscoverability();
                     }
@@ -243,7 +242,7 @@ public class MainActivity extends Activity {
         });
     }
 
-    class DistanceUpdate implements Runnable {
+    private class DistanceUpdate implements Runnable {
         float distance;
         DistanceUpdate(float minDistance) {
             distance = minDistance;
@@ -259,7 +258,7 @@ public class MainActivity extends Activity {
         distanceValueTextView.post(new DistanceUpdate(distance));
     }
 
-    class TemperatureUpdate implements Runnable {
+    private class TemperatureUpdate implements Runnable {
         float temp;
         TemperatureUpdate(float temperature) {
             temp = temperature;
@@ -283,7 +282,8 @@ public class MainActivity extends Activity {
                 bluetoothConnectionManager.startServer();
                 bluetoothButton.setChecked(true);
             }
-        } else if (bluetoothConnectionManager.isRunning()) closeBluetoothConnection();
+        } else if (bluetoothConnectionManager.isWaiting() || bluetoothConnectionManager.isReceiving())
+            closeBluetoothConnection();
     }
 
     public void resetSerialButtonClicked(View view) {

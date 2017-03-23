@@ -21,7 +21,6 @@ class BluetoothConnectionManager {
     private static final String RIGHT_COMMAND = "R";
     private static final String POWER_COMMAND = "P";
     private static final String PICTURE_COMMAND = "C";
-    private static final String MOVING_COMMAND = "M";
     private static final String NAVIGATE_COMMAND = "N";
     private static final String STOP_COMMAND = "S";
 
@@ -74,12 +73,14 @@ class BluetoothConnectionManager {
                         bytesCount = bluetoothInput.read(buffer);
                         if (bytesCount > 0) {
                             final String command = new String(Arrays.copyOfRange(buffer, 0, bytesCount));
+                            Log.i(BluetoothConnectionManager.class.getName(), "command: "+command);
                             switch (command) {
                                 case FORWARD_COMMAND:
                                     mainActivity.serialConnectionManager.moveForward();
                                     break;
                                 case BACKWARD_COMMAND:
                                     mainActivity.serialConnectionManager.moveBackward();
+                                    break;
                                 case LEFT_COMMAND:
                                     mainActivity.serialConnectionManager.turnLeft();
                                     break;
@@ -91,15 +92,16 @@ class BluetoothConnectionManager {
                                     mainActivity.captureManager.takePicture();
                                     break;
                                 case NAVIGATE_COMMAND:
-                                    mainActivity.taskHandler.postDelayed(new CapturingTask(mainActivity, mainActivity.taskHandler), CapturingTask.TASK_REPEATING_FREQUENCY);
+                                    CapturingTask.setNavigation(true);
                                     break;
                                 case STOP_COMMAND:
-                                    mainActivity.taskHandler.removeCallbacksAndMessages(null);
+                                    CapturingTask.setNavigation(false);
                                     mainActivity.serialConnectionManager.stop();
                                     break;
                                 default:
                                 if (command.startsWith(POWER_COMMAND)) {
-                                    final int power = Integer.parseInt(command.substring(POWER_COMMAND.length()));
+                                    String[] parts = command.split(POWER_COMMAND); // This is needed because it can receive many commands at once
+                                    final int power = Integer.parseInt(parts[parts.length-1]);
                                     mainActivity.runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -159,10 +161,6 @@ class BluetoothConnectionManager {
 
     boolean isReceiving() {
         return receivingThread.isAlive();
-    }
-
-    boolean isRunning() {
-        return isWaiting() || isReceiving();
     }
 
 }
