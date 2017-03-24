@@ -78,9 +78,17 @@ class SerialConnectionManager {
             protected Boolean doInBackground(UsbDevice... devices) {
                 UsbDevice device = devices[0];
                 arduinoSerialConnection = usbManager.openDevice(device);
-                if (arduinoSerialConnection == null) mainActivity.showMessage(mainActivity.getString(R.string.serial_open_error));
+                if (arduinoSerialConnection == null) {
+                    String errorMessage = mainActivity.getString(R.string.serial_open_error);
+                    mainActivity.showMessage(errorMessage);
+                    Log.e(SerialConnectionManager.class.getName(), errorMessage);
+                }
                 arduinoSerialPort = UsbSerialDevice.createUsbSerialDevice(device, arduinoSerialConnection);
-                if (arduinoSerialPort == null) mainActivity.showMessage(mainActivity.getString(R.string.serial_driver_not_found));
+                if (arduinoSerialPort == null) {
+                    String errorMessage = mainActivity.getString(R.string.serial_driver_not_found);
+                    mainActivity.showMessage(errorMessage);
+                    Log.e(SerialConnectionManager.class.getName(), errorMessage);
+                }
                 else {
                     if (arduinoSerialPort.open()) {
                         arduinoSerialPort.setBaudRate(SERIAL_BAUD_RATE);
@@ -90,14 +98,17 @@ class SerialConnectionManager {
                         arduinoSerialPort.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
                         arduinoSerialPort.read(serialReadCallback);
                         return true;
-                    } else mainActivity.showMessage(mainActivity.getString(R.string.serial_open_error));
+                    } else {
+                        String errorMessage = mainActivity.getString(R.string.serial_open_error);
+                        mainActivity.showMessage(errorMessage);
+                        Log.e(SerialConnectionManager.class.getName(), errorMessage);
+                    }
                 }
                 return false;
             }
             @Override
             protected void onPostExecute(Boolean connectionOpened) {
-                if (!connectionOpened) mainActivity.showMessage(mainActivity.getString(R.string.serial_open_error));
-                else {
+                if (connectionOpened) {
                     Log.i(SerialConnectionManager.class.getName(), "Serial opened");
                     mainActivity.serialConnectionOpened();
                 }

@@ -14,8 +14,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     CONNECTION_BUTTON_CONNECTED_TEXT = "Connecté"
     CONNECTION_BUTTON_SEARCH_TEXT = "Recherche..."
     CONNECTION_BUTTON_CONNECTING_TEXT = "Connexion..."
-    NAVIGATION_START_TEXT = "Démarrer"
-    NAVIGATION_STOP_TEXT = "Arrêter"
+    NAVIGATION_START_TEXT = "Démarrer la navigation"
+    NAVIGATION_STOP_TEXT = "Arrêter la navigation"
+    CAPTURE_START_TEXT = "Activer la capture"
+    CAPTURE_STOP_TEXT = "Désactiver la capture"
     DISTANCES_CAR_BLUETOOTH_SERVICE_UUID = "ad6e04a5-2ae4-4c80-9140-34016e468ee7"
     STATUS_MESSAGES_TIMEOUT = 1500
     DISTANCES_REGEXP = re.compile(r'(\d+\.\d+)\|(\d+\.\d+)\|(\d+\.\d+)')
@@ -40,8 +42,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.keyboardControlPlainTextEdit.keyPressEvent = self.keyPressed
         self.keyboardControlPlainTextEdit.keyReleaseEvent = self.keyReleased
 
-        self.navigation = False
-
         # Signals
         # Bluetooth connection management
         self.connectionPushButton.clicked.connect(self.connectionButtonClicked)
@@ -62,7 +62,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Power
         self.enginesPowerSlider.valueChanged.connect(self.changePower)
         # Capture
-        self.capturePushButton.clicked.connect(self.takePictureAndDistances)
+        self.enableCapturePushButton.clicked.connect(self.takePictureAndDistances)
 
     def keyPressed(self, QKeyEvent):
         if not QKeyEvent.isAutoRepeat():
@@ -128,13 +128,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             print(ex, file=sys.stderr)  # Some garbage
 
     def navigationButtonClicked(self):
-        if not self.navigation:
+        if self.navigationPushButton.isChecked():
             self.startNavigation()
             self.navigationPushButton.setText(self.NAVIGATION_STOP_TEXT)
         else:
             self.stop()
             self.navigationPushButton.setText(self.NAVIGATION_START_TEXT)
-        self.navigation = not self.navigation
+        self.controlGroupBox.setDisabled(self.navigationPushButton.isChecked())
 
     def startNavigation(self):
         self.bluetoothSocket.write(self.NAVIGATE_COMMAND)
@@ -156,6 +156,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def takePictureAndDistances(self):
         self.bluetoothSocket.write(self.PICTURE_COMMAND)
+        self.enableCapturePushButton.setText(self.CAPTURE_STOP_TEXT if self.enableCapturePushButton.isChecked() else self.CAPTURE_START_TEXT)
 
     def changePower(self, power):
         cmd = self.POWER_COMMAND+str(power).encode()
