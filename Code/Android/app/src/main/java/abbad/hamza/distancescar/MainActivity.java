@@ -21,6 +21,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.text.DecimalFormat;
+import java.util.Locale;
 
 public class MainActivity extends Activity {
 
@@ -183,8 +184,7 @@ public class MainActivity extends Activity {
             }
         });
         if (!connected) {
-            CapturingTask.setNavigation(false);
-            serialConnectionManager.stop();
+            serialConnectionManager.setNavigation(false);
         }
     }
 

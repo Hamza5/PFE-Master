@@ -8,6 +8,7 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -17,16 +18,12 @@ class CapturingTask implements Runnable {
 
     private static final String DISTANCES_FILE_NAME = "Distances.txt";
 
-    static class Distance implements Comparable<Distance> {
+    static class Distance {
         float[] dists;
         private long id;
         Distance(float[] distances) {
             dists = distances;
             id = System.currentTimeMillis();
-        }
-        @Override
-        public int compareTo(Distance distance) {
-            return (int) (id - distance.id);
         }
         void save(File directory) throws IOException {
             File file = new File(directory, DISTANCES_FILE_NAME);
@@ -36,16 +33,12 @@ class CapturingTask implements Runnable {
             textWriter.close();
         }
     }
-    static class Picture implements Comparable<Picture> {
+    static class Picture {
         Bitmap img;
         private long id;
         Picture(Bitmap picture) {
             img = picture;
             id = System.currentTimeMillis();
-        }
-        @Override
-        public int compareTo(Picture picture) {
-            return (int) (id - picture.id);
         }
         void save(File directory) throws IOException {
             File file = new File(directory, "IMG_"+id+".jpg");
@@ -56,81 +49,70 @@ class CapturingTask implements Runnable {
         }
     }
 
-    private static final float NEEDED_TURN_DISTANCE = 0.2f;
-    private static final float NEEDED_FORWARD_DISTANCE = 0.4f;
-    private static final long CAPTURE_SAVING_FREQUENCY = 500; // milliseconds
     private static final long TASK_REPEATING_FREQUENCY = 100; // milliseconds
-    private static AtomicBoolean navigation = new AtomicBoolean(false);
+    private static final long CAPTURE_SAVING_FREQUENCY = 500; // milliseconds
+    private static final long TEMPERATURE_CHECKING_FREQUENCY = 2000; // milliseconds
+    private static AtomicBoolean capture = new AtomicBoolean(false);
     static ConcurrentLinkedQueue<Distance> distancesQueue = new ConcurrentLinkedQueue<>();
     static ConcurrentLinkedQueue<Picture> picturesQueue = new ConcurrentLinkedQueue<>();
 
     private MainActivity mainActivity;
     private Handler h;
     private File savingDirectory;
+    private int dataCount;
     private long lastCaptureTime;
-    private boolean right;
+    private long lastTempTime;
 
     CapturingTask(MainActivity parent, Handler handler) {
         mainActivity = parent;
         h = handler;
         File[] externalDirs = mainActivity.getExternalFilesDirs(Environment.DIRECTORY_PICTURES);
-        savingDirectory = externalDirs[externalDirs.length-1];
-        Log.i(getClass().getName(), savingDirectory.getAbsolutePath());
-        lastCaptureTime = System.currentTimeMillis();
+        savingDirectory = externalDirs[externalDirs.length-1]; // The last one should be on the SD card
+        dataCount = savingDirectory.list(new FilenameFilter() {
+            @Override
+            public boolean accept(File file, String s) {
+                return s.endsWith(".jpg") && s.startsWith("IMG_");
+            }
+        }).length;
+        Log.i(getClass().getName(), String.format(Locale.ENGLISH, "%d captures saved in %s", dataCount, savingDirectory.getAbsolutePath()));
+        lastTempTime = lastCaptureTime = System.currentTimeMillis();
     }
 
     @Override
     public void run() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastTempTime >= TEMPERATURE_CHECKING_FREQUENCY) {
+            lastTempTime = currentTime;
+            mainActivity.serialConnectionManager.requestTemperature();
+            // This is not the right place for the following instruction, but at least now the information can be displayed anytime
+            mainActivity.bluetoothConnectionManager.sendToComputer(String.format(Locale.ENGLISH, "C%d", dataCount).getBytes());
+        }
         if (!distancesQueue.isEmpty() && !picturesQueue.isEmpty()) {
             try {
                 Distance distance = distancesQueue.poll();
                 Picture picture = picturesQueue.poll();
-                long currentTime = System.currentTimeMillis();
-                if (currentTime - lastCaptureTime >= CAPTURE_SAVING_FREQUENCY) {
+                if (capture.get() && currentTime - lastCaptureTime >= CAPTURE_SAVING_FREQUENCY) {
                     lastCaptureTime = currentTime;
                     picture.save(savingDirectory);
                     Log.i(CapturingTask.class.getName(), "Picture "+picture.id+" saved");
                     distance.save(savingDirectory);
                     Log.i(CapturingTask.class.getName(), "Distance "+distance.id+" saved");
+                    dataCount++;
+                    mainActivity.bluetoothConnectionManager.sendToComputer(String.format(Locale.ENGLISH, "C%d", dataCount).getBytes());
                 }
-                String distancesString = String.format(Locale.ENGLISH, "%.2f|%.2f|%.2f",
-                        distance.dists[0], distance.dists[1], distance.dists[2]);
-                mainActivity.bluetoothConnectionManager.sendToComputer(distancesString.getBytes());
-                if (navigation.get())
-                    navigate(distance);
             } catch (IOException ex) {
                 String errorMessage = mainActivity.getString(R.string.camera_photo_save_error);
                 mainActivity.showMessage(errorMessage);
                 Log.e(getClass().getName(), errorMessage);
             }
         }
-        if (navigation.get()) {
-            mainActivity.serialConnectionManager.requestDistances();
-            mainActivity.serialConnectionManager.requestTemperature();
-            mainActivity.captureManager.takePicture();
-        }
+        mainActivity.serialConnectionManager.requestDistances();
+        mainActivity.captureManager.takePicture();
         h.postDelayed(this, TASK_REPEATING_FREQUENCY);
     }
 
-    private void navigate(Distance d) {
-        Log.i(getClass().getName(), "navigate");
-        for (int i = 0; i < d.dists.length; i++) {
-            if (d.dists[i] == 0) d.dists[i] = Float.MAX_VALUE;
-        }
-        float distance = Float.MAX_VALUE;
-        for (float dist : d.dists) distance = Math.min(dist, distance);
-        if (distance < NEEDED_TURN_DISTANCE) {
-            mainActivity.serialConnectionManager.moveBackward();
-            right = Math.random() < 0.5;
-        } else if (distance < NEEDED_FORWARD_DISTANCE) {
-            if (right) mainActivity.serialConnectionManager.turnRight();
-            else mainActivity.serialConnectionManager.turnLeft();
-        } else
-            mainActivity.serialConnectionManager.moveForward();
-    }
-
-    static void setNavigation(boolean enabled) {
-        navigation.set(enabled);
+    static void toggleCapture() {
+        capture.set(!capture.get());
     }
 
 }

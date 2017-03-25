@@ -14,13 +14,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     CONNECTION_BUTTON_CONNECTED_TEXT = "Connecté"
     CONNECTION_BUTTON_SEARCH_TEXT = "Recherche..."
     CONNECTION_BUTTON_CONNECTING_TEXT = "Connexion..."
+    CONNECTION_NOT_FOUND_STATUS = "Robot non trouvé !"
+    NAVIGATION_STATUS_TEXT = "Navigation..."
     NAVIGATION_START_TEXT = "Démarrer la navigation"
     NAVIGATION_STOP_TEXT = "Arrêter la navigation"
+    CAPTURE_STATUS_TEXT = "Capture..."
     CAPTURE_START_TEXT = "Activer la capture"
     CAPTURE_STOP_TEXT = "Désactiver la capture"
     DISTANCES_CAR_BLUETOOTH_SERVICE_UUID = "ad6e04a5-2ae4-4c80-9140-34016e468ee7"
     STATUS_MESSAGES_TIMEOUT = 1500
     DISTANCES_REGEXP = re.compile(r'(\d+\.\d+)\|(\d+\.\d+)\|(\d+\.\d+)')
+    TEMPERATURE_REGEXP = re.compile(r'T(\d+\.\d+)')
+    DATA_REGEXP = re.compile(r'C(\d+)')
     NAVIGATE_COMMAND = b'N'
     STOP_COMMAND = b'S'
     PICTURE_COMMAND = b'C'
@@ -39,8 +44,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.bluetoothDiscoveryAgent.setUuidFilter(QBluetoothUuid(self.DISTANCES_CAR_BLUETOOTH_SERVICE_UUID))
         self.bluetoothDiscoveryAgent.finished.connect(self.bluetoothDiscoveryFinished)
 
-        self.keyboardControlPlainTextEdit.keyPressEvent = self.keyPressed
-        self.keyboardControlPlainTextEdit.keyReleaseEvent = self.keyReleased
+        self.keyboardControlTextBrowser.keyPressEvent = self.keyPressed
+        self.keyboardControlTextBrowser.keyReleaseEvent = self.keyReleased
 
         # Signals
         # Bluetooth connection management
@@ -79,11 +84,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not QKeyEvent.isAutoRepeat():
             if QKeyEvent.key() in (Qt.Key_Up, Qt.Key_Down, Qt.Key_Right, Qt.Key_Left):
                 self.stop()
+            elif QKeyEvent.key() == Qt.Key_PageUp:
+                self.enginesPowerSlider.setValue(self.enginesPowerSlider.value()+self.enginesPowerSlider.pageStep())
+            elif QKeyEvent.key() == Qt.Key_PageDown:
+                self.enginesPowerSlider.setValue(self.enginesPowerSlider.value()-self.enginesPowerSlider.pageStep())
+            elif QKeyEvent.key() == Qt.Key_C:
+                self.enableCapturePushButton.click()
 
     def connectionButtonClicked(self):
         if self.bluetoothSocket.state() == QBluetoothSocket.UnconnectedState:
             if self.bluetoothDevice.hostMode() == QBluetoothLocalDevice.HostPoweredOff:
-                self.bluetoothDevice.powerOn()
+                self.bluetoothDevice.powerOn()  # This may not work, but let's try it anyway !
             self.connectionPushButton.setEnabled(False)
             self.connectionPushButton.setText(self.CONNECTION_BUTTON_SEARCH_TEXT)
             self.bluetoothDiscoveryAgent.start()
@@ -94,7 +105,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         services = self.bluetoothDiscoveryAgent.discoveredServices()
         if len(services) == 0:
             self.connectionPushButton.setText(self.CONNECTION_BUTTON_DISCONNECTED_TEXT)
-            self.statusbar.showMessage('Robot non trouvé', self.STATUS_MESSAGES_TIMEOUT)
+            self.statusbar.showMessage(self.CONNECTION_NOT_FOUND_STATUS, self.STATUS_MESSAGES_TIMEOUT)
             self.connectionPushButton.setEnabled(True)
         else:
             self.connectionPushButton.setText(self.CONNECTION_BUTTON_CONNECTING_TEXT)
@@ -105,31 +116,51 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.bluetoothSocket.state() == QBluetoothSocket.ConnectedState:
             self.connectionPushButton.setText(self.CONNECTION_BUTTON_CONNECTED_TEXT)
             self.statusbar.showMessage(self.CONNECTION_BUTTON_CONNECTED_TEXT, self.STATUS_MESSAGES_TIMEOUT)
+            self.stateGroupBox.setEnabled(True)
             self.navigationGroupBox.setEnabled(True)
             self.controlGroupBox.setEnabled(True)
         else:
             self.connectionPushButton.setText(self.CONNECTION_BUTTON_DISCONNECTED_TEXT)
             self.statusbar.showMessage(self.CONNECTION_BUTTON_DISCONNECTED_TEXT, self.STATUS_MESSAGES_TIMEOUT)
+            self.stateGroupBox.setEnabled(False)
             self.navigationGroupBox.setEnabled(False)
             self.controlGroupBox.setEnabled(False)
+            self.enginesPowerSlider.setValue(127)
+            self.temperatureLcdNumber.display(0)
+            self.dataCountLcdNumber.display(0)
+            self.forwardDistanceLcdNumber.display(0)
+            self.rightDistanceLcdNumber.display(0)
+            self.leftDistanceLcdNumber.display(0)
 
     def bluetoothError(self):
         self.statusbar.showMessage(self.bluetoothSocket.errorString(), self.STATUS_MESSAGES_TIMEOUT)
+        self.connectionPushButton.setText(self.CONNECTION_BUTTON_DISCONNECTED_TEXT)
+        self.connectionPushButton.setEnabled(True)
 
     def bluetoothDataAvailable(self):
         data = self.bluetoothSocket.readAll()
         try:
-            match = self.DISTANCES_REGEXP.match(bytes(data).decode())
+            text = bytes(data).decode()
+            match = self.DISTANCES_REGEXP.match(text)
             if match:
                 self.leftDistanceLcdNumber.display(float(match.group(1)))
                 self.forwardDistanceLcdNumber.display(float(match.group(2)))
                 self.rightDistanceLcdNumber.display(float(match.group(3)))
+            else:
+                match = self.TEMPERATURE_REGEXP.match(text)
+                if match:
+                    self.temperatureLcdNumber.display(float(match.group(1)))
+                else:
+                    match = self.DATA_REGEXP.match(text)
+                    if match:
+                        self.dataCountLcdNumber.display(int(match.group(1)))
         except UnicodeError as ex:
             print(ex, file=sys.stderr)  # Some garbage
 
     def navigationButtonClicked(self):
         if self.navigationPushButton.isChecked():
             self.startNavigation()
+            self.statusbar.showMessage(self.NAVIGATION_STATUS_TEXT, self.STATUS_MESSAGES_TIMEOUT)
             self.navigationPushButton.setText(self.NAVIGATION_STOP_TEXT)
         else:
             self.stop()
@@ -157,6 +188,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def takePictureAndDistances(self):
         self.bluetoothSocket.write(self.PICTURE_COMMAND)
         self.enableCapturePushButton.setText(self.CAPTURE_STOP_TEXT if self.enableCapturePushButton.isChecked() else self.CAPTURE_START_TEXT)
+        self.statusbar.showMessage(self.CAPTURE_STATUS_TEXT, self.STATUS_MESSAGES_TIMEOUT)
 
     def changePower(self, power):
         cmd = self.POWER_COMMAND+str(power).encode()

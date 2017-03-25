@@ -12,11 +12,15 @@ import com.felhr.usbserial.UsbSerialInterface;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class SerialConnectionManager {
 
+    private static final float NEEDED_TURN_DISTANCE = 0.2f;
+    private static final float NEEDED_FORWARD_DISTANCE = 0.4f;
     private static final int SERIAL_BAUD_RATE = 9600;
     private static final List<Integer> VENDOR_IDS = Arrays.asList(1027, 9025, 5824, 4292, 1659, 6790);
     private static final Pattern DISTANCES_REGEXP = Pattern.compile("\\|([0-9]+\\.[0-9]+)\\|([0-9]+\\.[0-9]+)\\|([0-9]+\\.[0-9]+)\\|");
@@ -25,6 +29,8 @@ class SerialConnectionManager {
     private UsbManager usbManager;
     private UsbDeviceConnection arduinoSerialConnection;
     private UsbSerialDevice arduinoSerialPort;
+    private boolean right;
+    private AtomicBoolean navigation = new AtomicBoolean(false);
     private MainActivity mainActivity;
 
     SerialConnectionManager(MainActivity parent, UsbManager usbDevicesManager) {
@@ -44,10 +50,17 @@ class SerialConnectionManager {
                 mainActivity.updateDistance(min);
                 CapturingTask.Distance distance = new CapturingTask.Distance(distances);
                 CapturingTask.distancesQueue.add(distance);
-            }
-            m = TEMPERATURE_REGEXP.matcher(response);
-            if (m.find()) {
-                mainActivity.updateTemperature(Float.parseFloat(m.group(1)));
+                String distancesString = String.format(Locale.ENGLISH, "%.2f|%.2f|%.2f", distances);
+                mainActivity.bluetoothConnectionManager.sendToComputer(distancesString.getBytes());
+                if (navigation.get())
+                    navigate(distance);
+            } else {
+                m = TEMPERATURE_REGEXP.matcher(response);
+                if (m.find()) {
+                    float temp = Float.parseFloat(m.group(1));
+                    mainActivity.updateTemperature(temp);
+                    mainActivity.bluetoothConnectionManager.sendToComputer(m.group().getBytes());
+                }
             }
             Log.i(SerialConnectionManager.class.getName(), response);
         }
@@ -156,6 +169,28 @@ class SerialConnectionManager {
 
     void stop() {
         sendSerialData("S".getBytes());
+    }
+
+    private void navigate(CapturingTask.Distance d) {
+        Log.i(getClass().getName(), "navigate");
+        for (int i = 0; i < d.dists.length; i++) {
+            if (d.dists[i] == 0) d.dists[i] = Float.MAX_VALUE;
+        }
+        float distance = Float.MAX_VALUE;
+        for (float dist : d.dists) distance = Math.min(dist, distance);
+        if (distance < NEEDED_TURN_DISTANCE) {
+            mainActivity.serialConnectionManager.moveBackward();
+            right = Math.random() < 0.5;
+        } else if (distance < NEEDED_FORWARD_DISTANCE) {
+            if (right) mainActivity.serialConnectionManager.turnRight();
+            else mainActivity.serialConnectionManager.turnLeft();
+        } else
+            mainActivity.serialConnectionManager.moveForward();
+    }
+
+    void setNavigation(boolean enabled) {
+        navigation.set(enabled);
+        if (!enabled) stop();
     }
 
 }

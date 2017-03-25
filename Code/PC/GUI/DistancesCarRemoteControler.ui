@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>682</height>
+    <width>500</width>
+    <height>750</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,10 +19,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QGroupBox" name="stateGroupBox">
-      <property name="title">
-       <string>Etat</string>
-      </property>
+     <widget class="QWidget" name="connectionWidget" native="true">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QLabel" name="connectionStateLabel">
@@ -39,6 +36,43 @@
         </widget>
        </item>
       </layout>
+      <zorder>connectionPushButton</zorder>
+      <zorder>connectionStateLabel</zorder>
+      <zorder>stateGroupBox</zorder>
+      <zorder>connectionStateLabel</zorder>
+      <zorder>connectionPushButton</zorder>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="stateGroupBox">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="title">
+       <string>Etat</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="2" column="1">
+        <widget class="QLCDNumber" name="dataCountLcdNumber"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="temperatureLabel">
+         <property name="text">
+          <string>Température de l'environnement</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="dataCountLabel">
+         <property name="text">
+          <string>Nombre de données</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLCDNumber" name="temperatureLcdNumber"/>
+       </item>
+      </layout>
      </widget>
     </item>
     <item>
@@ -50,14 +84,14 @@
        <string>Navigation et capture</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="1" column="0">
+       <item row="2" column="0">
         <widget class="QLabel" name="distancesLabel">
          <property name="text">
           <string>Distances</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
+       <item row="2" column="1">
         <layout class="QGridLayout" name="gridLayout_2">
          <item row="0" column="0">
           <widget class="QLCDNumber" name="leftDistanceLcdNumber">
@@ -74,7 +108,7 @@
          </item>
         </layout>
        </item>
-       <item row="2" column="0" colspan="2">
+       <item row="1" column="1">
         <widget class="QPushButton" name="navigationPushButton">
          <property name="text">
           <string>Démarrer la navigation</string>
@@ -84,7 +118,7 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="0" colspan="2">
+       <item row="1" column="0">
         <widget class="QPushButton" name="enableCapturePushButton">
          <property name="text">
           <string>Activer la capture</string>
@@ -129,7 +163,14 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
+       <item row="0" column="2">
+        <widget class="QLCDNumber" name="enginesPowerlcdNumber">
+         <property name="value" stdset="0">
+          <double>127.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="3">
         <layout class="QGridLayout" name="gridLayout">
          <item row="0" column="1">
           <widget class="QPushButton" name="forwardPushButton">
@@ -161,8 +202,8 @@
          </item>
         </layout>
        </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QPlainTextEdit" name="keyboardControlPlainTextEdit">
+       <item row="2" column="0" colspan="3">
+        <widget class="QTextBrowser" name="keyboardControlTextBrowser">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -172,14 +213,18 @@
          <property name="contextMenuPolicy">
           <enum>Qt::NoContextMenu</enum>
          </property>
-         <property name="readOnly">
-          <bool>true</bool>
+         <property name="html">
+          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Noto Sans'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Contrôle avec clavier :&lt;/p&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Flèches : mouvement.&lt;/li&gt;
+&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Pages : puissance des moteurs.&lt;/li&gt;
+&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;C : capture.&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::NoTextInteraction</set>
-         </property>
-         <property name="placeholderText">
-          <string>Contrôle avec clavier</string>
          </property>
         </widget>
        </item>
@@ -193,7 +238,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>400</width>
+     <width>500</width>
      <height>39</height>
     </rect>
    </property>
@@ -201,5 +246,22 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>enginesPowerSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>enginesPowerlcdNumber</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>460</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>419</x>
+     <y>461</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

@@ -88,15 +88,13 @@ class BluetoothConnectionManager {
                                     mainActivity.serialConnectionManager.turnRight();
                                     break;
                                 case PICTURE_COMMAND:
-                                    mainActivity.serialConnectionManager.requestDistances();
-                                    mainActivity.captureManager.takePicture();
+                                    CapturingTask.toggleCapture();
                                     break;
                                 case NAVIGATE_COMMAND:
-                                    CapturingTask.setNavigation(true);
+                                    mainActivity.serialConnectionManager.setNavigation(true);
                                     break;
                                 case STOP_COMMAND:
-                                    CapturingTask.setNavigation(false);
-                                    mainActivity.serialConnectionManager.stop();
+                                    mainActivity.serialConnectionManager.setNavigation(false);
                                     break;
                                 default:
                                 if (command.startsWith(POWER_COMMAND)) {
@@ -131,7 +129,7 @@ class BluetoothConnectionManager {
 
     }
 
-    void sendToComputer(byte[] data) {
+    synchronized void sendToComputer(byte[] data) {
         if (bluetoothOutput != null)
             try {
                 bluetoothOutput.write(data);
