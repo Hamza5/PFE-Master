@@ -9,6 +9,7 @@ Hamza Abbad
 
 #include <Arduino.h>
 #include <dht.h>
+#include <Servo.h>
 
 #define BAUD_RATE 9600
 
@@ -19,8 +20,12 @@ Hamza Abbad
 #define DISTANCE_SENSOR_2_ECHO 25
 #define DISTANCE_SENSOR_3_TRIG 26
 #define DISTANCE_SENSOR_3_ECHO 27
+#define DISTANCE_SENSOR_R_TRIG 32
+#define DISTANCE_SENSOR_R_ECHO 33
+// Servo pin
+#define SERVO_PIN 2
 
-enum DISTANCE_SENSOR { LEFT = 0, CENTER = 1, RIGHT = 2 };
+enum DISTANCE_SENSOR { LEFT = 0, CENTER = 1, RIGHT = 2, ROTATING = 3 };
 
 // DHT22 sensors
 #define DHT_DATA 51
@@ -56,10 +61,16 @@ void turnLeft(byte);
 #define TEMP 'T'
 #define SET_SPEED 'P'
 
-// Other
-#define MAX_WAIT_TIME 30000 // Maximum waiting time for the echo (3O ms)
+// Distances
+#define MAX_WAIT_TIME 25000 // Maximum waiting time for the echo (25 ms)
 #define SOUND_SPEED_CONSTANT 331.4
 #define SOUND_SPEED_FACTOR 0.6
+#define MIN_ANGLE 40
+#define MAX_ANGLE 90 + (90 - MIN_ANGLE)
+#define STEP_ANGLE 10
+#define DISTANCES_COUNT (MAX_ANGLE - MIN_ANGLE) / STEP_ANGLE
+#define TURN_WAIT_TIME STEP_ANGLE * 100 / 60 + 5 // Because the operating speed is 60° per 100ms (+5ms spare)
+
 #define SERIAL_TIMEOUT 100 // milliseconds
 
 #endif

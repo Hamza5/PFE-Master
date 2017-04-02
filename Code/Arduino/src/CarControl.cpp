@@ -7,9 +7,10 @@ Hamza Abbad
 #include "CarControl.h"
 
 dht DHTSensor;
+Servo radar;
 double * distances;
-DISTANCE_SENSOR direction;
 int speed = 127;
+int rotationAngle;
 char command;
 
 void setup() {
@@ -20,6 +21,8 @@ void setup() {
   pinMode(DISTANCE_SENSOR_2_ECHO, INPUT);
   pinMode(DISTANCE_SENSOR_3_TRIG, OUTPUT);
   pinMode(DISTANCE_SENSOR_3_ECHO, INPUT);
+  pinMode(DISTANCE_SENSOR_R_TRIG, OUTPUT);
+  pinMode(DISTANCE_SENSOR_R_ECHO, INPUT);
   // DC Motors
   pinMode(RIGHT_MOTOR_PIN1, OUTPUT);
   pinMode(RIGHT_MOTOR_PIN2, OUTPUT);
@@ -28,13 +31,17 @@ void setup() {
   pinMode(RIGHT_MOTOR_SPEED_PIN, OUTPUT);
   pinMode(LEFT_MOTOR_SPEED_PIN, OUTPUT);
   // DHT22
-  // pinMode(DHT_DATA, INPUT);
   DHTSensor.read22(DHT_DATA);
+  // Servo motor
+  radar.attach(SERVO_PIN);
   // Serial connection
   Serial.begin(BAUD_RATE);
   Serial.setTimeout(SERIAL_TIMEOUT);
   // Random number generation. This pin is not connected
   randomSeed(analogRead(0));
+
+  rotationAngle = MIN_ANGLE;
+  radar.write(rotationAngle);
 }
 
 void loop() {
@@ -44,11 +51,12 @@ void loop() {
       case GET_DISTANCES:
         distances = getDistances();
         Serial.print("|");
-        for (size_t i = 0; i < 3; i++) {
+        for (size_t i = 0; i < DISTANCES_COUNT; i++) {
           Serial.print(distances[i]);
           Serial.print("|");
         }
         Serial.println();
+        free(distances);
         break;
       case MOVE_FORWARD:
         moveForward(speed);
@@ -133,10 +141,30 @@ void turnLeft(byte speed) {
 }
 
 double * getDistances() {
-  double * distances = (double *) malloc(3 * sizeof(double));
-  distances[0] = getDistance(LEFT);
-  distances[1] = getDistance(CENTER);
-  distances[2] = getDistance(RIGHT);
+  double * distances = (double *) malloc(DISTANCES_COUNT * sizeof(double));
+  int i;
+  // Serial.print("|");
+  if (rotationAngle == MIN_ANGLE)
+    while (rotationAngle < MAX_ANGLE) {
+        radar.write(rotationAngle);
+        delay(TURN_WAIT_TIME);
+        i = (rotationAngle-MIN_ANGLE)/STEP_ANGLE;
+        // Serial.print(rotationAngle);
+        // Serial.print("|");
+        distances[i] = getDistance(ROTATING);
+        rotationAngle += STEP_ANGLE;
+    }
+  else
+    while (rotationAngle > MIN_ANGLE) {
+        radar.write(rotationAngle);
+        delay(TURN_WAIT_TIME);
+        i = (rotationAngle-MIN_ANGLE)/STEP_ANGLE-1;
+        // Serial.print(rotationAngle);
+        // Serial.print("|");
+        distances[i] = getDistance(ROTATING);
+        rotationAngle -= STEP_ANGLE;
+    }
+  // Serial.println();
   return distances;
 }
 
@@ -156,6 +184,10 @@ double getDistance(DISTANCE_SENSOR sensor) {
     case LEFT:
       trig = DISTANCE_SENSOR_3_TRIG;
       echo = DISTANCE_SENSOR_3_ECHO;
+      break;
+    case ROTATING:
+      trig = DISTANCE_SENSOR_R_TRIG;
+      echo = DISTANCE_SENSOR_R_ECHO;
       break;
   }
   digitalWrite(trig, HIGH);// Generate
