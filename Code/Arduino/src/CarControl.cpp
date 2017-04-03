@@ -143,14 +143,11 @@ void turnLeft(byte speed) {
 double * getDistances() {
   double * distances = (double *) malloc(DISTANCES_COUNT * sizeof(double));
   int i;
-  // Serial.print("|");
   if (rotationAngle == MIN_ANGLE)
     while (rotationAngle < MAX_ANGLE) {
         radar.write(rotationAngle);
         delay(TURN_WAIT_TIME);
         i = (rotationAngle-MIN_ANGLE)/STEP_ANGLE;
-        // Serial.print(rotationAngle);
-        // Serial.print("|");
         distances[i] = getDistance(ROTATING);
         rotationAngle += STEP_ANGLE;
     }
@@ -159,12 +156,9 @@ double * getDistances() {
         radar.write(rotationAngle);
         delay(TURN_WAIT_TIME);
         i = (rotationAngle-MIN_ANGLE)/STEP_ANGLE-1;
-        // Serial.print(rotationAngle);
-        // Serial.print("|");
         distances[i] = getDistance(ROTATING);
         rotationAngle -= STEP_ANGLE;
     }
-  // Serial.println();
   return distances;
 }
 

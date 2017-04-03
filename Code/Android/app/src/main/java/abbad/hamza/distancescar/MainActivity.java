@@ -21,7 +21,6 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.text.DecimalFormat;
-import java.util.Locale;
 
 public class MainActivity extends Activity {
 
@@ -109,8 +108,6 @@ public class MainActivity extends Activity {
         }
         moving = false;
         captureManager.startCamera();
-
-        taskHandler.post(new CapturingTask(this, taskHandler));
     }
 
     @Override
@@ -136,11 +133,13 @@ public class MainActivity extends Activity {
 
     void serialConnectionOpened() {
         serialButton.setChecked(true);
+        taskHandler.post(new CapturingTask(this, taskHandler));
     }
 
     private void closeSerialConnection() {
         serialConnectionManager.closeConnection();
         serialButton.setChecked(false);
+        taskHandler.removeCallbacksAndMessages(null);
     }
 
     private BroadcastReceiver usbEventsReceiver = new BroadcastReceiver() {
@@ -244,8 +243,8 @@ public class MainActivity extends Activity {
 
     private class DistanceUpdate implements Runnable {
         float distance;
-        DistanceUpdate(float minDistance) {
-            distance = minDistance;
+        DistanceUpdate(float dist) {
+            distance = dist;
         }
         @Override
         public void run() {
@@ -254,8 +253,17 @@ public class MainActivity extends Activity {
         }
     }
 
-    void updateDistance(float distance) {
-        distanceValueTextView.post(new DistanceUpdate(distance));
+    void updateDistance(CapturingTask.Distance distance) {
+        float avg = 0;
+        int nonZeros = 0;
+        for (float d : distance.dists)
+            if (d > 0) {
+                avg += d;
+                nonZeros++;
+            }
+        if (nonZeros > 0)
+            avg /= nonZeros;
+        distanceValueTextView.post(new DistanceUpdate(avg));
     }
 
     private class TemperatureUpdate implements Runnable {

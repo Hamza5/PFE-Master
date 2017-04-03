@@ -9,6 +9,7 @@ bin/
 doc/
 build/
 gradle/
+__pycache__/
 gradle*
 # Except .latex.json and .gitignore
 !.latex.json

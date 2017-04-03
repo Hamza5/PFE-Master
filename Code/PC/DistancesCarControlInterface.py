@@ -2,6 +2,7 @@ import re
 import sys
 
 from PyQt5.QtBluetooth import QBluetoothSocket, QBluetoothServiceDiscoveryAgent, QBluetoothUuid, QBluetoothServiceInfo, QBluetoothLocalDevice
+from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtWidgets import QMainWindow, QApplication
 from PyQt5.QtCore import Qt
 
@@ -23,7 +24,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     CAPTURE_STOP_TEXT = "Désactiver la capture"
     DISTANCES_CAR_BLUETOOTH_SERVICE_UUID = "ad6e04a5-2ae4-4c80-9140-34016e468ee7"
     STATUS_MESSAGES_TIMEOUT = 1500
-    DISTANCES_REGEXP = re.compile(r'(\d+\.\d+)\|(\d+\.\d+)\|(\d+\.\d+)')
+    DISTANCES_REGEXP = re.compile(r'(?:\|(\d+\.\d+))+\|')
     TEMPERATURE_REGEXP = re.compile(r'T(\d+\.\d+)')
     DATA_REGEXP = re.compile(r'C(\d+)')
     NAVIGATE_COMMAND = b'N'
@@ -68,6 +69,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.enginesPowerSlider.valueChanged.connect(self.changePower)
         # Capture
         self.enableCapturePushButton.clicked.connect(self.takePictureAndDistances)
+
+        # Window position
+        fg = self.frameGeometry()
+        fg.moveCenter(QDesktopWidget().availableGeometry().center())
+        self.move(fg.topLeft())
 
     def keyPressed(self, QKeyEvent):
         if not QKeyEvent.isAutoRepeat():
@@ -128,9 +134,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.enginesPowerSlider.setValue(127)
             self.temperatureLcdNumber.display(0)
             self.dataCountLcdNumber.display(0)
-            self.forwardDistanceLcdNumber.display(0)
-            self.rightDistanceLcdNumber.display(0)
-            self.leftDistanceLcdNumber.display(0)
+            self.distancesLineEdit.setText('|0.00|0.00|0.00|0.00|0.00|0.00|')
 
     def bluetoothError(self):
         self.statusbar.showMessage(self.bluetoothSocket.errorString(), self.STATUS_MESSAGES_TIMEOUT)
@@ -143,9 +147,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             text = bytes(data).decode()
             match = self.DISTANCES_REGEXP.match(text)
             if match:
-                self.leftDistanceLcdNumber.display(float(match.group(1)))
-                self.forwardDistanceLcdNumber.display(float(match.group(2)))
-                self.rightDistanceLcdNumber.display(float(match.group(3)))
+                self.distancesLineEdit.setText(match.group())
             else:
                 match = self.TEMPERATURE_REGEXP.match(text)
                 if match:
@@ -188,7 +190,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def takePictureAndDistances(self):
         self.bluetoothSocket.write(self.PICTURE_COMMAND)
         self.enableCapturePushButton.setText(self.CAPTURE_STOP_TEXT if self.enableCapturePushButton.isChecked() else self.CAPTURE_START_TEXT)
-        self.statusbar.showMessage(self.CAPTURE_STATUS_TEXT, self.STATUS_MESSAGES_TIMEOUT)
+        if self.enableCapturePushButton.isChecked():
+            self.statusbar.showMessage(self.CAPTURE_STATUS_TEXT, self.STATUS_MESSAGES_TIMEOUT)
 
     def changePower(self, power):
         cmd = self.POWER_COMMAND+str(power).encode()

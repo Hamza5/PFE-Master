@@ -65,11 +65,11 @@ void turnLeft(byte);
 #define MAX_WAIT_TIME 25000 // Maximum waiting time for the echo (25 ms)
 #define SOUND_SPEED_CONSTANT 331.4
 #define SOUND_SPEED_FACTOR 0.6
-#define MIN_ANGLE 40
+#define MIN_ANGLE 60
 #define MAX_ANGLE 90 + (90 - MIN_ANGLE)
 #define STEP_ANGLE 10
 #define DISTANCES_COUNT (MAX_ANGLE - MIN_ANGLE) / STEP_ANGLE
-#define TURN_WAIT_TIME STEP_ANGLE * 100 / 60 + 5 // Because the operating speed is 60° per 100ms (+5ms spare)
+#define TURN_WAIT_TIME STEP_ANGLE * 100 / 60 + 10 // Because the operating speed is 60° per 100ms (+10ms spare)
 
 #define SERIAL_TIMEOUT 100 // milliseconds
 

@@ -12,7 +12,6 @@ import com.felhr.usbserial.UsbSerialInterface;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,16 +19,15 @@ import java.util.regex.Pattern;
 class SerialConnectionManager {
 
     private static final float NEEDED_TURN_DISTANCE = 0.2f;
-    private static final float NEEDED_FORWARD_DISTANCE = 0.4f;
+    private static final float FAR_DISTANCE = 9.99f;
     private static final int SERIAL_BAUD_RATE = 9600;
     private static final List<Integer> VENDOR_IDS = Arrays.asList(1027, 9025, 5824, 4292, 1659, 6790);
-    private static final Pattern DISTANCES_REGEXP = Pattern.compile("\\|([0-9]+\\.[0-9]+)\\|([0-9]+\\.[0-9]+)\\|([0-9]+\\.[0-9]+)\\|");
+    private static final Pattern DISTANCES_REGEXP = Pattern.compile("(?:\\|([0-9]+\\.[0-9]+))+\\|");
     private static final Pattern TEMPERATURE_REGEXP = Pattern.compile("T([0-9]+\\.[0-9]+)");
 
     private UsbManager usbManager;
     private UsbDeviceConnection arduinoSerialConnection;
     private UsbSerialDevice arduinoSerialPort;
-    private boolean right;
     private AtomicBoolean navigation = new AtomicBoolean(false);
     private MainActivity mainActivity;
 
@@ -45,13 +43,16 @@ class SerialConnectionManager {
             Matcher m;
             m = DISTANCES_REGEXP.matcher(response);
             if (m.find()) {
-                float[] distances = new float[]{Float.parseFloat(m.group(1)), Float.parseFloat(m.group(2)), Float.parseFloat(m.group(3))};
-                float min = Math.min(Math.min(distances[0], distances[1]), distances[2]);
-                mainActivity.updateDistance(min);
+                String[] distancesStrings = m.group().substring(1, m.group().length()-1).split("\\|");
+                float[] distances = new float[distancesStrings.length];
+                for (int i = 0; i < distances.length; i++) {
+                    distances[i] = Float.parseFloat(distancesStrings[i]);
+                    if (distances[i] == 0) distances[i] = FAR_DISTANCE;
+                }
                 CapturingTask.Distance distance = new CapturingTask.Distance(distances);
+                mainActivity.updateDistance(distance);
                 CapturingTask.distancesQueue.add(distance);
-                String distancesString = String.format(Locale.ENGLISH, "%.2f|%.2f|%.2f", distances);
-                mainActivity.bluetoothConnectionManager.sendToComputer(distancesString.getBytes());
+                mainActivity.bluetoothConnectionManager.sendToComputer(m.group().getBytes());
                 if (navigation.get())
                     navigate(distance);
             } else {
@@ -95,6 +96,7 @@ class SerialConnectionManager {
                     String errorMessage = mainActivity.getString(R.string.serial_open_error);
                     mainActivity.showMessage(errorMessage);
                     Log.e(SerialConnectionManager.class.getName(), errorMessage);
+                    return false;
                 }
                 arduinoSerialPort = UsbSerialDevice.createUsbSerialDevice(device, arduinoSerialConnection);
                 if (arduinoSerialPort == null) {
@@ -134,8 +136,8 @@ class SerialConnectionManager {
         if (arduinoSerialPort != null) {
             arduinoSerialPort.close();
             arduinoSerialPort = null;
-            Log.i(SerialConnectionManager.class.getName(), "Serial closed");
             arduinoSerialConnection.close();
+            Log.i(SerialConnectionManager.class.getName(), "Serial closed");
         }
     }
 
@@ -172,25 +174,26 @@ class SerialConnectionManager {
     }
 
     private void navigate(CapturingTask.Distance d) {
-        Log.i(getClass().getName(), "navigate");
-        for (int i = 0; i < d.dists.length; i++) {
-            if (d.dists[i] == 0) d.dists[i] = Float.MAX_VALUE;
-        }
-        float distance = Float.MAX_VALUE;
-        for (float dist : d.dists) distance = Math.min(dist, distance);
-        if (distance < NEEDED_TURN_DISTANCE) {
+        if (d.dists[(d.dists.length+1)/2] < NEEDED_TURN_DISTANCE) {
             mainActivity.serialConnectionManager.moveBackward();
-            right = Math.random() < 0.5;
-        } else if (distance < NEEDED_FORWARD_DISTANCE) {
-            if (right) mainActivity.serialConnectionManager.turnRight();
-            else mainActivity.serialConnectionManager.turnLeft();
-        } else
-            mainActivity.serialConnectionManager.moveForward();
+        } else {
+            float deviation = 0;
+            for (int i = 0; i < d.dists.length; i++) {
+                deviation += (i+1) * d.dists[i];
+            }
+            deviation /= d.dists.length;
+            if (deviation <= d.dists.length/3)
+                mainActivity.serialConnectionManager.turnRight();
+            else if (deviation >= d.dists.length*2/3)
+                mainActivity.serialConnectionManager.turnLeft();
+            else
+                mainActivity.serialConnectionManager.moveForward();
+        }
     }
 
     void setNavigation(boolean enabled) {
         navigation.set(enabled);
-        if (!enabled) stop();
+        if (!navigation.get()) stop();
     }
 
 }
