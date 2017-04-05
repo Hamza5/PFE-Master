@@ -7,7 +7,7 @@ Hamza Abbad
 #include "CarControl.h"
 
 dht DHTSensor;
-Servo radar;
+Servo sonar;
 double * distances;
 int speed = 127;
 int rotationAngle;
@@ -33,15 +33,12 @@ void setup() {
   // DHT22
   DHTSensor.read22(DHT_DATA);
   // Servo motor
-  radar.attach(SERVO_PIN);
+  sonar.attach(SERVO_PIN);
   // Serial connection
   Serial.begin(BAUD_RATE);
   Serial.setTimeout(SERIAL_TIMEOUT);
-  // Random number generation. This pin is not connected
-  randomSeed(analogRead(0));
 
   rotationAngle = MIN_ANGLE;
-  radar.write(rotationAngle);
 }
 
 void loop() {
@@ -143,22 +140,25 @@ void turnLeft(byte speed) {
 double * getDistances() {
   double * distances = (double *) malloc(DISTANCES_COUNT * sizeof(double));
   int i;
-  if (rotationAngle == MIN_ANGLE)
-    while (rotationAngle < MAX_ANGLE) {
-        radar.write(rotationAngle);
+  if (rotationAngle == MIN_ANGLE) {
+    while (rotationAngle <= MAX_ANGLE) {
+        sonar.write(rotationAngle);
         delay(TURN_WAIT_TIME);
         i = (rotationAngle-MIN_ANGLE)/STEP_ANGLE;
         distances[i] = getDistance(ROTATING);
         rotationAngle += STEP_ANGLE;
     }
-  else
-    while (rotationAngle > MIN_ANGLE) {
-        radar.write(rotationAngle);
+    rotationAngle = MAX_ANGLE;
+  } else {
+    while (rotationAngle >= MIN_ANGLE) {
+        sonar.write(rotationAngle);
         delay(TURN_WAIT_TIME);
-        i = (rotationAngle-MIN_ANGLE)/STEP_ANGLE-1;
+        i = (rotationAngle-MIN_ANGLE)/STEP_ANGLE;
         distances[i] = getDistance(ROTATING);
         rotationAngle -= STEP_ANGLE;
     }
+    rotationAngle = MIN_ANGLE;
+  }
   return distances;
 }
 
