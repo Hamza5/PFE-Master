@@ -133,9 +133,9 @@ utilisées dans leurs tests avec les résultats obtenus.
 Un des travaux récents qui ont utilisé les \keyword{réseaux de neurones convolutionels}
 pour l'estimation de profondeur est celui de Eigen et al.\cite{eigen2014depth}.
 
-L'approche consiste à developper un réseau de neurones convolutionel consitué de
+L'approche consiste à développer un réseau de neurones convolutionel consitué de
 deux niveaux. Le premier prédit la profondeur à un niveau global, tandis que le
-deuxième applique des raffinements successifs afin de générer une carte de
+deuxième applique des raffinements successifs afin de générer une carte des
 profondeurs plus précise. Les deux niveaux acceptent l'image originale comme
 entrée. De plus, la sortie du premier niveau est fournie comme entrée pour
 le deuxième.
@@ -143,7 +143,7 @@ le deuxième.
 Ils ont entraîné ce modèle par les ensembles de données de \keyword{NYU v2} qui
 contient des scènes d'intérieur de maison, et de \keyword{KITTI} qui est un ensemble
 de scènes d'extérieur. Les résultats obtenus après l'apprentissage étaient
-généralement meilleurs que ceux de \keyword{Make3D}, et ceci est dû grâce à la
+généralement meilleurs que ceux de \keyword{Make3D}, et cela est dû à la
 structure multi-échelles du réseau qui permet de combiner la vue globale avec les
 vues locales sur l'image.
 
@@ -154,6 +154,8 @@ vues locales sur l'image.
 \end{center}
 \end{figure}
 
+\vspace{-1em}
+
 Dans un travail ultérieur, Eigen et Fergus\cite{eigen2015predicting} ont étendu
 le modèle précédent par l'ajout de deux autres fonctionnalitées : l'estimation
 de la normale de chaque surface et l'étiquetage sémantique. Ils ont gardé le
@@ -161,12 +163,14 @@ principe de réseaux multi-échelles qui ne nécessite aucun prétraitement de b
 niveau.
 
 La nouvelle architecture de ce modèle est formée de trois sous réseaux
-convolutionels dont le résultat de chacun avec l'image originale sont alimentés
-au suivant. Les sous réseaux étant plus profonds que la ceux de du travail précédent.
+convolutionels dont le résultat de chacun et l'image originale sont alimentés
+au suivant, les sous-réseaux étant plus profonds que ceux du travail précédent.
 Le premier permet de prédire des caractéristiques globales sur toute l'image.
 Le second produit des prédictions d'un niveau moyen de détails en intégrant les
 informations du premier. Le dernier affine ces prédictions pour générer une
 sortie à un haut niveau de détails en utilisant toutes les informations précédentes.
+
+\vspace{1em}
 
 \begin{figure}[H]
 \begin{center}
@@ -203,20 +207,21 @@ Dans ce chapitre nous avons présenté quelques travaux antérieurs concernant
 l'estimation de distances ou de profondeurs à partir d'une seule image.
 Toutes ces méthodes utilisent les ensembles de données contenant des cartes de
 profondeurs générées à partir des scanners laser (comme SICK et Microsoft Kinect)
-car il sont très précis pour calculer la distance d'un point.
+car ils sont très précis pour calculer la distance d'un point.
 Cependant, ils ont quelques inconvénients, comme leur poids qui ne peut pas être négligeable
 et leur sensibilité à la lumière du soleil qui peut fausser les calculs, ce que
-les rends impratiques pour l'utilisation dans les appareils qui peuvent être
-exposées aux rayons solaires. De plus, il sont relativement coûteux.
+les rend peu pratiques pour l'utilisation dans les appareils qui peuvent être
+exposés aux rayons solaires. De plus, il sont relativement coûteux.
 
 A notre connaissance, tous les projets d'estimation de distances précédents
 n'ont utilisé que les scanners lasers. De ce fait, nous avons essayé d'utiliser
-une autre option : les capteurs ultrasoniques. Bien que leur précision est
-relativement faible que celle des scanners laser ainsi que leur taux d'erreur
-qui peut être élevé dans les scènes contenant des objets avec des surfaces
-irrégulières, ils ont des avantages comme leur légèreté et l'insensibilité
-contre le niveau de la lumière, en plus de leur coût qui est très faible.
+une autre option : les capteurs ultrasoniques. Bien que leur précision soit
+relativement plus faible que celle des scanners laser et que leur taux d'erreur
+puisse être élevé dans les scènes contenant des objets avec des surfaces
+irrégulières, ils ont des avantages comme leur légèreté et leur insensibilité
+à la lumière, et de plus, leur coût est très faible.
 
-Dans le chapitre suivant nous présenterons la partie matérielle de notre projet qui
-est un robot constiué de plusieurs composants et programmé pour qu'il peut se déplacer
-en prenant des photos de l'environnement avec les distances respectives.
+Dans le chapitre suivant nous présenterons les parties matérielles et logicielles
+formant notre projet qui est un robot constiué de plusieurs composants et
+programmé pour pouvoir se déplacer en prenant des photos de l'environnement
+avec les distances respectives.
