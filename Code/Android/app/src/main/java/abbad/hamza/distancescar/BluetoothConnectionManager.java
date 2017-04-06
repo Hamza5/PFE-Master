@@ -161,4 +161,8 @@ class BluetoothConnectionManager {
         return receivingThread.isAlive();
     }
 
+    boolean isDiscoverable() {
+        return bluetoothAdapter.getScanMode() == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
+    }
+
 }

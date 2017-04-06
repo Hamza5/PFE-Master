@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>459</width>
-    <height>750</height>
+    <width>510</width>
+    <height>806</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -47,15 +47,32 @@
        <string>Etat</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_5">
-       <item row="2" column="1">
-        <widget class="QLCDNumber" name="dataCountLcdNumber"/>
+       <item row="1" column="1">
+        <widget class="QLCDNumber" name="temperatureLcdNumber"/>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="temperatureLabel">
-         <property name="text">
-          <string>Température de l'environnement</string>
-         </property>
-        </widget>
+       <item row="4" column="0" colspan="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="distancesLabel">
+           <property name="text">
+            <string>Distances</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="distancesLineEdit">
+           <property name="text">
+            <string>|0.00|0.00|0.00|0.00|0.00|0.00|0.00|</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item row="2" column="0">
         <widget class="QLabel" name="dataCountLabel">
@@ -64,8 +81,35 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QLCDNumber" name="temperatureLcdNumber"/>
+       <item row="1" column="0">
+        <widget class="QLabel" name="temperatureLabel">
+         <property name="text">
+          <string>Température de l'environnement</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLCDNumber" name="dataCountLcdNumber"/>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="directionLabel">
+         <property name="text">
+          <string>Direction</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="directionLineEdit">
+         <property name="text">
+          <string>Aucune</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -97,27 +141,6 @@
             <string>Démarrer la navigation</string>
            </property>
            <property name="checkable">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <widget class="QLabel" name="distancesLabel">
-           <property name="text">
-            <string>Distances</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="distancesLineEdit">
-           <property name="text">
-            <string>|0.00|0.00|0.00|0.00|0.00|0.00|</string>
-           </property>
-           <property name="readOnly">
             <bool>true</bool>
            </property>
           </widget>
@@ -217,7 +240,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Contrôle avec clavier :&lt;/p&gt;
 &lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Flèches : mouvement.&lt;/li&gt;
 &lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Pages : puissance des moteurs.&lt;/li&gt;
-&lt;li style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;C : capture.&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;C : capture.&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::NoTextInteraction</set>
@@ -234,7 +257,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>459</width>
+     <width>510</width>
      <height>39</height>
     </rect>
    </property>

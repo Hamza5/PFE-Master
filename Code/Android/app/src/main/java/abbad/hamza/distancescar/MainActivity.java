@@ -111,6 +111,13 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (bluetoothConnectionManager.isWaiting() && !bluetoothConnectionManager.isDiscoverable())
+            requestEnableBluetoothDiscoverability();
+    }
+
+    @Override
     protected void onDestroy() {
         captureManager.stopCamera();
         taskHandler.removeCallbacksAndMessages(null);
@@ -207,7 +214,6 @@ public class MainActivity extends Activity {
                         case BluetoothAdapter.SCAN_MODE_NONE:
                         case BluetoothAdapter.ERROR:
                             closeBluetoothConnection();
-                            setBluetoothConnectionStatus(false);
                             bluetoothButton.setChecked(false);
                             break;
                         default: // Not discoverable
@@ -217,10 +223,8 @@ public class MainActivity extends Activity {
                     break;
                 case BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED:
                     switch (extras.getInt(BluetoothAdapter.EXTRA_CONNECTION_STATE)) {
-                        case BluetoothAdapter.STATE_DISCONNECTING:
-                            closeBluetoothConnection();
-                            break;
                         case BluetoothAdapter.STATE_DISCONNECTED:
+                            closeBluetoothConnection();
                             bluetoothConnectionManager.startServer();
                             break;
                     }

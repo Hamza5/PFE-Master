@@ -22,11 +22,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     CAPTURE_STATUS_TEXT = "Capture..."
     CAPTURE_START_TEXT = "Activer la capture"
     CAPTURE_STOP_TEXT = "Désactiver la capture"
+    DIRECTION_NONE_TEXT = "Aucune"
+    DIRECTION_FORWARD_TEXT = "Avant"
+    DIRECTION_BACKWARD_TEXT = "Arrière"
+    DIRECTION_RIGHT_TEXT = "Droite"
+    DIRECTION_LEFT_TEXT = "Gauche"
     DISTANCES_CAR_BLUETOOTH_SERVICE_UUID = "ad6e04a5-2ae4-4c80-9140-34016e468ee7"
     STATUS_MESSAGES_TIMEOUT = 1500
     DISTANCES_REGEXP = re.compile(r'(?:\|(\d+\.\d+))+\|')
     TEMPERATURE_REGEXP = re.compile(r'T(\d+\.\d+)')
     DATA_REGEXP = re.compile(r'C(\d+)')
+    SPEED_REGEXP = re.compile(r'P(\d+)')
     NAVIGATE_COMMAND = b'N'
     STOP_COMMAND = b'S'
     PICTURE_COMMAND = b'C'
@@ -134,7 +140,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.enginesPowerSlider.setValue(127)
             self.temperatureLcdNumber.display(0)
             self.dataCountLcdNumber.display(0)
-            self.distancesLineEdit.setText('|0.00|0.00|0.00|0.00|0.00|0.00|')
+            self.distancesLineEdit.setText('|0.00|0.00|0.00|0.00|0.00|0.00|0.00|')
+            self.directionLineEdit.setText(self.DIRECTION_NONE_TEXT)
 
     def bluetoothError(self):
         self.statusbar.showMessage(self.bluetoothSocket.errorString(), self.STATUS_MESSAGES_TIMEOUT)
@@ -156,6 +163,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     match = self.DATA_REGEXP.match(text)
                     if match:
                         self.dataCountLcdNumber.display(int(match.group(1)))
+                    else:
+                        match = self.SPEED_REGEXP.match(text)
+                        if match:
+                            self.enginesPowerSlider.setValue(int(match.group(1)))
+                        else:
+                            STOP = self.STOP_COMMAND.decode()
+                            FORWARD = self.FORWARD_COMMAND.decode()
+                            BACKWARD = self.BACKWARD_COMMAND.decode()
+                            RIGHT = self.RIGHT_COMMAND.decode()
+                            LEFT = self.LEFT_COMMAND.decode()
+                            if text == STOP:
+                                self.directionLineEdit.setText(self.DIRECTION_NONE_TEXT)
+                            elif text == FORWARD:
+                                self.directionLineEdit.setText(self.DIRECTION_FORWARD_TEXT)
+                            elif text == BACKWARD:
+                                self.directionLineEdit.setText(self.DIRECTION_BACKWARD_TEXT)
+                            elif text == RIGHT:
+                                self.directionLineEdit.setText(self.DIRECTION_RIGHT_TEXT)
+                            elif text == LEFT:
+                                self.directionLineEdit.setText(self.DIRECTION_LEFT_TEXT)
         except UnicodeError as ex:
             print(ex, file=sys.stderr)  # Some garbage
 
@@ -201,4 +228,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
-    app.exec()
+    sys.exit(app.exec())

@@ -24,12 +24,13 @@ class SerialConnectionManager {
     private static final List<Integer> VENDOR_IDS = Arrays.asList(1027, 9025, 5824, 4292, 1659, 6790);
     private static final Pattern DISTANCES_REGEXP = Pattern.compile("(?:\\|([0-9]+\\.[0-9]+))+\\|");
     private static final Pattern TEMPERATURE_REGEXP = Pattern.compile("T([0-9]+\\.[0-9]+)");
+    private static final Pattern SPEED_REGEXP = Pattern.compile("P([0-9]+)");
 
     private UsbManager usbManager;
     private UsbDeviceConnection arduinoSerialConnection;
     private UsbSerialDevice arduinoSerialPort;
-    private AtomicBoolean navigation = new AtomicBoolean(false);
     private MainActivity mainActivity;
+    AtomicBoolean navigation = new AtomicBoolean(false);
 
     SerialConnectionManager(MainActivity parent, UsbManager usbDevicesManager) {
         mainActivity = parent;
@@ -61,6 +62,11 @@ class SerialConnectionManager {
                     float temp = Float.parseFloat(m.group(1));
                     mainActivity.updateTemperature(temp);
                     mainActivity.bluetoothConnectionManager.sendToComputer(m.group().getBytes());
+                } else {
+                    m = SPEED_REGEXP.matcher(response);
+                    if (m.find()) {
+                        mainActivity.bluetoothConnectionManager.sendToComputer(m.group().getBytes());
+                    }
                 }
             }
             Log.i(SerialConnectionManager.class.getName(), response);
@@ -154,27 +160,39 @@ class SerialConnectionManager {
     }
 
     void moveForward() {
-        sendSerialData("F".getBytes());
+        byte[] direction = "F".getBytes();
+        sendSerialData(direction);
+        mainActivity.bluetoothConnectionManager.sendToComputer(direction);
     }
 
     void moveBackward() {
-        sendSerialData("B".getBytes());
+        byte[] direction = "B".getBytes();
+        sendSerialData(direction);
+        mainActivity.bluetoothConnectionManager.sendToComputer(direction);
     }
 
     void turnLeft() {
-        sendSerialData("L".getBytes());
+        byte[] direction = "L".getBytes();
+        sendSerialData(direction);
+        mainActivity.bluetoothConnectionManager.sendToComputer(direction);
     }
 
     void turnRight() {
-        sendSerialData("R".getBytes());
+        byte[] direction = "R".getBytes();
+        sendSerialData(direction);
+        mainActivity.bluetoothConnectionManager.sendToComputer(direction);
     }
 
     void stop() {
-        sendSerialData("S".getBytes());
+        byte[] direction = "S".getBytes();
+        sendSerialData(direction);
+        mainActivity.bluetoothConnectionManager.sendToComputer(direction);
     }
 
     private void navigate(CapturingTask.Distance d) {
-        if (d.dists[(d.dists.length+1)/2] < NEEDED_TURN_DISTANCE) {
+        int center = (d.dists.length+1)/2;
+        float centerAverage = (d.dists[center] + d.dists[center-1] + d.dists[center+1]) / 3;
+        if (centerAverage < NEEDED_TURN_DISTANCE) {
             mainActivity.serialConnectionManager.moveBackward();
         } else {
             float deviation = 0;
@@ -182,9 +200,9 @@ class SerialConnectionManager {
                 deviation += (i+1) * d.dists[i];
             }
             deviation /= d.dists.length;
-            if (deviation <= d.dists.length/3)
+            if (deviation < d.dists.length/3f)
                 mainActivity.serialConnectionManager.turnRight();
-            else if (deviation >= d.dists.length*2/3)
+            else if (deviation > d.dists.length*2/3f)
                 mainActivity.serialConnectionManager.turnLeft();
             else
                 mainActivity.serialConnectionManager.moveForward();

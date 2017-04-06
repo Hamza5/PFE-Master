@@ -25,12 +25,12 @@ class CapturingTask implements Runnable {
         Distance(float[] distances) {
             dists = distances;
         }
-        void save(File directory) throws IOException {
+        void save(File directory, long pictureID) throws IOException {
             File file = new File(directory, DISTANCES_FILE_NAME);
-            StringBuilder distancesPrinted = new StringBuilder();
+            StringBuilder distancesPrinted = new StringBuilder(pictureID+",");
             for (float dist : dists) {
                 distancesPrinted.append(new DecimalFormat("0.00").format(dist));
-                distancesPrinted.append("|");
+                distancesPrinted.append(",");
             }
             distancesPrinted.replace(distancesPrinted.length()-1, distancesPrinted.length(), "\n");
             FileWriter textWriter = new FileWriter(file, true);
@@ -96,24 +96,24 @@ class CapturingTask implements Runnable {
             // This is not the right place for the following instruction, but at least now the information can be displayed anytime
             mainActivity.bluetoothConnectionManager.sendToComputer(String.format(Locale.ENGLISH, "C%d", dataCount).getBytes());
         }
-        if (capture.get()) {
-            if (!distancesQueue.isEmpty() && !picturesQueue.isEmpty()) {
-                Distance distance = distancesQueue.poll();
-                Picture picture = picturesQueue.poll();
-                if (currentTime - lastCaptureTime >= CAPTURE_SAVING_FREQUENCY) {
-                    lastCaptureTime = currentTime;
-                    try {
-                        picture.save(savingDirectory);
-                        distance.save(savingDirectory);
-                        dataCount++;
-                        mainActivity.bluetoothConnectionManager.sendToComputer(String.format(Locale.ENGLISH, "C%d", dataCount).getBytes());
-                    } catch (IOException ex) {
-                        String errorMessage = mainActivity.getString(R.string.camera_photo_save_error);
-                        mainActivity.showMessage(errorMessage);
-                        Log.e(getClass().getName(), errorMessage);
-                    }
+        if (!distancesQueue.isEmpty() && !picturesQueue.isEmpty()) {
+            Distance distance = distancesQueue.poll();
+            Picture picture = picturesQueue.poll();
+            if (capture.get() && currentTime - lastCaptureTime >= CAPTURE_SAVING_FREQUENCY) {
+                lastCaptureTime = currentTime;
+                try {
+                    picture.save(savingDirectory);
+                    distance.save(savingDirectory, picture.id);
+                    dataCount++;
+                    mainActivity.bluetoothConnectionManager.sendToComputer(String.format(Locale.ENGLISH, "C%d", dataCount).getBytes());
+                } catch (IOException ex) {
+                    String errorMessage = mainActivity.getString(R.string.camera_photo_save_error);
+                    mainActivity.showMessage(errorMessage);
+                    Log.e(getClass().getName(), errorMessage);
                 }
             }
+        }
+        if (capture.get() || mainActivity.serialConnectionManager.navigation.get()) {
             mainActivity.serialConnectionManager.requestDistances();
             mainActivity.captureManager.takePicture();
         }
