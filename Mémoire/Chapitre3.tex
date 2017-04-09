@@ -140,3 +140,50 @@ Nous avons utilisé le servomoteur \keyword{TowerPro SG90} pour cette tâche.
 \caption{Le servomoteur TowerPro SG90}{}
 \end{center}
 \end{figure}
+
+Afin de contrôler tous les modules précédents, il nous faut un microcontrôleur.
+Dans ce travail, nous avons utilisé une version compatible avec le
+microcontrôleur \keyword{Arduino Mega 2560}.
+
+Nous avons connecté les ports de données de ce microcontrôleur aux autres
+composants (le pilote de moteurs, le capteur ultrasonique, le capteur de la
+température et le servomoteur) en utilisant des câbles compatibles après avoir
+placé tous ces modules dans leurs positions respectives. Par la suite, il sera
+chargé par un programme permettant de gérer continuellement les autres modules
+par l'envoi de commandes ou par la réception d'informations.
+
+Il y a deux types de ports : les \keyword{ports numériques} à lecture et
+écriture, et les \keyword{ports analogiques} à lecture seule. Certains ports
+numériques supportent \keyword{la modulation de largeur d'impulsion} et donc peuvent
+émettre un signal composé d'une succession d'états discrets de "tout ou rien"
+pendant une unité de temps dont la fréquence est choisie par le programme.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.5\textwidth]{ArduinoMega2560}
+\caption{Une version compatible avec le microcontrôleur Arduino Mega 2560}{}
+\end{center}
+\end{figure}
+
+Étant donnée que les performances du microcontrôleur soient très limitées, nous
+devons le connecter à un appareil plus puissant en termes de vitesse
+de calcul et de capacité en mémoire, et disposant d'autres options comme la
+mise en réseau. Afin de satisfaire ces besoins, nous avons intégré le téléphone
+intelligent \keyword{Samsung Galaxy Note 2} comme partie du robot en le connectant
+par un cable USB avec le microcontrôleur pour établir une connexion en série entre
+ces deux appareils, et cela après avoir développé une application s'exécutant
+sur le téléphone et permettant l'échange d'informations avec le microcontrôleur
+et en même temps avec l'ordinateur hôte.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[height=0.47\textheight]{DistancesRobotCircuit}
+\caption{Le schéma de connexions entre les modules du robots}{}
+\end{center}
+\end{figure}
+
+Jusqu'à ici, nous avons présenté les composants matériels nécessaires pour la
+construction du robot et la manière dont ils sont utilisés en indiquant la
+fonctionalité de chacun d'eux. Dans la partie suivante nous présenterons les
+logiciels développés pour chaque plateforme et nous expliquons leur fonctionnement
+ainsi que leur intercommunication qui permettent la gestion du robot.
