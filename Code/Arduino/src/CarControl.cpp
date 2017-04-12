@@ -147,19 +147,19 @@ double * getDistances() {
   int i;
   if (rotationAngle == MIN_ANGLE) {
     while (rotationAngle <= MAX_ANGLE) {
-        sonar.write(rotationAngle);
-        delay(TURN_WAIT_TIME);
         i = (rotationAngle-MIN_ANGLE)/STEP_ANGLE;
         distances[i] = getDistance(ROTATING);
+        sonar.write(rotationAngle);
+        delay(TURN_WAIT_TIME);
         rotationAngle += STEP_ANGLE;
     }
     rotationAngle = MAX_ANGLE;
   } else {
     while (rotationAngle >= MIN_ANGLE) {
-        sonar.write(rotationAngle);
-        delay(TURN_WAIT_TIME);
         i = (rotationAngle-MIN_ANGLE)/STEP_ANGLE;
         distances[i] = getDistance(ROTATING);
+        sonar.write(rotationAngle);
+        delay(TURN_WAIT_TIME);
         rotationAngle -= STEP_ANGLE;
     }
     rotationAngle = MIN_ANGLE;
