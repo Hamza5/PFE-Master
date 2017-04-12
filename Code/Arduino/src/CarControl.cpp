@@ -9,7 +9,7 @@ Hamza Abbad
 dht DHTSensor;
 Servo sonar;
 double * distances;
-int speed = 127;
+int speed;
 int rotationAngle;
 char command;
 
@@ -39,6 +39,11 @@ void setup() {
   Serial.setTimeout(SERIAL_TIMEOUT);
 
   rotationAngle = MIN_ANGLE;
+  // sonar.write(rotationAngle);
+
+  speed = 127;
+  Serial.print("P");
+  Serial.println(speed);
 }
 
 void loop() {
