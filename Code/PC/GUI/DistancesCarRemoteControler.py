@@ -132,10 +132,16 @@ class Ui_MainWindow(object):
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 510, 39))
         self.menubar.setObjectName("menubar")
+        self.menuOutils = QtWidgets.QMenu(self.menubar)
+        self.menuOutils.setObjectName("menuOutils")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        self.showCapturesAction = QtWidgets.QAction(MainWindow)
+        self.showCapturesAction.setObjectName("showCapturesAction")
+        self.menuOutils.addAction(self.showCapturesAction)
+        self.menubar.addAction(self.menuOutils.menuAction())
 
         self.retranslateUi(MainWindow)
         self.enginesPowerSlider.valueChanged['int'].connect(self.enginesPowerlcdNumber.display)
@@ -170,4 +176,6 @@ class Ui_MainWindow(object):
 "<ul style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\"><li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Flèches : mouvement.</li>\n"
 "<li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Pages : puissance des moteurs.</li>\n"
 "<li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">C : capture.</li></ul></body></html>"))
+        self.menuOutils.setTitle(_translate("MainWindow", "O&utils"))
+        self.showCapturesAction.setText(_translate("MainWindow", "Visualiser les captures"))
 

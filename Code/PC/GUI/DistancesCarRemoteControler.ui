@@ -261,8 +261,20 @@ p, li { white-space: pre-wrap; }
      <height>39</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuOutils">
+    <property name="title">
+     <string>O&amp;utils</string>
+    </property>
+    <addaction name="showCapturesAction"/>
+   </widget>
+   <addaction name="menuOutils"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="showCapturesAction">
+   <property name="text">
+    <string>Visualiser les captures</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections>

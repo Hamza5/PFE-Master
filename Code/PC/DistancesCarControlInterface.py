@@ -1,12 +1,45 @@
+import csv
+import os
 import re
 import sys
 
 from PyQt5.QtBluetooth import QBluetoothSocket, QBluetoothServiceDiscoveryAgent, QBluetoothUuid, QBluetoothServiceInfo, QBluetoothLocalDevice
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QDesktopWidget
-from PyQt5.QtWidgets import QMainWindow, QApplication
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog, QFileDialog
+from PyQt5.QtCore import Qt, QDateTime
 
 from GUI.DistancesCarRemoteControler import Ui_MainWindow
+from GUI.CapturesDialog import Ui_CapturesDialog
+
+
+class CapturesDialog(QDialog, Ui_CapturesDialog):
+
+    DISTANCES_FILENAME = "Distances.txt"
+
+    def __init__(self, parent, directory):
+        super(CapturesDialog, self).__init__(parent)
+        self.setupUi(self)
+        self.distances = []
+        self.dir = directory
+        with open(os.path.join(directory, self.DISTANCES_FILENAME), newline='') as distancesFile:
+            self.distances = [line for line in csv.reader(distancesFile)]
+        self.setCapturesCount(len(self.distances))
+        self.captureNumberSpinBox.valueChanged.connect(self.setCurrentCapture)
+        self.captureNumberSpinBox.setValue(1)
+        self.captureNumberSpinBox.setMinimum(1)
+
+    def setCapturesCount(self, count):
+        self.captureNumberSpinBox.setMaximum(count)
+        self.capturesCountLcdNumber.display(count)
+
+    def setCurrentCapture(self, captureNumber):
+        capture_id = self.distances[captureNumber-1][0]
+        capture_filename = 'IMG_{}.jpg'.format(capture_id)
+        capture = QPixmap(os.path.join(self.dir, capture_filename))
+        self.captureViewLabel.setPixmap(capture)
+        self.captureDateTimeEdit.setDateTime(QDateTime.fromMSecsSinceEpoch(int(capture_id)))
+        self.distancesLineEdit.setText('|'+'|'.join(self.distances[captureNumber-1][1:])+'|')
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -76,10 +109,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Capture
         self.enableCapturePushButton.clicked.connect(self.takePictureAndDistances)
 
+        # Menu actions
+        self.showCapturesAction.triggered.connect(self.openCapturesDialog)
+
         # Window position
         fg = self.frameGeometry()
         fg.moveCenter(QDesktopWidget().availableGeometry().center())
         self.move(fg.topLeft())
+
+    def openCapturesDialog(self):
+        directory = QFileDialog.getExistingDirectory(self, "Répertoire de captures", '../')
+        if directory:
+            dialog = CapturesDialog(self, directory)
+            dialog.show()
 
     def keyPressed(self, QKeyEvent):
         if not QKeyEvent.isAutoRepeat():
