@@ -23,6 +23,7 @@ class BluetoothConnectionManager {
     private static final String PICTURE_COMMAND = "C";
     private static final String NAVIGATE_COMMAND = "N";
     private static final String STOP_COMMAND = "S";
+    private static final String FLASH_COMMAND = "H";
 
     private BluetoothSocket computerSocket;
     private InputStream bluetoothInput;
@@ -96,6 +97,13 @@ class BluetoothConnectionManager {
                                 case STOP_COMMAND:
                                     mainActivity.serialConnectionManager.setNavigation(false);
                                     break;
+                                case FLASH_COMMAND:
+                                    mainActivity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mainActivity.flashCheckBox.performClick();
+                                        }
+                                    });
                                 default:
                                 if (command.startsWith(POWER_COMMAND)) {
                                     String[] parts = command.split(POWER_COMMAND); // This is needed because it can receive many commands at once

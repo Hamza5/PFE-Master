@@ -17,11 +17,21 @@
    <item>
     <widget class="QGroupBox" name="capturesGroupBox">
      <property name="title">
-      <string>Captures</string>
+      <string>Capture</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QLabel" name="captureNumberLabel">
+          <property name="text">
+           <string>N°</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QSpinBox" name="captureNumberSpinBox"/>
         </item>
@@ -29,6 +39,9 @@
          <widget class="QLabel" name="captureCountLabel">
           <property name="text">
            <string>sur</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>

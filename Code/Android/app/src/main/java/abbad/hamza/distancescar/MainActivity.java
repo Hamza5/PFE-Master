@@ -15,6 +15,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,6 +35,7 @@ public class MainActivity extends Activity {
     private TextView distanceValueTextView;
     private TextView temperatureValueTextView;
     private UsbManager usbManager;
+    CheckBox flashCheckBox;
     SurfaceHolder cameraSurfaceHolder;
     BluetoothConnectionManager bluetoothConnectionManager;
     SerialConnectionManager serialConnectionManager;
@@ -79,6 +82,13 @@ public class MainActivity extends Activity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
 
+            }
+        });
+        flashCheckBox = (CheckBox) findViewById(R.id.flashCheckBox);
+        flashCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean enabled) {
+                captureManager.toggleFlashMode();
             }
         });
 

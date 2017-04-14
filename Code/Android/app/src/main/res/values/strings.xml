@@ -12,9 +12,7 @@
     <string name="backward_label">Backward</string>
     <string name="left_label">Left</string>
     <string name="right_label">Right</string>
-    <string name="delay_label">Move duration</string>
-    <string name="delay_default_value">100</string>
-    <string name="ms_label">milliseconds</string>
+    <string name="flash_label">Front light</string>
 
     <string name="serial_no_port">No serial port is available !</string>
     <string name="serial_permission_rejected">Serial port permission rejected !</string>

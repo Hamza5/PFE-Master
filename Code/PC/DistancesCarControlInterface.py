@@ -74,6 +74,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     BACKWARD_COMMAND = b'B'
     LEFT_COMMAND = b'L'
     RIGHT_COMMAND = b'R'
+    FLASH_COMMMAND = b'H'
 
     def __init__(self):
         super().__init__()
@@ -108,6 +109,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.enginesPowerSlider.valueChanged.connect(self.changePower)
         # Capture
         self.enableCapturePushButton.clicked.connect(self.takePictureAndDistances)
+        # Flash
+        self.flashPushButton.clicked.connect(self.toggleFlash)
 
         # Menu actions
         self.showCapturesAction.triggered.connect(self.openCapturesDialog)
@@ -144,6 +147,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.enginesPowerSlider.setValue(self.enginesPowerSlider.value()-self.enginesPowerSlider.pageStep())
             elif QKeyEvent.key() == Qt.Key_C:
                 self.enableCapturePushButton.click()
+            elif QKeyEvent.key() == Qt.Key_F:
+                self.flashPushButton.click()
 
     def connectionButtonClicked(self):
         if self.bluetoothSocket.state() == QBluetoothSocket.UnconnectedState:
@@ -176,6 +181,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.connectionPushButton.setText(self.CONNECTION_BUTTON_DISCONNECTED_TEXT)
             self.statusbar.showMessage(self.CONNECTION_BUTTON_DISCONNECTED_TEXT, self.STATUS_MESSAGES_TIMEOUT)
+            self.navigationPushButton.setChecked(False)
+            self.enableCapturePushButton.setChecked(False)
+            self.flashPushButton.setChecked(False)
             self.stateGroupBox.setEnabled(False)
             self.navigationGroupBox.setEnabled(False)
             self.controlGroupBox.setEnabled(False)
@@ -265,6 +273,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def changePower(self, power):
         cmd = self.POWER_COMMAND+str(power).encode()
         self.bluetoothSocket.write(cmd)
+
+    def toggleFlash(self):
+        self.bluetoothSocket.write(self.FLASH_COMMMAND)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

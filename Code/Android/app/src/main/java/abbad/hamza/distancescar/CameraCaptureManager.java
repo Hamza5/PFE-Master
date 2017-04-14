@@ -103,6 +103,13 @@ class CameraCaptureManager {
             camera.takePicture(null, null, pictureCapturedCallback);
     }
 
+    void toggleFlashMode(){
+        Camera.Parameters parameters = camera.getParameters();
+        boolean enabled = parameters.getFlashMode().equals(Camera.Parameters.FLASH_MODE_TORCH);
+        parameters.setFlashMode(enabled ? Camera.Parameters.FLASH_MODE_OFF : Camera.Parameters.FLASH_MODE_TORCH);
+        camera.setParameters(parameters);
+    }
+
     private Bitmap postProcess(Bitmap image) {
         Matrix transformationMatrix = new Matrix();
         transformationMatrix.postRotate(ORIENTATION_ANGLE);

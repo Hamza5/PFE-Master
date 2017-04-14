@@ -116,6 +116,10 @@ class Ui_MainWindow(object):
         self.leftPushButton = QtWidgets.QPushButton(self.controlGroupBox)
         self.leftPushButton.setObjectName("leftPushButton")
         self.gridLayout.addWidget(self.leftPushButton, 1, 0, 1, 1)
+        self.flashPushButton = QtWidgets.QPushButton(self.controlGroupBox)
+        self.flashPushButton.setCheckable(True)
+        self.flashPushButton.setObjectName("flashPushButton")
+        self.gridLayout.addWidget(self.flashPushButton, 1, 1, 1, 1)
         self.gridLayout_4.addLayout(self.gridLayout, 1, 0, 1, 3)
         self.keyboardControlTextBrowser = QtWidgets.QTextBrowser(self.controlGroupBox)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -168,6 +172,7 @@ class Ui_MainWindow(object):
         self.backwardPushButton.setText(_translate("MainWindow", "Arrière"))
         self.rightPushButton.setText(_translate("MainWindow", "Droite"))
         self.leftPushButton.setText(_translate("MainWindow", "Gauche"))
+        self.flashPushButton.setText(_translate("MainWindow", "Feu"))
         self.keyboardControlTextBrowser.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
@@ -175,7 +180,8 @@ class Ui_MainWindow(object):
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Contrôle avec clavier :</p>\n"
 "<ul style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\"><li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Flèches : mouvement.</li>\n"
 "<li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Pages : puissance des moteurs.</li>\n"
-"<li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">C : capture.</li></ul></body></html>"))
+"<li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">C : capture.</li>\n"
+"<li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">F : Feu.</li></ul></body></html>"))
         self.menuOutils.setTitle(_translate("MainWindow", "O&utils"))
-        self.showCapturesAction.setText(_translate("MainWindow", "Visualiser les captures"))
+        self.showCapturesAction.setText(_translate("MainWindow", "&Visualiser les captures"))
 

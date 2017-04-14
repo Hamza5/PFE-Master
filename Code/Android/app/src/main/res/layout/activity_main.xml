@@ -209,5 +209,14 @@
 
     </RelativeLayout>
 
+    <CheckBox
+        android:id="@+id/flashCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/flash_label"
+        android:layout_below="@+id/powerSeekBar"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true" />
+
 
 </RelativeLayout>
