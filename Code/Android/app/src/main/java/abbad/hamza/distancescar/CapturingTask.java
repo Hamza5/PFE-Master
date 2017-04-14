@@ -58,8 +58,8 @@ class CapturingTask implements Runnable {
         }
     }
 
-    private static final long TASK_REPEATING_FREQUENCY = 250; // milliseconds
-    private static final long CAPTURE_SAVING_FREQUENCY = 500; // milliseconds
+    private static final long TASK_REPEATING_FREQUENCY = 280; // milliseconds
+    private static final long CAPTURE_SAVING_FREQUENCY = 1000; // milliseconds
     private static final long TEMPERATURE_CHECKING_FREQUENCY = 2000; // milliseconds
     private static AtomicBoolean capture = new AtomicBoolean(false);
     static ConcurrentLinkedQueue<Distance> distancesQueue = new ConcurrentLinkedQueue<>();
@@ -96,7 +96,7 @@ class CapturingTask implements Runnable {
             // This is not the right place for the following instruction, but at least now the information can be displayed anytime
             mainActivity.bluetoothConnectionManager.sendToComputer(String.format(Locale.ENGLISH, "C%d", dataCount).getBytes());
         }
-        if (!distancesQueue.isEmpty() && !picturesQueue.isEmpty()) {
+        while (!distancesQueue.isEmpty() && !picturesQueue.isEmpty()) {
             Distance distance = distancesQueue.poll();
             Picture picture = picturesQueue.poll();
             if (capture.get() && currentTime - lastCaptureTime >= CAPTURE_SAVING_FREQUENCY) {

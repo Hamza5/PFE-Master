@@ -74,7 +74,6 @@ class BluetoothConnectionManager {
                         bytesCount = bluetoothInput.read(buffer);
                         if (bytesCount > 0) {
                             final String command = new String(Arrays.copyOfRange(buffer, 0, bytesCount));
-                            Log.i(BluetoothConnectionManager.class.getName(), "command: "+command);
                             switch (command) {
                                 case FORWARD_COMMAND:
                                     mainActivity.serialConnectionManager.moveForward();
