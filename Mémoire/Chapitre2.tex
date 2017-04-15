@@ -1,4 +1,8 @@
+% Changer les captions pour cacher les références dans la table des figures
+\let\caption\oldcaption
 \chapter{\'Etat de l'art}
+
+\setcounter{chapter}{1} % Forcer la numérotation pour les compilations à un seul chapitre
 
 \section{Introduction}
 
@@ -29,7 +33,7 @@ sur l'utilisation des techniques d'apprentissage automatique.
 L'un des premiers travaux utilisant l'apprentissage automatique et qui ont eu
 des résultats satisfaisants est celui de Michels et al.\cite{michels2005high}
 qui ont développé une méthode pour permettre à une voiture télécommandée de
-naviguer de façon autonomme dans un environnement non structuré à une haute
+naviguer de façon autonome dans un environnement non structuré à une haute
 vitesse ($5m/s$).
 
 Dans leur approche ils ont utilisé deux types d'apprentissage : l'apprentissage
@@ -47,7 +51,7 @@ l'environnement et les mesures de distance respectives.
 \begin{figure}[H]
 \begin{center}
 \includegraphics[width=0.7\textwidth]{HighSpeedObstacleAvoidanceRig}
-\caption{La plateforme qui prend les mesures et les photos}{}
+\caption{La plateforme qui prend les mesures et les photos}
 \end{center}
 \end{figure}
 
@@ -65,13 +69,13 @@ distance. Ce véhicule dispose d'un émetteur qui lui permet d'envoyer l'image
 capturée vers l'ordinateur qui calcule les distances, choisit le degré de
 déviation et l'utilise pour commander le véhicule. La figure suivante présente
 une séquence d'images montrant le changement de direction du véhicule lors de
-la détection d'un obstacle (un arbuste). Le premier rang montre les postitions
+la détection d'un obstacle (un arbuste). Le premier rang montre les positions
 du véhicule, le second est sa vision, et le dernier représente les distances
 estimées des obstacles.
 
 \begin{figure}[H]
 \includegraphics[width=\textwidth]{RC_car}
-\caption{Une séquence d'images montrant l'évitement d'un obstacle}{}
+\caption{Une séquence d'images montrant l'évitement d'un obstacle}
 \end{figure}
 
 \section{Apprentissage de la profondeur d'une seule image}
@@ -88,13 +92,13 @@ pièces servant à calculer les vecteurs de caractéristiques sur différentes
 \begin{figure}[H]
 \begin{center}
 \includegraphics[width=0.75\textwidth]{FeaturesVectorScales}
-\caption{Le vecteur de caractéristiques à  différentes échelles}{}
+\caption{Le vecteur de caractéristiques à  différentes échelles}
 \end{center}
 \end{figure}
 
 De plus, il ont choisi la technique du \keyword{champ aléatoire de Markov} comme
 méthode d'apprentissage car elle est un modèle probabiliste permettant de
-prendre en considération les correlations existantes entre pièces adjacentes.
+prendre en considération les corrélations existantes entre pièces adjacentes.
 Ils ont commencé par la variante gaussienne du modèle, puis ils ont
 basculé vers la laplacienne vu qu'elle est la plus adaptée à ce problème.
 La figure suivante présente quelques résultats de leurs expériences, la première
@@ -105,7 +109,7 @@ et le modèle laplacien respectivement.
 \begin{figure}[H]
 \begin{center}
 \includegraphics[width=0.75\textwidth]{DepthLearningResults}
-\caption{Quelques résultats de l'apprentissage de profondeur}{}
+\caption{Quelques résultats de l'apprentissage de profondeur}
 \end{center}
 \end{figure}
 
@@ -125,7 +129,7 @@ utilisées dans leurs tests avec les résultats obtenus.
 
 \begin{figure}[H]
 \includegraphics[width=\textwidth]{make3D_tests}
-\caption{Quelques images transformées en 3D avec Make3D}{}
+\caption{Quelques images transformées en 3D avec Make3D}
 \end{figure}
 
 \section{Les réseaux de neurones convolutionels pour l'estimation de la profondeur}
@@ -150,7 +154,7 @@ vues locales sur l'image.
 \begin{figure}[H]
 \begin{center}
 \includegraphics[width=0.6\textwidth]{Double_CNN_Architecture}
-\caption{L'architecture du réseau à deux niveaux}{}
+\caption{L'architecture du réseau à deux niveaux}
 \end{center}
 \end{figure}
 
@@ -175,7 +179,7 @@ sortie à un haut niveau de détails en utilisant toutes les informations préc�
 \begin{figure}[H]
 \begin{center}
 \includegraphics[width=0.5\textwidth]{CNN_Multi_Architecture}
-\caption{L'architecture du réseau à trois niveaux}{}
+\caption{L'architecture du réseau à trois niveaux}
 \end{center}
 \end{figure}
 
@@ -193,7 +197,7 @@ probabilité de chaque profondeur en utilisant la formule de CRF.
 
 \begin{figure}[H]
 \includegraphics[width=\textwidth]{CRF_CNN_Architecture}
-\caption{L'architecture globale du champ de neurones convolutionel}{}
+\caption{L'architecture globale du champ de neurones convolutionel}
 \end{figure}
 
 L'apprentissage a été effectué après avoir initialisé les couches par les poids

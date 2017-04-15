@@ -18,11 +18,13 @@
 \usepackage{float} % Pour empêcher le déplacement des tableaux et des figures.
 \usepackage{babelbib} % Pour changer la langue dans la bibliographie
 \usepackage{amsmath} % Pour des fonctions mathématiques
+\usepackage[onelanguage,french,longend,boxruled,algoruled,linesnumbered,algochapter]{algorithm2e}
 
 \graphicspath{ {pictures/} } % Spécifier le répertoire contenant les images
 \DisableLigatures[f]{encoding=*}
 \renewcommand \thechapter{\Roman{chapter}} % Utiliser les numéros romans pour les chapitres
-\captionsetup{labelfont=it,textfont=it,labelsep=period}
+\captionsetup{labelfont=it,textfont=it,labelsep=period} % Changer le style des légendes
+\SetAlgoCaptionSeparator{\unskip.} % pour les légendes d'algorithmes
 \AtBeginDocument{ % Changer les légendes
   \renewcommand\tablename{\itshape Tableau}
   \renewcommand{\figurename}{\itshape Figure}
@@ -71,21 +73,17 @@
 \renewcommand\section{\@ifstar{\@sectionstar}{\@sectionnostar}}
 \makeatother
 
-% Changer les captions pour cacher les références dans la table des figures
-\let\oldcaption\caption
-\renewcommand{\caption}[2]{\oldcaption[#1]{#1#2}}
-
 % Mes commandes
 \newcommand{\keyword}[1]{\emph{#1}}
 
 % \include{Introduction}
-\include{Chapitre1}
-\include{Chapitre2}
+% \include{Chapitre1}
+% \include{Chapitre2}
 \include{Chapitre3}
 % \include{Chapitre4}
 % \include{Conclusion}
 
 \bibliographystyle{babplain}
 \parskip=-1em
-\bibliography{bibliographie}
+% \bibliography{bibliographie}
 \end{document}

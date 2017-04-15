@@ -1,3 +1,5 @@
+\setcounter{chapter}{2} % Forcer la numérotation pour les compilations à un seul chapitre
+
 \chapter{Conception de la plateforme}
 
 \section{Introduction}
@@ -55,7 +57,7 @@ vitesse à laquelle ce moteur tourne.
 \begin{figure}[h]
 \begin{center}
 \includegraphics[width=0.2\textwidth]{DC_motor_wheel}
-\caption{Le moteur de courant continu utilisé avec la roue}{}
+\caption{Le moteur de courant continu utilisé avec la roue}
 \end{center}
 \end{figure}
 
@@ -78,7 +80,7 @@ des sens différents, alors le robot tourne autour de lui-même.
 \begin{figure}[h]
 \begin{center}
 \includegraphics[width=0.3\textwidth]{L298N}
-\caption{Le contrôleur de moteurs L298N}{}
+\caption{Le contrôleur de moteurs L298N}
 \end{center}
 \end{figure}
 
@@ -118,7 +120,7 @@ instantanément après avoir pris les mesures nécessaires.
 \begin{figure}[h]
 \begin{center}
 \includegraphics[width=0.25\textwidth]{DHT22}
-\caption{Le capteur de la température DHT22}{}
+\caption{Le capteur de la température DHT22}
 \end{center}
 \end{figure}
 
@@ -137,7 +139,7 @@ Nous avons utilisé le servomoteur \keyword{TowerPro SG90} pour cette tâche.
 \begin{figure}[h]
 \begin{center}
 \includegraphics[width=0.3\textwidth]{SG90}
-\caption{Le servomoteur TowerPro SG90}{}
+\caption{Le servomoteur TowerPro SG90}
 \end{center}
 \end{figure}
 
@@ -161,11 +163,11 @@ pendant une unité de temps dont la fréquence est choisie par le programme.
 \begin{figure}[h]
 \begin{center}
 \includegraphics[width=0.5\textwidth]{ArduinoMega2560}
-\caption{Une version compatible avec le microcontrôleur Arduino Mega 2560}{}
+\caption{Une version compatible avec le microcontrôleur Arduino Mega 2560}
 \end{center}
 \end{figure}
 
-Étant donnée que les performances du microcontrôleur soient très limitées, nous
+Étant donnée que les performances du microcontrôleur sont très limitées, nous
 devons le connecter à un appareil plus puissant en termes de vitesse
 de calcul et de capacité en mémoire, et disposant d'autres options comme la
 mise en réseau. Afin de satisfaire ces besoins, nous avons intégré le téléphone
@@ -178,12 +180,238 @@ et en même temps avec l'ordinateur hôte.
 \begin{figure}[h]
 \begin{center}
 \includegraphics[height=0.47\textheight]{DistancesRobotCircuit}
-\caption{Le schéma de connexions entre les modules du robots}{}
+\caption{Le schéma des connexions entre les modules du robots}
 \end{center}
 \end{figure}
 
-Jusqu'à ici, nous avons présenté les composants matériels nécessaires pour la
+Jusque là, nous avons présenté les composants matériels nécessaires pour la
 construction du robot et la manière dont ils sont utilisés en indiquant la
 fonctionalité de chacun d'eux. Dans la partie suivante nous présenterons les
-logiciels développés pour chaque plateforme et nous expliquons leur fonctionnement
+logiciels développés pour chaque plateforme et nous expliquerons leur fonctionnement
 ainsi que leur intercommunication qui permettent la gestion du robot.
+
+\section{La partie logicielle}
+
+L'ensemble des composants du robot est géré directement par deux logiciels, l'un
+s'exécute sur le microcontrôleur, et l'autre sur le téléphone. Ce dernier
+envoie des commandes à l'autre qui contrôle directement le matériel.
+
+\subsection{Le programme du microcontrôleur}
+
+C'est un programme répétitif testant à chaque fois s'il y a
+une commande reçue par le téléphone à travers la connexion en série. Si c'est le cas,
+il teste le nom de la commande pour savoir quelle action il faut exécuter.
+Une fois que l'action et ses paramètres éventuels sont déterminés, un signal
+approprié est envoyé au module correspondant qui exécute cette action et renvoie
+éventuellement une réponse. Cette réponse qui est déterminée par l'environnement
+est capturée par le microcontrôleur et traitée à ce niveau avant de la propager
+au téléphone.
+
+Ce programme reconnaît plusieurs commandes, chacune étant représentée par un
+caractère. Si la commande nécessite un paramètre (par exemple : le changement de la
+puissance des moteurs), le caractère de la commande est suivi par une chaîne de
+caractères contenant la valeur du paramètre. Cette valeur est toujours un nombre
+entier.
+
+Si l'action performée en reconnaissant une commande retourne un résultat (par
+exemple : la température), il sera envoyé au téléphone comme une chaîne de
+caractères. Le téléphone traîte le résultat comme nous détaillerons dans la prochaine partie.
+
+L'algorithme suivant présente le fonctionnement général du programme du
+microcontrôleur. Il est constitué d'une boucle infinie (c'est-à-dire qu'elle
+s'exécute tant que l'appareil est allumé) qui attend la réception d'une commande
+et puis teste son type afin d'effectuer l'action nécessaire.
+
+\smallskip
+
+\begin{algorithm}[H]
+\caption{Le programme du microcontrôleur}
+\BlankLine
+\While{le microcontrôleur est allumé}{
+  \If{il y a une commande reçue}{
+    \Switch{la commande}{
+      \Case{distances}{
+        Mesurer les distances et les envoyer\;
+      }
+      \Case{mouvement}{
+        Tourner/Arrêter les moteurs\;
+      }
+      \Case{température}{
+        Prendre la température et l'envoyer\;
+      }
+      \Case{puissance}{
+        Ajuster la puissance des moteur\;
+      }
+    }
+  }
+}
+\end{algorithm}
+
+La commande de distance ordonne au microcontrôleur d'envoyer des signaux
+successifs au servomoteur pour le faire tourner d'un angle à chaque fois ($10$ degrés
+dans notre cas). La durée entre l'envoi d'un signal et le suivant est fixée dans
+le programme afin de réserver la durée nécessaire pour l'opération mécanique (qui
+est la rotation du bras du servomoteur). En même temps, la distance vers le
+premier obstacle est mesurée à chaque angle par l'envoi d'un autre signal au capteur
+de distances monté sur le servomoteur. La mesure de distance n'est pas toujours
+possible : si l'objet est très loin (plus de $4.5m$) ou si sa surface est inclinée
+ou irrigulière, alors l'ultrason envoyé sera perdu et la distance ne peut pas être
+déterminée. Dans ce cas, une valeur constante et grande sera mise à la place de la
+distance réelle pour indiquer qu'elle est inconnue. L'ensemble de distances est
+transféré par la suite au téléphone par le biais de la connexion en série.
+
+Les commandes de mouvement sont les quatre commandes de direction (avancer, réculer
+tourner à droite et tourner à gauche) et la commande d'arrêt. Lors de la
+réception de la commande d'arrêt, le microcontrôleur ordonne au pilote des moteurs
+de couper le courant passant dans tous les moteurs, ce qui cause leur arrêt. Dans
+le cas de la commande d'avancement ou de recul, tous les moteurs sont alimentés
+par un courant de même sens dont un sens provoque l'avancement et l'autre cause
+le recul. Le même principe s'applique pour tourner le robot, sauf que le courant
+passant par les moteurs d'un côté est l'inverse de celui passant par les moteurs
+de l'autre côté.
+
+La commande de relèvement de la température est exécutée pour
+mettre à jour la valeur de celle ci dans la mémoire et l'afficher à l'utilisateur.
+Cette valeur est indispensable pour le calcul de la vitesse du son dans l'air
+dans l'environnement courant. Le relèvement est fait par l'envoi d'un signal spécial
+au capteur qui renvoie la température courante au microcontrôleur.
+
+Toutes les actions citées précédement ne sont exécutées que à la réception de
+la commande correspondante à partir de l'application du téléphone que nous expliquerons
+son fonctionnement dans ce qui suit.
+
+\subsection{L'application du téléphone}
+
+Elle a pour rôle de commander
+le microcontrôleur et d'en recevoir des informations. Les informations
+sont utilisées pour faire des calculs et prendre des décisions sous
+forme d'actions. Certaines sont également envoyées au logiciel qui s'exécute sur
+l'ordinateur. De plus, elle prend périodiquement des images en utilisant la camera
+du téléphone.
+
+L'application envoie une commande de température après chaque intervalle de temps
+($2$ secondes) au micrôcontrolleur. Dès la réception de sa valeur, elle met à
+jour son interface graphique et l'envoie à l'ordinateur.
+
+De même, l'application envoie la commande de distances et prend une photo chaque périodiquement
+($0.3$ seconde). Les distances retournées et la photo prise sont sauvegardées
+temporairement dans deux files, chaque file correspondant à un type d'objets.
+\`A chaque fois, un élément de chaque file est défilé et selon le mode
+de la capture et la fréquence de la sauvegarde (qui est fixée à $1$ instance de
+données par seconde), ces éléments peuvent être enregistrées de façon permanente
+dans la mémoire externe.
+
+L'envoi des commandes de mouvement dépend directement du mode de la navigation.
+Si le mode est automatique, l'envoi est exécutée après chaque intervalle de temps
+(qui est égale aussi à $0.3$ seconde). Dans ce cas, l'application décide quelle
+commande il faut envoyer en utilisant les distances précédents.
+Si le mode est manuel, l'envoi est effectué seulement quand l'application reçoit
+un ordre explicite de l'utilisateur.
+
+Concernant la commande de changement de la puissance, elle est toujours exécutée
+à l'ordre de l'utilisateur seulement. Elle contient la valeur de la puissance qui
+est un nombre entier définit sur l'intervalle $[0-255]$. Cet valeur est initialisée
+par défaut à la valeur $127$.
+
+Cette application acte également comme un pont entre l'ordinateur et le microcontrôleur
+en utilisant deux types de connexions : une connexion en série par câble entre
+le téléphone et le microcontrôleur, et une autre sans fil par Bluetooth entre
+le téléphone et l'ordinateur. Les connexions restent toujours ouvertes
+mais les transferts n'ont lieu qu'à certains moments. Ces transferts peuvent
+se faire dans les deux sens et sont soit périodiques ou apériodiques selon l'action.
+
+Les actions périodiques sont :
+\begin{itemize}
+  \item le relèvement de la température de l'air dans l'environnement,
+  \item le choix de la direction de la navigation,
+  \item la sauvegarde des données sur le périphérique du stockage externe (la carte mémoire).
+\end{itemize}
+
+\bigskip
+
+Les actions apériodiques sont :
+\begin{itemize}
+  \item l'envoi de commandes de mouvement issues par l'utilisateur,
+  \item le changement de la puissance des moteurs,
+  \item le lancement et l'arrêt de la capture et de la navigation.
+\end{itemize}
+
+\subsection{Le logiciel de l'ordinateur}
+
+Il offre une interface qui permet à l'utilisateur
+de contrôler le robot à distance et de garder un œil sur son état. Il affiche la
+température de l'air où se situe le robot et le nombre de données capturées et
+sauvegardées sur la mémoire permanente.
+
+\begin{figure}[h]
+\begin{center}
+  \begin{subfigure}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{ComputerControler}
+    \caption{\'Etat \textbf{déconnecté}}
+  \end{subfigure}
+  \hspace{2em}
+  \begin{subfigure}{0.4\textwidth}
+    \includegraphics[width=\textwidth]{ComputerControler_connected}
+    \caption{\'Etat \textbf{connecté} avec navigation}
+  \end{subfigure}
+  \caption{L'interface principale du logiciel d'ordinateur}
+\end{center}
+\end{figure}
+
+Le logiciel permet de guider de façon directe le robot en envoyant des commandes
+de direction (avant, arrière, droite et gauche) ou le signal de la
+navigation automatique. Il permet également de changer la puissance des moteurs
+et d'activer ou de désactiver la sauvegarde de données capturées.
+La sauvegarde peut être effectuée indépendamment
+du mode de la navigation, c'est-à-dire qu'elle peut être activée sans que la
+navigation soit automatique et vice versa.
+
+Les commandes de mouvement et de sauvegarde peuvent être activées soit par les
+boutons existant sur l'interface ou par des touches de clavier. Les instructions
+permettant de guider la machine sont clairement visibles sur l'interface.
+
+Ce logiciel offre une autre interface qui a pour fonction de visualiser les
+données collectées en affichant à la fois une photo capturée avec les distances
+respectives en mètres.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.4\textwidth]{CapturesViewer}
+\caption{L'interface de la visualisation des données}
+\end{center}
+\end{figure}
+
+\section{La collection et le traitement des données}
+
+Après avoir allumé le robot et lancé les programmes nécessaires, il peut commencer
+à effectuer la tâche d'acquisition. Il se déplace et prend périodiquement une image
+de taille $480 \times 640$, ensuite il coupe ses marges haute et basse par un
+déplacement de $80$ pixels sur chaque marge, ce qui résulte à une image carrée
+de $480 \times 480$ pixels. La taille de l'image est par la suite réduit à
+$96 \times 96$ pixels pour des raisons d'économisation de l'espace de stockage
+et d'optimisation des calculs de l'apprentissage automatique qui sera effectué
+ultérieurement. Chaque image est sauvegardée comme un fichier qui porte comme
+nom un préfixe (\texttt{IMG\_}) suivi par un identificateur numérique généré du
+temps de la capture (l'\keyword{époque}\footnote{Il représente le nombre de
+millisecondes passés depuis le premier Janvier 1970 à minuit dans le temps
+universel coordonné (UTC).}). En même temps, dans un autre fichier, les distances
+correspondantes à chaque image sont enregistrées avec l'identificateur de cette
+dernière, chaque instance étant écrite sur une ligne.
+
+\bigskip
+
+\section{Conclusion}
+
+Dans chaque problème d'apprentissage automatique, un ensemble de données considérable
+est nécessaire pour pouvoir effectuer cette tâche. Cette nécessité a nous mis devant
+deux choix : utiliser un ensemble de données prêt où les données sont collectées
+et traitées par d'autres personnes, ou bien construire notre propre ensemble en
+utilisant nos propres outils que nous devons les développer nous-mêmes.
+
+Dans ce travail, nous avons choisi la deuxième méthode. De ce fait, nous avons
+fabriqué le robot que nous avons décrit sa construction matérielle et sa
+programmation sur le niveau logiciel. Il nous a permet de collecter les images
+prises au niveau de sa vision et les distances des obstacles éventuels dans
+chaque image. Dans le chapitre suivant, nous allons exploiter ces données en
+appliquant un apprentissage automatique supervisé en utilisant la méthode de
+réseaux de neurones convolutionels.
