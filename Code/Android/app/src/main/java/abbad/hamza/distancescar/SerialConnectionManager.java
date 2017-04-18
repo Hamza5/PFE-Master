@@ -81,6 +81,7 @@ class SerialConnectionManager {
             String errorMessage = mainActivity.getString(R.string.serial_no_port);
             mainActivity.showMessage(errorMessage);
             Log.e(getClass().getName(), errorMessage);
+            mainActivity.bluetoothConnectionManager.sendToComputer("ES".getBytes());
         }
     }
 
@@ -102,6 +103,7 @@ class SerialConnectionManager {
                     String errorMessage = mainActivity.getString(R.string.serial_open_error);
                     mainActivity.showMessage(errorMessage);
                     Log.e(SerialConnectionManager.class.getName(), errorMessage);
+                    mainActivity.bluetoothConnectionManager.sendToComputer("ES".getBytes());
                     return false;
                 }
                 arduinoSerialPort = UsbSerialDevice.createUsbSerialDevice(device, arduinoSerialConnection);
@@ -109,6 +111,7 @@ class SerialConnectionManager {
                     String errorMessage = mainActivity.getString(R.string.serial_driver_not_found);
                     mainActivity.showMessage(errorMessage);
                     Log.e(SerialConnectionManager.class.getName(), errorMessage);
+                    mainActivity.bluetoothConnectionManager.sendToComputer("ES".getBytes());
                 }
                 else {
                     if (arduinoSerialPort.open()) {
@@ -123,6 +126,7 @@ class SerialConnectionManager {
                         String errorMessage = mainActivity.getString(R.string.serial_open_error);
                         mainActivity.showMessage(errorMessage);
                         Log.e(SerialConnectionManager.class.getName(), errorMessage);
+                        mainActivity.bluetoothConnectionManager.sendToComputer("ES".getBytes());
                     }
                 }
                 return false;

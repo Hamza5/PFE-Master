@@ -110,6 +110,7 @@ class CapturingTask implements Runnable {
                     String errorMessage = mainActivity.getString(R.string.camera_photo_save_error);
                     mainActivity.showMessage(errorMessage);
                     Log.e(getClass().getName(), errorMessage);
+                    mainActivity.bluetoothConnectionManager.sendToComputer("EC".getBytes());
                 }
             }
         }

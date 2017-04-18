@@ -50,6 +50,7 @@ class CameraCaptureManager {
                         String errorMessage = mainActivity.getString(R.string.camera_preview_error);
                         mainActivity.showMessage(errorMessage);
                         Log.e(CameraCaptureManager.class.getName(), errorMessage);
+                        mainActivity.bluetoothConnectionManager.sendToComputer("EM".getBytes());
                     }
                 }
             }
@@ -78,6 +79,7 @@ class CameraCaptureManager {
                 String errorMessage = mainActivity.getString(R.string.camera_preview_error);
                 mainActivity.showMessage(errorMessage);
                 Log.e(getClass().getName(), errorMessage);
+                mainActivity.bluetoothConnectionManager.sendToComputer("EM".getBytes());
             }
         } else {
             camera = Camera.open();
@@ -85,6 +87,7 @@ class CameraCaptureManager {
                 String errorMessage = mainActivity.getString(R.string.camera_open_error);
                 mainActivity.showMessage(errorMessage);
                 Log.e(getClass().getName(), errorMessage);
+                mainActivity.bluetoothConnectionManager.sendToComputer("EM".getBytes());
             }
             else startCamera();
         }

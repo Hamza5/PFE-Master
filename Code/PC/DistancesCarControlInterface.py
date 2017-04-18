@@ -202,6 +202,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         data = self.bluetoothSocket.readAll()
         try:
             text = bytes(data).decode()
+            if text.startswith('E'):  # Error reported
+                self.dataCountLcdNumber.setStyleSheet("* {color : white; background-color:red;}")
+                self.statusbar.setStyleSheet("* {color : white; background-color:red;}")
+                if text == 'EC':
+                    self.statusbar.showMessage('Erreur de capture !')
+                elif text == 'EM':
+                    self.statusbar.showMessage('Erreur de la camera !')
+                elif text == 'ES':
+                    self.statusbar.showMessage('Erreur de la connexion série !')
+                return
+            else:
+                self.dataCountLcdNumber.setStyleSheet("")
+                self.statusbar.setStyleSheet("")
+                self.statusbar.showMessage("")
             match = self.DISTANCES_REGEXP.match(text)
             if match:
                 self.distancesLineEdit.setText(match.group())
