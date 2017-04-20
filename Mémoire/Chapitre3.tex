@@ -143,6 +143,8 @@ Nous avons utilisé le servomoteur \keyword{TowerPro SG90} pour cette tâche.
 \end{center}
 \end{figure}
 
+\subsection{Le contrôle des composants}
+
 Afin de contrôler tous les modules précédents, il nous faut un microcontrôleur.
 Dans ce travail, nous avons utilisé une version compatible avec le
 microcontrôleur \keyword{Arduino Mega 2560}.
@@ -154,33 +156,33 @@ placé tous ces modules dans leurs positions respectives. Par la suite, il sera
 chargé par un programme permettant de gérer continuellement les autres modules
 par l'envoi de commandes ou par la réception d'informations.
 
-Il y a deux types de ports : les \keyword{ports numériques} à lecture et
-écriture, et les \keyword{ports analogiques} à lecture seule. Certains ports
-numériques supportent \keyword{la modulation de largeur d'impulsion} et donc peuvent
-émettre un signal composé d'une succession d'états discrets de "tout ou rien"
-pendant une unité de temps dont la fréquence est choisie par le programme.
-
 \begin{figure}[h]
 \begin{center}
-\includegraphics[width=0.5\textwidth]{ArduinoMega2560}
+\includegraphics[width=0.4\textwidth]{ArduinoMega2560}
 \caption{Une version compatible avec le microcontrôleur Arduino Mega 2560}
 \end{center}
 \end{figure}
 
-Étant donnée que les performances du microcontrôleur sont très limitées, nous
+Il y a deux types de ports : les \keyword{ports numériques} à lecture et
+écriture, et les \keyword{ports analogiques} à lecture seule. Certains ports
+numériques supportent \keyword{la modulation de largeur d'impulsion} et donc peuvent
+émettre un signal composé d'une succession d'états discrets de \" tout ou rien \"
+pendant une unité de temps dont la fréquence est choisie par le programme.
+
+Étant donné que les performances du microcontrôleur sont très limitées, nous
 devons le connecter à un appareil plus puissant en termes de vitesse
 de calcul et de capacité en mémoire, et disposant d'autres options comme la
 mise en réseau. Afin de satisfaire ces besoins, nous avons intégré le téléphone
 intelligent \keyword{Samsung Galaxy Note 2} comme partie du robot en le connectant
-par un cable USB avec le microcontrôleur pour établir une connexion en série entre
-ces deux appareils, et cela après avoir développé une application s'exécutant
+par un cable USB avec le microcontrôleur. Cela permet d'établir une connexion en série entre
+ces deux appareils, après avoir développé une application s'exécutant
 sur le téléphone et permettant l'échange d'informations avec le microcontrôleur
-et en même temps avec l'ordinateur hôte.
+en même temps qu'avec l'ordinateur hôte.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
-\includegraphics[height=0.47\textheight]{DistancesRobotCircuit}
-\caption{Le schéma des connexions entre les modules du robots}
+\includegraphics[width=0.8\textwidth]{DistancesRobotCircuit}
+\caption{Le schéma des connexions entre les modules du robot}
 \end{center}
 \end{figure}
 
@@ -190,6 +192,21 @@ fonctionalité de chacun d'eux. Dans la partie suivante nous présenterons les
 logiciels développés pour chaque plateforme et nous expliquerons leur fonctionnement
 ainsi que leur intercommunication qui permettent la gestion du robot.
 
+\begin{figure}[h]
+\begin{center}
+  \begin{subfigure}{0.49\textwidth}
+    \includegraphics[width=\textwidth]{Distances_robot_front}
+    \caption{Vue de face}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.49\textwidth}
+    \includegraphics[width=\textwidth]{Distances_robot_back}
+    \caption{Vue arrière}
+  \end{subfigure}
+  \caption{Des photos du robot}
+\end{center}
+\end{figure}
+
 \section{La partie logicielle}
 
 L'ensemble des composants du robot est géré directement par deux logiciels, l'un
@@ -198,7 +215,7 @@ envoie des commandes à l'autre qui contrôle directement le matériel.
 
 \subsection{Le programme du microcontrôleur}
 
-C'est un programme répétitif testant à chaque fois s'il y a
+C'est un programme répétitif, testant à chaque fois s'il y a
 une commande reçue par le téléphone à travers la connexion en série. Si c'est le cas,
 il teste le nom de la commande pour savoir quelle action il faut exécuter.
 Une fois que l'action et ses paramètres éventuels sont déterminés, un signal
@@ -208,13 +225,13 @@ est capturée par le microcontrôleur et traitée à ce niveau avant de la propa
 au téléphone.
 
 Ce programme reconnaît plusieurs commandes, chacune étant représentée par un
-caractère. Si la commande nécessite un paramètre (par exemple : le changement de la
+caractère. Si la commande nécessite un paramètre (par exemple le changement de la
 puissance des moteurs), le caractère de la commande est suivi par une chaîne de
 caractères contenant la valeur du paramètre. Cette valeur est toujours un nombre
 entier.
 
 Si l'action performée en reconnaissant une commande retourne un résultat (par
-exemple : la température), il sera envoyé au téléphone comme une chaîne de
+exemple la température), il est envoyé au téléphone comme une chaîne de
 caractères. Le téléphone traîte le résultat comme nous détaillerons dans la prochaine partie.
 
 L'algorithme suivant présente le fonctionnement général du programme du
@@ -224,7 +241,7 @@ et puis teste son type afin d'effectuer l'action nécessaire.
 
 \smallskip
 
-\begin{algorithm}[H]
+\begin{algorithm}[h]
 \caption{Le programme du microcontrôleur}
 \BlankLine
 \While{le microcontrôleur est allumé}{
@@ -255,7 +272,7 @@ est la rotation du bras du servomoteur). En même temps, la distance vers le
 premier obstacle est mesurée à chaque angle par l'envoi d'un autre signal au capteur
 de distances monté sur le servomoteur. La mesure de distance n'est pas toujours
 possible : si l'objet est très loin (plus de $4.5m$) ou si sa surface est inclinée
-ou irrigulière, alors l'ultrason envoyé sera perdu et la distance ne peut pas être
+ou irrégulière, alors l'ultrason envoyé sera perdu et la distance ne peut pas être
 déterminée. Dans ce cas, une valeur constante et grande sera mise à la place de la
 distance réelle pour indiquer qu'elle est inconnue. L'ensemble de distances est
 transféré par la suite au téléphone par le biais de la connexion en série.
@@ -308,17 +325,17 @@ commande il faut envoyer en utilisant les distances précédents.
 Si le mode est manuel, l'envoi est effectué seulement quand l'application reçoit
 un ordre explicite de l'utilisateur.
 
-Concernant la commande de changement de la puissance, elle est toujours exécutée
-à l'ordre de l'utilisateur seulement. Elle contient la valeur de la puissance qui
-est un nombre entier définit sur l'intervalle $[0-255]$. Cet valeur est initialisée
-par défaut à la valeur $127$.
+La commande de changement de puissance est toujours exécutée seulement
+à l'ordre de l'utilisateur. Elle contient la valeur de la puissance qui
+est un nombre entier définit sur l'intervalle $[0-255]$. Cette valeur est initialisée
+par défaut à $127$.
 
 Cette application acte également comme un pont entre l'ordinateur et le microcontrôleur
 en utilisant deux types de connexions : une connexion en série par câble entre
 le téléphone et le microcontrôleur, et une autre sans fil par Bluetooth entre
 le téléphone et l'ordinateur. Les connexions restent toujours ouvertes
 mais les transferts n'ont lieu qu'à certains moments. Ces transferts peuvent
-se faire dans les deux sens et sont soit périodiques ou apériodiques selon l'action.
+se faire dans les deux sens et sont soit périodiques soit apériodiques selon l'action.
 
 Les actions périodiques sont :
 \begin{itemize}
@@ -331,7 +348,7 @@ Les actions périodiques sont :
 
 Les actions apériodiques sont :
 \begin{itemize}
-  \item l'envoi de commandes de mouvement issues par l'utilisateur,
+  \item l'envoi de commandes de mouvement issues de l'utilisateur,
   \item le changement de la puissance des moteurs,
   \item le lancement et l'arrêt de la capture et de la navigation.
 \end{itemize}
@@ -341,7 +358,8 @@ Les actions apériodiques sont :
 Il offre une interface qui permet à l'utilisateur
 de contrôler le robot à distance et de garder un œil sur son état. Il affiche la
 température de l'air où se situe le robot et le nombre de données capturées et
-sauvegardées sur la mémoire permanente.
+sauvegardées sur la mémoire permanente. Il permet aussi de signaler quelques
+erreurs causées par le matériel comme le dysfonctionnement de la camera.
 
 \begin{figure}[h]
 \begin{center}
@@ -359,59 +377,61 @@ sauvegardées sur la mémoire permanente.
 \end{figure}
 
 Le logiciel permet de guider de façon directe le robot en envoyant des commandes
-de direction (avant, arrière, droite et gauche) ou le signal de la
+de direction (avant, arrière, droite et gauche) ou un signal de
 navigation automatique. Il permet également de changer la puissance des moteurs
 et d'activer ou de désactiver la sauvegarde de données capturées.
 La sauvegarde peut être effectuée indépendamment
-du mode de la navigation, c'est-à-dire qu'elle peut être activée sans que la
+du mode de navigation, c'est-à-dire qu'elle peut être activée sans que la
 navigation soit automatique et vice versa.
 
-Les commandes de mouvement et de sauvegarde peuvent être activées soit par les
+Les commandes de mouvement et de sauvegarde peuvent être activées par les
 boutons existant sur l'interface ou par des touches de clavier. Les instructions
-permettant de guider la machine sont clairement visibles sur l'interface.
+permettant de guider la machine par n'importe quelle méthode sont clairement visibles
+sur l'interface.
 
 Ce logiciel offre une autre interface qui a pour fonction de visualiser les
 données collectées en affichant à la fois une photo capturée avec les distances
 respectives en mètres.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
 \includegraphics[width=0.4\textwidth]{CapturesViewer}
 \caption{L'interface de la visualisation des données}
 \end{center}
 \end{figure}
 
-\section{La collection et le traitement des données}
+\section{La collecte et le traitement des données}
 
 Après avoir allumé le robot et lancé les programmes nécessaires, il peut commencer
 à effectuer la tâche d'acquisition. Il se déplace et prend périodiquement une image
 de taille $480 \times 640$, ensuite il coupe ses marges haute et basse par un
-déplacement de $80$ pixels sur chaque marge, ce qui résulte à une image carrée
-de $480 \times 480$ pixels. La taille de l'image est par la suite réduit à
+déplacement de $80$ pixels sur chaque marge, ce qui aboutit à une image carrée
+de $480 \times 480$ pixels. La taille de l'image est par la suite réduite à
 $96 \times 96$ pixels pour des raisons d'économisation de l'espace de stockage
 et d'optimisation des calculs de l'apprentissage automatique qui sera effectué
 ultérieurement. Chaque image est sauvegardée comme un fichier qui porte comme
-nom un préfixe (\texttt{IMG\_}) suivi par un identificateur numérique généré du
-temps de la capture (l'\keyword{époque}\footnote{Il représente le nombre de
-millisecondes passés depuis le premier Janvier 1970 à minuit dans le temps
+nom un préfixe (\texttt{IMG\_}) suivi par un identificateur numérique généré
+au moment de la capture (l'\keyword{époque}\footnote{Elle représente le nombre de
+millisecondes passées depuis le premier janvier 1970 à minuit dans le temps
 universel coordonné (UTC).}). En même temps, dans un autre fichier, les distances
-correspondantes à chaque image sont enregistrées avec l'identificateur de cette
-dernière, chaque instance étant écrite sur une ligne.
-
-\bigskip
+correspondant à chaque image sont enregistrées avec l'identificateur de cette
+dernière, chaque instance étant écrite sur une ligne. Le nombre de distances
+est fixé à $7$ par image.
 
 \section{Conclusion}
 
 Dans chaque problème d'apprentissage automatique, un ensemble de données considérable
-est nécessaire pour pouvoir effectuer cette tâche. Cette nécessité a nous mis devant
+est nécessaire pour pouvoir effectuer cette tâche. Cette nécessité nous a mis devant
 deux choix : utiliser un ensemble de données prêt où les données sont collectées
 et traitées par d'autres personnes, ou bien construire notre propre ensemble en
-utilisant nos propres outils que nous devons les développer nous-mêmes.
+utilisant nos propres outils que nous devons développer nous-mêmes.
 
-Dans ce travail, nous avons choisi la deuxième méthode. De ce fait, nous avons
-fabriqué le robot que nous avons décrit sa construction matérielle et sa
-programmation sur le niveau logiciel. Il nous a permet de collecter les images
+Nous avons choisi la deuxième méthode. De ce fait, nous avons
+fabriqué le robot dont nous avons décrit la construction matérielle et la
+programmation au niveau logiciel. Il nous a permis de collecter les images
 prises au niveau de sa vision et les distances des obstacles éventuels dans
-chaque image. Dans le chapitre suivant, nous allons exploiter ces données en
-appliquant un apprentissage automatique supervisé en utilisant la méthode de
+chaque image.
+
+Dans le chapitre suivant, nous allons exploiter ces données grâce à
+un apprentissage automatique supervisé en utilisant la méthode de
 réseaux de neurones convolutionels.
