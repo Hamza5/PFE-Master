@@ -3,15 +3,13 @@ import os
 import sys
 import random
 import csv
+import shutil
 from collections import OrderedDict
 
 import tensorflow as tf
 import numpy as np
 
 DISTANCES_FILE = 'Distances.txt'
-TOLERATED_ERROR = 0.3  # in meters
-TRAIN_DATA_FACTOR = 0.7
-VALIDATION_DATA_FACTOR = 0.15
 
 
 def convolutional_neural_network(height, width, channels, layers) -> dict:
@@ -109,12 +107,12 @@ def load_picture(file_name):
     return picture_content
 
 
-def get_train_validation_test_sets(pictures_distances) -> (dict, dict, dict):
+def get_train_validation_test_sets(pictures_distances, train_percent, validation_rest_percent) -> (dict, dict, dict):
     assert isinstance(pictures_distances, dict)
     pictures_ids = list(pictures_distances.keys())
     random.shuffle(pictures_ids)  # Randomly reorders the file names
-    train_size = round(TRAIN_DATA_FACTOR*len(pictures_ids))
-    validation_size = round(VALIDATION_DATA_FACTOR*len(pictures_ids))
+    train_size = round(train_percent * len(pictures_ids))
+    validation_size = round((len(pictures_ids) - train_size) * validation_rest_percent)
     train_ids = pictures_ids[:train_size]
     validation_ids = pictures_ids[train_size:train_size+validation_size]
     test_ids = pictures_ids[train_size+validation_size:]
@@ -143,7 +141,9 @@ def get_pictures_distances(directory) -> dict:
     with open(os.path.join(directory, DISTANCES_FILE)) as distances_file:
         pictures_ids_distances = {}
         for line in csv.reader(distances_file):
-            pictures_ids_distances[line[0]] = np.array(line[1:], dtype=np.float16)
+            distances = np.array(line[1:], dtype=np.float16)
+            distances[distances == 9.99] = 4.5
+            pictures_ids_distances[line[0]] = distances
         return pictures_ids_distances
 
 
@@ -153,11 +153,11 @@ def mirrored_data(pictures, distances) -> (list, list):
     return [np.fliplr(picture) for picture in pictures], [np.flip(distance, 0) for distance in distances]
 
 
-def train_conv_net(conv_net, iterations, pictures_distances, train_batch_size, dropouts, directory='.', model_path=os.path.realpath('CNN')):
+def train_conv_net(conv_net, train_set, validation_set, test_set, iterations, train_batch_size, dropouts, accepted_error=0.3, data_directory='.', model_path=os.path.realpath('CNN')):
     assert isinstance(conv_net, dict)
     assert isinstance(train_batch_size, int)
     assert isinstance(dropouts, list)
-    assert isinstance(directory, str)
+    assert isinstance(data_directory, str)
     assert isinstance(model_path, str)
     labels = tf.placeholder(tf.float32, shape=conv_net['output'].get_shape())
     with tf.name_scope('Cost'):
@@ -167,11 +167,11 @@ def train_conv_net(conv_net, iterations, pictures_distances, train_batch_size, d
     optimizer = tf.train.RMSPropOptimizer(learning_rate=0.001, momentum=0.5, epsilon=0.001)
     train_step = optimizer.minimize(cost)
     with tf.name_scope('Accuracy'):
-        correct_predictions = tf.less_equal(difference, tf.constant(TOLERATED_ERROR))  # Error tolerance
+        correct_predictions = tf.less_equal(difference, tf.constant(accepted_error))  # Error tolerance
         accuracy = tf.reduce_mean(tf.cast(correct_predictions, tf.float32), name='accuracy')
         tf.summary.scalar(accuracy.name, accuracy)
     merged_summaries = tf.summary.merge_all()
-    variables_saver = tf.train.Saver()
+    variables_saver = tf.train.Saver(max_to_keep=1, save_relative_paths=True)
     print('Beginning session...')
     with tf.Session() as session:
         with session.as_default():
@@ -194,13 +194,8 @@ def train_conv_net(conv_net, iterations, pictures_distances, train_batch_size, d
                 tf.gfile.MakeDirs(log_dir)
             train_summary_writer = tf.summary.FileWriter(os.path.join(log_dir, 'train'), session.graph)
             validation_summary_writer = tf.summary.FileWriter(os.path.join(log_dir, 'validation'), session.graph)
-            print('Loading the data...')
-            train_set, validation_set, test_set = get_train_validation_test_sets(pictures_distances)
-            print('Data = {} : train = {}, validation = {}, test = {}'.format(
-                len(pictures_distances), len(train_set), len(validation_set), len(test_set))
-            )
             print('Beginning training...')
-            pictures_val, distances_val = next_batch(directory, validation_set, len(validation_set), 0)
+            pictures_val, distances_val = next_batch(data_directory, validation_set, len(validation_set), 0)
             for i in range(last_global_step, iterations):
                 print('Step', i+1)
                 total_train_loss = 0
@@ -208,7 +203,7 @@ def train_conv_net(conv_net, iterations, pictures_distances, train_batch_size, d
                 offset = 0
                 folds = 0
                 while offset < len(train_set):
-                    pictures_train, distances_train = next_batch(directory, train_set, train_batch_size, offset)
+                    pictures_train, distances_train = next_batch(data_directory, train_set, train_batch_size, offset)
                     pictures_train_mirrored, distances_train_mirrored = mirrored_data(pictures_train, distances_train)
                     pictures_train_mixed = np.concatenate((pictures_train, pictures_train_mirrored))
                     distances_train_mixed = np.concatenate((distances_train, distances_train_mirrored))
@@ -227,72 +222,72 @@ def train_conv_net(conv_net, iterations, pictures_distances, train_batch_size, d
                     feed_dict={conv_net['input']: pictures_val, labels: distances_val}
                 )
                 print("Loss : Train = {:.4f} , Validation = {:.4f} | Accuracy with {}m tolerance : Train = {:.4f}, Validation = {:.4f}"
-                      .format(total_train_loss / folds, val_loss, TOLERATED_ERROR, sum_train_accuracy / folds, val_accuracy))
+                      .format(total_train_loss / folds, val_loss, accepted_error, sum_train_accuracy / folds, val_accuracy))
                 validation_summary_writer.add_summary(val_summary)
-                variables_saver.save(session, model_path, i+1, max_to_keep=3)
+                variables_saver.save(session, model_path, i+1)
             train_summary_writer.close()
             validation_summary_writer.close()
             print('Training finished')
             print('Test...')
-            pictures_test, distances_test = next_batch(directory, test_set, len(test_set), 0)
+            pictures_test, distances_test = next_batch(data_directory, test_set, len(test_set), 0)
             print("Loss = {0:.4f} | Accuracy with {2}m tolerance = {1:.4f}".format(
                 *session.run([cost, accuracy], feed_dict={conv_net['input']: pictures_test, labels: distances_test}),
-                TOLERATED_ERROR
+                accepted_error
             ))
+
+
+def generate_datasets(original_directory, destination_directory, train_ratio=0.8, validation_rest_ratio=0.5):
+    train_dir = os.path.join(destination_directory, 'train')
+    val_dir = os.path.join(destination_directory, 'validation')
+    test_dir = os.path.join(destination_directory, 'test')
+    if not os.path.exists(train_dir):
+        os.mkdir(train_dir)
+    if not os.path.exists(val_dir):
+        os.mkdir(val_dir)
+    if not os.path.exists(test_dir):
+        os.mkdir(test_dir)
+    pictures_distances = {}
+    with open(os.path.join(original_directory, DISTANCES_FILE)) as original_distances_file:
+        for line in original_distances_file:
+            picture_id, distances = line.split(',', 1)
+            pictures_distances[picture_id] = distances
+    train, val, test = get_train_validation_test_sets(pictures_distances, train_ratio, validation_rest_ratio)
+    with open(os.path.join(train_dir, DISTANCES_FILE), 'w') as destination_distances_file:
+        for picture_id, distances in train.items():
+            print(picture_id, distances, sep=',', end='', file=destination_distances_file)
+            shutil.copy(os.path.join(original_directory, 'IMG_'+picture_id+'.jpg'), train_dir)
+    with open(os.path.join(val_dir, DISTANCES_FILE), 'w') as destination_distances_file:
+        for picture_id, distances in val.items():
+            print(picture_id, distances, sep=',', end='', file=destination_distances_file)
+            shutil.copy(os.path.join(original_directory, 'IMG_'+picture_id+'.jpg'), val_dir)
+    with open(os.path.join(test_dir, DISTANCES_FILE), 'w') as destination_distances_file:
+        for picture_id, distances in test.items():
+            print(picture_id, distances, sep=',', end='', file=destination_distances_file)
+            shutil.copy(os.path.join(original_directory, 'IMG_'+picture_id+'.jpg'), test_dir)
 
 
 def main():
     directory = '.'
     if len(sys.argv) == 2:
         directory = sys.argv[1]
-    print('Constructing model...')
-    cnn = convolutional_neural_network(96, 96, 3, OrderedDict(
-        [
-            ('Convolutional_layer_1', {
-                'field_size': 3,
-                'stride_size': 1,
-                'padding': 'SAME',
-                'depth': 16
-            }),
-            ('Convolutional_layer_2', {
-                'field_size': 3,
-                'stride_size': 1,
-                'padding': 'SAME',
-                'depth': 16
-            }),
-            ('Pooling_layer_1', {
-                'field_size': 2,
-                'stride_size': 2,
-                'padding': 'VALID'
-            }),
-            ('Convolutional_layer_3', {
-                'field_size': 3,
-                'stride_size': 1,
-                'padding': 'SAME',
-                'depth': 32
-            }),
-            ('Convolutional_layer_4', {
-                'field_size': 3,
-                'stride_size': 1,
-                'padding': 'SAME',
-                'depth': 32
-            }),
-            ('Pooling_layer_2', {
-                'field_size': 2,
-                'stride_size': 2,
-                'padding': 'VALID'
-            }),
-            ('Fully_connected', {
-                'depth': 64,
-                'dropout_keep': 0.7
-            }),
-            ('Readout', {
-                'depth': 7
-            }),
-        ]
-    ))
-    with tf.Session().as_default():
-        train_conv_net(cnn, 20, get_pictures_distances(directory), 50, [0.7], directory, os.path.realpath('CNN-C16C16PC32C32PF64O7'))
+    generate_datasets(directory, '../../datasets')
+    # print('Constructing model...')
+    # with open('CNN-C8C16PC24C32PF128O7.json') as cnn_json_file:
+    #     import json
+    #     cnn = convolutional_neural_network(96, 96, 3, json.load(cnn_json_file, object_pairs_hook=OrderedDict))
+    # with tf.Session().as_default():
+    #     pictures_distances = get_pictures_distances(directory)
+    #     train, val, test = get_train_validation_test_sets(pictures_distances, 0.8, 0.5)
+    #     train_conv_net(conv_net=cnn,
+    #                    train_set=train,
+    #                    validation_set=val,
+    #                    test_set=test,
+    #                    iterations=20,
+    #                    train_batch_size=25,
+    #                    dropouts=[0.7],
+    #                    data_directory=directory,
+    #                    model_path=os.path.realpath('CNN-C8C16PC24C32PF128O7')
+    #                    )
 
 
 if __name__ == '__main__':
