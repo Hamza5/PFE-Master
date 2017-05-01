@@ -144,26 +144,29 @@ void turnLeft(byte speed) {
 
 double * getDistances() {
   double * distances = (double *) malloc(DISTANCES_COUNT * sizeof(double));
-  int i;
-  if (rotationAngle == MIN_ANGLE) {
-    while (rotationAngle <= MAX_ANGLE) {
-        i = (rotationAngle-MIN_ANGLE)/STEP_ANGLE;
-        distances[i] = getDistance(ROTATING);
-        sonar.write(rotationAngle);
-        delay(TURN_WAIT_TIME);
-        rotationAngle += STEP_ANGLE;
-    }
-    rotationAngle = MAX_ANGLE;
-  } else {
-    while (rotationAngle >= MIN_ANGLE) {
-        i = (rotationAngle-MIN_ANGLE)/STEP_ANGLE;
-        distances[i] = getDistance(ROTATING);
-        sonar.write(rotationAngle);
-        delay(TURN_WAIT_TIME);
-        rotationAngle -= STEP_ANGLE;
-    }
-    rotationAngle = MIN_ANGLE;
-  }
+  // int i;
+  // if (rotationAngle == MIN_ANGLE) {
+  //   while (rotationAngle <= MAX_ANGLE) {
+  //       i = (rotationAngle-MIN_ANGLE)/STEP_ANGLE;
+  //       distances[i] = getDistance(ROTATING);
+  //       sonar.write(rotationAngle);
+  //       delay(TURN_WAIT_TIME);
+  //       rotationAngle += STEP_ANGLE;
+  //   }
+  //   rotationAngle = MAX_ANGLE;
+  // } else {
+  //   while (rotationAngle >= MIN_ANGLE) {
+  //       i = (rotationAngle-MIN_ANGLE)/STEP_ANGLE;
+  //       distances[i] = getDistance(ROTATING);
+  //       sonar.write(rotationAngle);
+  //       delay(TURN_WAIT_TIME);
+  //       rotationAngle -= STEP_ANGLE;
+  //   }
+  //   rotationAngle = MIN_ANGLE;
+  // }
+  distances[0] = getDistance(LEFT);
+  distances[1] = getDistance(CENTER);
+  distances[2] = getDistance(RIGHT);
   return distances;
 }
 

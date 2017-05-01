@@ -68,7 +68,8 @@ void turnLeft(byte);
 #define MIN_ANGLE 60
 #define MAX_ANGLE 90 + (90 - MIN_ANGLE)
 #define STEP_ANGLE 10
-#define DISTANCES_COUNT (MAX_ANGLE - MIN_ANGLE) / STEP_ANGLE + 1
+// #define DISTANCES_COUNT (MAX_ANGLE - MIN_ANGLE) / STEP_ANGLE + 1
+#define DISTANCES_COUNT 3
 #define TURN_WAIT_TIME STEP_ANGLE * 100 / 60 + 10 // Because the operating speed is 60° per 100ms (+10ms spare)
 
 #define SERIAL_TIMEOUT 100 // milliseconds
