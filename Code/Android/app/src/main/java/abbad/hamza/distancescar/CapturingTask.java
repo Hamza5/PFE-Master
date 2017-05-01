@@ -1,6 +1,7 @@
 package abbad.hamza.distancescar;
 
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
@@ -15,10 +16,14 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 class CapturingTask implements Runnable {
 
     private static final String DISTANCES_FILE_NAME = "Distances.txt";
+    private static final int CORP_MARGIN = 80;
+    private static final int PICTURE_WIDTH = 96;
+    private static final int PICTURE_HEIGHT = 96;
 
     static class Distance {
         float[] dists;
@@ -51,19 +56,29 @@ class CapturingTask implements Runnable {
         }
         void save(File directory) throws IOException {
             File file = new File(directory, "IMG_"+id+".jpg");
+            Bitmap processed = postProcess(img);
             FileOutputStream photoOutputStream = new FileOutputStream(file);
-            if (!img.compress(Bitmap.CompressFormat.JPEG, 100, photoOutputStream))
+            if (!processed.compress(Bitmap.CompressFormat.JPEG, 100, photoOutputStream))
                 throw new IOException();
             photoOutputStream.close();
         }
+        private Bitmap postProcess(Bitmap image) { // Corp and resize
+            Matrix transformationMatrix = new Matrix();
+            transformationMatrix.postRotate(CameraCaptureManager.ORIENTATION_ANGLE);
+            Bitmap rotated = Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(), transformationMatrix, true);
+            Bitmap cropped = Bitmap.createBitmap(rotated, 0, CORP_MARGIN, rotated.getWidth(), rotated.getHeight()-2*CORP_MARGIN);
+            return Bitmap.createScaledBitmap(cropped, PICTURE_WIDTH, PICTURE_HEIGHT, false);
+        }
     }
 
-    private static final long TASK_REPEATING_FREQUENCY = 280; // milliseconds
-    private static final long CAPTURE_SAVING_FREQUENCY = 1000; // milliseconds
+    private static final long TASK_REPEATING_FREQUENCY = 200; // milliseconds
+    private static final long CAPTURE_SAVING_FREQUENCY = 500; // milliseconds
     private static final long TEMPERATURE_CHECKING_FREQUENCY = 2000; // milliseconds
     private static AtomicBoolean capture = new AtomicBoolean(false);
-    static ConcurrentLinkedQueue<Distance> distancesQueue = new ConcurrentLinkedQueue<>();
-    static ConcurrentLinkedQueue<Picture> picturesQueue = new ConcurrentLinkedQueue<>();
+    static final ConcurrentLinkedQueue<Distance> distancesQueue = new ConcurrentLinkedQueue<>();
+    static final ConcurrentLinkedQueue<Picture> picturesQueue = new ConcurrentLinkedQueue<>();
+    static final AtomicLong lastPictureRequest = new AtomicLong();
+    static final AtomicLong lastDistancesRequest = new AtomicLong();
 
     private MainActivity mainActivity;
     private Handler h;

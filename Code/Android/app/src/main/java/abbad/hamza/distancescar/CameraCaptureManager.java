@@ -2,7 +2,6 @@ package abbad.hamza.distancescar;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -11,12 +10,9 @@ import java.io.IOException;
 
 class CameraCaptureManager {
 
-    private static final String FLASH_MODE = Camera.Parameters.FLASH_MODE_OFF;
-    private static final int ORIENTATION_ANGLE = 270;
+    private static final String DEFAULT_FLASH_MODE = Camera.Parameters.FLASH_MODE_OFF;
     private static final int JPEG_QUALITY = 50;
-    private static final int CORP_MARGIN = 80;
-    private static final int PICTURE_WIDTH = 96;
-    private static final int PICTURE_HEIGHT = 96;
+    static final int ORIENTATION_ANGLE = 270;
 
     private Camera camera;
     private MainActivity mainActivity;
@@ -24,8 +20,8 @@ class CameraCaptureManager {
         @Override
         public void onPictureTaken(byte[] bytes, Camera camera) {
             Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-            Bitmap processed = postProcess(bitmap);
-            CapturingTask.picturesQueue.add(new CapturingTask.Picture(processed));
+            CapturingTask.picturesQueue.add(new CapturingTask.Picture(bitmap));
+            Log.i(SerialConnectionManager.class.getName(), "Picture received in "+(System.currentTimeMillis()-CapturingTask.lastDistancesRequest.get())+"ms");
         }
     };
 
@@ -68,7 +64,7 @@ class CameraCaptureManager {
             try {
                 Camera.Parameters parameters = camera.getParameters();
                 if (parameters.getSupportedFlashModes() != null)
-                    parameters.setFlashMode(FLASH_MODE);
+                    parameters.setFlashMode(DEFAULT_FLASH_MODE);
                 parameters.setPictureSize(640, 480);  // Minimum supported size
                 parameters.setJpegQuality(JPEG_QUALITY);
                 camera.setParameters(parameters);
@@ -102,23 +98,16 @@ class CameraCaptureManager {
     }
 
     void takePicture() {
+        CapturingTask.lastPictureRequest.set(System.currentTimeMillis());
         if (camera != null)
             camera.takePicture(null, null, pictureCapturedCallback);
     }
 
-    void toggleFlashMode(){
+    void toggleFlashMode() {
         Camera.Parameters parameters = camera.getParameters();
         boolean enabled = parameters.getFlashMode().equals(Camera.Parameters.FLASH_MODE_TORCH);
         parameters.setFlashMode(enabled ? Camera.Parameters.FLASH_MODE_OFF : Camera.Parameters.FLASH_MODE_TORCH);
         camera.setParameters(parameters);
-    }
-
-    private Bitmap postProcess(Bitmap image) {
-        Matrix transformationMatrix = new Matrix();
-        transformationMatrix.postRotate(ORIENTATION_ANGLE);
-        Bitmap rotated = Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(), transformationMatrix, true);
-        Bitmap cropped = Bitmap.createBitmap(rotated, 0, CORP_MARGIN, rotated.getWidth(), rotated.getHeight()-2*CORP_MARGIN);
-        return Bitmap.createScaledBitmap(cropped, PICTURE_WIDTH, PICTURE_HEIGHT, false);
     }
 
 }

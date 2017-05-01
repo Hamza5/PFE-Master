@@ -19,7 +19,8 @@ import java.util.regex.Pattern;
 class SerialConnectionManager {
 
     private static final float NEEDED_TURN_DISTANCE = 0.2f;
-    private static final float FAR_DISTANCE = 9.99f;
+    private static final float NEEDED_FORWARD_DISTANCE = 0.5f;
+    private static final float UNKNOWN_DISTANCE = 9.99f;
     private static final int SERIAL_BAUD_RATE = 9600;
     private static final List<Integer> VENDOR_IDS = Arrays.asList(1027, 9025, 5824, 4292, 1659, 6790);
     private static final Pattern DISTANCES_REGEXP = Pattern.compile("(?:\\|([0-9]+\\.[0-9]+))+\\|");
@@ -30,11 +31,13 @@ class SerialConnectionManager {
     private UsbDeviceConnection arduinoSerialConnection;
     private UsbSerialDevice arduinoSerialPort;
     private MainActivity mainActivity;
+    private boolean right;
     AtomicBoolean navigation = new AtomicBoolean(false);
 
     SerialConnectionManager(MainActivity parent, UsbManager usbDevicesManager) {
         mainActivity = parent;
         usbManager = usbDevicesManager;
+        right = false;
     }
 
     private UsbSerialInterface.UsbReadCallback serialReadCallback = new UsbSerialInterface.UsbReadCallback() {
@@ -48,11 +51,12 @@ class SerialConnectionManager {
                 float[] distances = new float[distancesStrings.length];
                 for (int i = 0; i < distances.length; i++) {
                     distances[i] = Float.parseFloat(distancesStrings[i]);
-                    if (distances[i] == 0) distances[i] = FAR_DISTANCE;
+                    if (distances[i] == 0) distances[i] = UNKNOWN_DISTANCE;
                 }
                 CapturingTask.Distance distance = new CapturingTask.Distance(distances);
                 mainActivity.updateDistance(distance);
                 CapturingTask.distancesQueue.add(distance);
+                Log.i(SerialConnectionManager.class.getName(), "Distances received in "+(System.currentTimeMillis()-CapturingTask.lastDistancesRequest.get())+"ms");
                 mainActivity.bluetoothConnectionManager.sendToComputer(m.group().getBytes());
                 if (navigation.get())
                     navigate(distance);
@@ -156,6 +160,7 @@ class SerialConnectionManager {
     }
 
     void requestDistances() {
+        CapturingTask.lastDistancesRequest.set(System.currentTimeMillis());
         sendSerialData("D".getBytes());
     }
 
@@ -194,23 +199,49 @@ class SerialConnectionManager {
     }
 
     private void navigate(CapturingTask.Distance d) {
-        int center = (d.dists.length+1)/2;
-        float centerAverage = (d.dists[center] + d.dists[center-1] + d.dists[center+1]) / 3;
-        if (centerAverage < NEEDED_TURN_DISTANCE) {
-            mainActivity.serialConnectionManager.moveBackward();
-        } else {
-            float deviation = 0;
-            for (int i = 0; i < d.dists.length; i++) {
-                deviation += (i+1) * d.dists[i];
+//        int center = (d.dists.length+1)/2;
+//        float centerAverage = (d.dists[center] + d.dists[center-1] + d.dists[center+1]) / 3;
+//        if (centerAverage < NEEDED_TURN_DISTANCE) {
+//            mainActivity.serialConnectionManager.moveBackward();
+//        } else {
+//            float deviation = 0;
+//            for (int i = 0; i < d.dists.length; i++) {
+//                deviation += (i+1) * d.dists[i];
+//            }
+//            deviation /= d.dists.length;
+//            if (deviation < d.dists.length/3f)
+//                turnRight();
+//            else if (deviation > d.dists.length*2/3f)
+//                turnLeft();
+//            else
+//                moveForward();
+//        }
+        float average = trueDistancesAverage(d.dists);
+        if (average != 0) {
+            if (average < NEEDED_TURN_DISTANCE) {
+                moveBackward();
+                right = Math.random() > 0.5;
             }
-            deviation /= d.dists.length;
-            if (deviation < d.dists.length/3f)
-                mainActivity.serialConnectionManager.turnRight();
-            else if (deviation > d.dists.length*2/3f)
-                mainActivity.serialConnectionManager.turnLeft();
-            else
-                mainActivity.serialConnectionManager.moveForward();
+            else if (average < NEEDED_FORWARD_DISTANCE) {
+                if (right) turnRight();
+                else turnLeft();
+            }
+            else moveForward();
         }
+    }
+
+    private float trueDistancesAverage(float[] data) {
+        int valid = 0;
+        float sum = 0;
+        for (float f : data)
+            if (f != UNKNOWN_DISTANCE) {
+                sum += f;
+                valid++;
+            }
+        if (valid != 0)
+            return sum / valid;
+        else
+            return 0;
     }
 
     void setNavigation(boolean enabled) {
