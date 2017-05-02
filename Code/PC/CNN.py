@@ -153,7 +153,7 @@ def load_picture(file_name, gray, resize_factor):
     return picture_content
 
 
-def get_batches(data_directory, pictures_distances, batch_size, grayscale=False, downscale_factor=1, classes=4) -> list:
+def get_batches(data_directory, pictures_distances, batch_size, classes, grayscale=False, downscale_factor=1) -> list:
     assert isinstance(data_directory, str)
     assert isinstance(pictures_distances, dict)
     assert isinstance(batch_size, Integral)
@@ -392,13 +392,14 @@ def main(args):
     train_dir = os.path.join(data_dir, 'train')
     val_dir = os.path.join(data_dir, 'validation')
     downscale = 4
-    grayscale = cnn['input'].get_shape()[3] == 1  # The size of the depth dimension is 1
+    grayscale = int(cnn['input'].get_shape()[3]) == 1  # The size of the depth dimension is 1
+    classes = int(cnn['output'].get_shape()[1])
     print('Loading training data ...')
     train = get_pictures_distances(train_dir)
-    train_batches = get_batches(train_dir, train, 200, grayscale, downscale)
+    train_batches = get_batches(train_dir, train, 200, grayscale=grayscale, downscale_factor=downscale, classes=classes)
     print('Loading validation data ...')
     val = get_pictures_distances(val_dir)
-    val_batch = get_batches(val_dir, val, len(val), grayscale, downscale)[0]
+    val_batch = get_batches(val_dir, val, len(val), grayscale=grayscale, downscale_factor=downscale, classes=classes)[0]
     print('Data : training = {}, validation = {}'.format(len(train), len(val)))
     train_conv_net(conv_net=cnn,
                    train_batches=train_batches,
