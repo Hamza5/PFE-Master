@@ -11,10 +11,10 @@ import CNN
 
 
 def exceptions_handler(exception_class, exception_instance, tb):
-    if exception_class == URLError:
+    if isinstance(exception_instance, URLError):
         print('Connection error :', exception_instance.reason, file=sys.stderr)
-    elif exception_class == json.JSONDecodeError:
-        print('Invalid JSON response :', exception_instance.msg, file=sys.stderr)
+    # elif isinstance(exception_instance, json.JSONDecodeError):  # Doesn't work in Python 3.4
+    #     print('Invalid JSON response :', exception_instance.msg, file=sys.stderr)
     else:
         traceback.print_exception(exception_class, exception_instance, tb, file=sys.stderr)
 
@@ -69,6 +69,7 @@ if __name__ == '__main__':
         dropouts = eval(attrs.get('dropouts', '[]'))
         learning_rate = float(attrs.get('learning_rate', 0.01))
         expand_data = attrs.get('expand_data', '').lower() == 'true'
+        shutdown_after = attrs.get('shutdown', '').lower() == 'true'
 
         if CNN_filename and data_dir:
             print('Constructing model of', CNN_filename, '...')
@@ -100,3 +101,6 @@ if __name__ == '__main__':
                                learning_rate=learning_rate,
                                expand_data=expand_data,
                                )
+
+        if shutdown_after:
+            os.execlp('sudo', 'sudo', 'shutdown', 'now')
