@@ -1,54 +1,12 @@
 {
-    "Convolutional_layer_1": {
-        "field_size": 7,
-        "stride_size": 1,
-        "padding": "SAME",
-        "depth": 8
-    },
-    "Convolutional_layer_2": {
-        "field_size": 7,
-        "stride_size": 1,
-        "padding": "SAME",
-        "depth": 12
-    },
-    "Pooling_layer_1": {
-        "field_size": 2,
-        "stride_size": 2,
-        "padding": "VALID"
-    },
-    "Convolutional_layer_3": {
-        "field_size": 5,
-        "stride_size": 1,
-        "padding": "SAME",
-        "depth": 16
-    },
-    "Convolutional_layer_4": {
-        "field_size": 5,
-        "stride_size": 1,
-        "padding": "SAME",
-        "depth": 24
-    },
-    "Pooling_layer_2": {
-        "field_size": 2,
-        "stride_size": 2,
-        "padding": "VALID"
-    },
-    "Convolutional_layer_5": {
-        "field_size": 3,
-        "stride_size": 1,
-        "padding": "SAME",
-        "depth": 32
-    },
-    "Convolutional_layer_6": {
-        "field_size": 3,
-        "stride_size": 1,
-        "padding": "SAME",
-        "depth": 48
-    },
-    "Fully_connected": {
-        "depth": 64
-    },
-    "Readout": {
-        "depth": 4
-    }
+    "Convolutional_layer_1": { "field_size": 7, "stride_size": 1, "padding": "SAME", "depth": 8 },
+    "Convolutional_layer_2": { "field_size": 7, "stride_size": 1, "padding": "SAME", "depth": 12 },
+    "Pooling_layer_1": { "field_size": 2, "stride_size": 2, "padding": "VALID" },
+    "Convolutional_layer_3": { "field_size": 5, "stride_size": 1, "padding": "SAME", "depth": 16 },
+    "Convolutional_layer_4": { "field_size": 5, "stride_size": 1, "padding": "SAME", "depth": 24 },
+    "Pooling_layer_2": { "field_size": 2, "stride_size": 2, "padding": "VALID" },
+    "Convolutional_layer_5": { "field_size": 3, "stride_size": 1, "padding": "SAME", "depth": 32 },
+    "Convolutional_layer_6": { "field_size": 3, "stride_size": 1, "padding": "SAME", "depth": 48 },
+    "Fully_connected": { "depth": 64 },
+    "Readout": { "depth": 4 }
 }

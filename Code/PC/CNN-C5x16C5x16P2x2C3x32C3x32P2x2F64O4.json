@@ -1,42 +1,10 @@
 {
-    "Convolutional_layer_1": {
-        "field_size": 5,
-        "stride_size": 1,
-        "padding": "SAME",
-        "depth": 16
-    },
-    "Convolutional_layer_2": {
-        "field_size": 5,
-        "stride_size": 1,
-        "padding": "SAME",
-        "depth": 16
-    },
-    "Pooling_layer_1": {
-        "field_size": 2,
-        "stride_size": 2,
-        "padding": "VALID"
-    },
-    "Convolutional_layer_3": {
-        "field_size": 3,
-        "stride_size": 1,
-        "padding": "SAME",
-        "depth": 32
-    },
-    "Convolutional_layer_4": {
-        "field_size": 3,
-        "stride_size": 1,
-        "padding": "SAME",
-        "depth": 32
-    },
-    "Pooling_layer_2": {
-        "field_size": 2,
-        "stride_size": 2,
-        "padding": "VALID"
-    },
-    "Dense": {
-      "depth": 64
-    },
-    "Output": {
-        "depth": 4
-    }
+    "Convolutional_layer_1": { "field_size": 5, "stride_size": 1, "padding": "SAME", "depth": 16 },
+    "Convolutional_layer_2": { "field_size": 5, "stride_size": 1, "padding": "SAME", "depth": 16 },
+    "Pooling_layer_1": { "field_size": 2, "stride_size": 2, "padding": "VALID" },
+    "Convolutional_layer_3": { "field_size": 3, "stride_size": 1, "padding": "SAME", "depth": 32 },
+    "Convolutional_layer_4": { "field_size": 3, "stride_size": 1, "padding": "SAME", "depth": 32 },
+    "Pooling_layer_2": { "field_size": 2, "stride_size": 2, "padding": "VALID" },
+    "Dense": { "depth": 64 },
+    "Output": { "depth": 4 }
 }
