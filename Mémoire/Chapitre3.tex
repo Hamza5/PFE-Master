@@ -1,5 +1,3 @@
-\setcounter{chapter}{2} % Forcer la numérotation pour les compilations à un seul chapitre
-
 \chapter{Conception de la plateforme}
 
 \section{Introduction}
@@ -310,8 +308,8 @@ L'application envoie une commande de température après chaque intervalle de te
 ($2$ secondes) au micrôcontrolleur. Dès la réception de sa valeur, elle met à
 jour son interface graphique et l'envoie à l'ordinateur.
 
-De même, l'application envoie la commande de distances et prend une photo chaque périodiquement
-($0.3$ seconde). Les distances retournées et la photo prise sont sauvegardées
+De même, l'application envoie la commande de distances et prend une photo périodiquement
+(chaque $0.3$ seconde). Les distances retournées et la photo prise sont sauvegardées
 temporairement dans deux files, chaque file correspondant à un type d'objets.
 \`A chaque fois, un élément de chaque file est défilé et selon le mode
 de la capture et la fréquence de la sauvegarde (qui est fixée à $1$ instance de
@@ -416,7 +414,8 @@ millisecondes passées depuis le premier janvier 1970 à minuit dans le temps
 universel coordonné (UTC).}). En même temps, dans un autre fichier, les distances
 correspondant à chaque image sont enregistrées avec l'identificateur de cette
 dernière, chaque instance étant écrite sur une ligne. Le nombre de distances
-est fixé à $7$ par image.
+est fixé à $3$ par image. Si la distance ne peut être mesurée, alors une valeur
+constante ($9.99$) est insérée pour indiquer que la distance est manquante.
 
 \section{Conclusion}
 
