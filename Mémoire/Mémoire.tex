@@ -12,13 +12,14 @@
             pdfdisplaydoctitle=true]{hyperref} % Pour les liens
 \usepackage{fancyhdr} % Pour le style de la page
 \usepackage[font=it]{caption} % Rendre les titres des tableaux italiques
-\usepackage{microtype}
+\usepackage{microtype} % Pour éviter les underfuls et les overfuls
 \usepackage{graphicx} % Pour les images
 \usepackage{subcaption} % Pour mettre plusieurs images sur la même ligne
 \usepackage{float} % Pour empêcher le déplacement des tableaux et des figures.
 \usepackage{babelbib} % Pour changer la langue dans la bibliographie
 \usepackage{amsmath} % Pour des fonctions mathématiques
 \usepackage[onelanguage,french,longend,boxruled,algoruled,linesnumbered,algochapter]{algorithm2e}
+\usepackage{listings}
 
 \graphicspath{ {pictures/} } % Spécifier le répertoire contenant les images
 \DisableLigatures[f]{encoding=*}
@@ -45,7 +46,11 @@
 % Espace entre les lignes
 \linespread{1.3}
 
+% Paramètres du code
+\lstset{numbers=left,frame=single,breaklines,basicstyle=\ttfamily\footnotesize}
+
 \begin{document}
+
 % Indexes
 % \tableofcontents
 % \listoffigures
@@ -80,10 +85,12 @@
 \include{Chapitre1}
 \include{Chapitre2}
 \include{Chapitre3}
-% \include{Chapitre4}
+\include{Chapitre4}
+%\include{Chapitre5}
 % \include{Conclusion}
 
 \bibliographystyle{babplain}
-\parskip=-1em
+\parskip=-0.5em
 \bibliography{bibliographie}
+
 \end{document}
