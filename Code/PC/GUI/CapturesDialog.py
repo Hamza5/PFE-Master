@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_CapturesDialog(object):
     def setupUi(self, CapturesDialog):
         CapturesDialog.setObjectName("CapturesDialog")
-        CapturesDialog.resize(408, 257)
+        CapturesDialog.resize(408, 259)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(CapturesDialog)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.capturesGroupBox = QtWidgets.QGroupBox(CapturesDialog)
@@ -60,7 +60,7 @@ class Ui_CapturesDialog(object):
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.distancesLineEdit = QtWidgets.QLineEdit(self.distancesGroupBox)
         self.distancesLineEdit.setMinimumSize(QtCore.QSize(380, 0))
-        self.distancesLineEdit.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.distancesLineEdit.setAlignment(QtCore.Qt.AlignCenter)
         self.distancesLineEdit.setReadOnly(True)
         self.distancesLineEdit.setObjectName("distancesLineEdit")
         self.horizontalLayout_2.addWidget(self.distancesLineEdit)
@@ -77,5 +77,5 @@ class Ui_CapturesDialog(object):
         self.captureCountLabel.setText(_translate("CapturesDialog", "sur"))
         self.captureDateTimeEdit.setDisplayFormat(_translate("CapturesDialog", "dd/MM/yyyy h:mm:ss AP"))
         self.distancesGroupBox.setTitle(_translate("CapturesDialog", "Distances"))
-        self.distancesLineEdit.setText(_translate("CapturesDialog", "|0.00|0.00|0.00|0.00|0.00|0.00|0.00|"))
+        self.distancesLineEdit.setText(_translate("CapturesDialog", "|0.00|0.00|0.00|"))
 

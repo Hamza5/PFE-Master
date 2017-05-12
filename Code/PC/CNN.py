@@ -139,16 +139,19 @@ def get_train_validation_test_sets(pictures_distances, train_percent, validation
     return pictures_distances_train, pictures_distances_validation, pictures_distances_test
 
 
-def load_picture(file_name, gray, resize_factor):
+def load_picture(file_name, gray, resize_factor, integers=False):
     """
     Load a picture from file and return its content as 3D NumPy array.  
+    :param integers: whether the pixels values should be kept as uint8 
     :param file_name: the path of the file.
     :param gray: whether the picture is converted to grayscale or not.
     :param resize_factor: the scaling factor : 1, 2, 4, or 8.
     :return: ndarray representing the content of the picture.
     """
     picture_raw = tf.read_file(file_name)
-    picture = tf.image.convert_image_dtype(tf.image.decode_jpeg(picture_raw, channels=(1 if gray else 3), ratio=resize_factor), tf.float32)
+    picture = tf.image.decode_jpeg(picture_raw, channels=(1 if gray else 3), ratio=resize_factor)
+    if not integers:
+        picture = tf.image.convert_image_dtype(picture, tf.float32)
     picture_content = picture.eval()
     return picture_content
 
@@ -161,7 +164,7 @@ def get_batches(data_directory, pictures_distances, batch_size, classes, graysca
     assert isinstance(downscale_factor, Integral)
     pictures_ids = list(pictures_distances.keys())
     batches = []
-    npz_files = list(filter(lambda x: x.endswith('.npz'), os.listdir(data_directory)))
+    npz_files = list(filter(lambda x: x.startswith('batch_{}^{:d}~{}#{}-'.format(downscale_factor, grayscale, classes, batch_size)) and x.endswith('.npz'), os.listdir(data_directory)))
     if len(npz_files) > 0:  # Batches are saved as NumPy arrays ! this is awesome !
         for npz_filename in npz_files:
             batch = np.load(os.path.join(data_directory, npz_filename), allow_pickle=False)
@@ -176,23 +179,27 @@ def get_batches(data_directory, pictures_distances, batch_size, classes, graysca
                     for picture_id in pictures_ids[offset:offset+batch_size]:
                         picture = load_picture(os.path.join(data_directory, 'IMG_' + picture_id + '.jpg'), grayscale, downscale_factor)
                         pictures_batch.append(picture)
-                        distances_batch.append(tf.one_hot(np.uint8(pictures_distances[picture_id] / 4.5 * (classes - 1)), classes).eval())
+                        if classes > 1:
+                            distances_batch.append(tf.one_hot(np.uint8(pictures_distances[picture_id] / 4.5 * (classes - 1)), classes).eval())
+                        else:
+                            distances_batch.append(np.array([pictures_distances[picture_id]]))
                     batch = (np.stack(pictures_batch), np.stack(distances_batch))
                     batches.append(batch)
                     offset += len(pictures_batch)
         i = 1
         for batch in batches:
-            np.savez(os.path.join(data_directory, 'batch-{:03d}'.format(i)), pictures=batch[0], distances=batch[1])
+            np.savez(os.path.join(data_directory, 'batch_{}^{:d}~{}#{}-{:03d}'.format(downscale_factor, grayscale, classes, batch_size, i)), pictures=batch[0], distances=batch[1])
             i += 1
     return batches
 
 
 def get_pictures_distances(directory) -> dict:
+    assert isinstance(directory, str)
     with open(os.path.join(directory, DISTANCES_FILE)) as distances_file:
         pictures_ids_distances = {}
         for line in csv.reader(distances_file):
             distances = np.array(line[1:], dtype=np.float32)
-            distances[distances > 4.5] = np.nan  # Unknown distance
+            distances[distances >= 4.5] = np.nan  # Unknown distance
             if not np.all(np.isnan(distances)):  # There is at least one known distance
                 # pictures_ids_distances[line[0]] = np.nanmedian(distances, keepdims=True)
                 pictures_ids_distances[line[0]] = np.nanmedian(distances)
@@ -201,7 +208,7 @@ def get_pictures_distances(directory) -> dict:
         return pictures_ids_distances
 
 
-def mirrored_data(pictures, distances) -> (list, list):
+def mirrored_data(pictures, distances) -> (np.ndarray, np.ndarray):
     assert isinstance(pictures, np.ndarray)
     assert isinstance(distances, np.ndarray)
     return np.flip(pictures, 2), distances
@@ -215,6 +222,8 @@ def balanced_data_min(pictures_distances, classes) -> dict:
     pictures_groups = {}
     counters = [0 for x in all_labels]
     for p, d in pictures_distances.items():
+        if all(x >= groups_min for x in counters):
+            break
         label = int(d / 4.5 * (classes - 1))
         if counters[label] < groups_min:
             pictures_groups[p] = d
@@ -222,7 +231,16 @@ def balanced_data_min(pictures_distances, classes) -> dict:
     return pictures_groups
 
 
-def train_conv_net(conv_net, iterations, dropouts, train_batches, validation_batch=None, test_batch=None, accepted_error=0, accepted_accuracy=0.95, data_directory='.', model_path=os.path.realpath('CNN'), expand_data=True, learning_rate=0.001):
+def get_saved_model_path_and_last_step(checkpoint_file_path):
+    with open(checkpoint_file_path) as checkpoint:
+        model_path_line = checkpoint.readline()
+    # Initialise the global step to the last one of the previous run
+    restore_file_path = model_path_line.split(" ")[-1].strip('\n"')
+    last_global_step = int(restore_file_path.split('-')[-1])
+    return restore_file_path, last_global_step
+
+
+def train_conv_net(conv_net, iterations, dropouts, train_batches, validation_batch=None, test_batch=None, accepted_error=0, accepted_accuracy=0.95, data_directory='.', model_path=os.path.realpath('CNN'), expand_data=True, learning_rate=0.001, logger=None):
     assert isinstance(conv_net, dict)
     assert isinstance(dropouts, list)
     assert isinstance(data_directory, str)
@@ -235,20 +253,26 @@ def train_conv_net(conv_net, iterations, dropouts, train_batches, validation_bat
     pictures_val, distances_val = validation_batch if validation_batch else (None, None)
     pictures_test, distances_test = test_batch if test_batch else (None, None)
 
+    regression = int(conv_net['output'].get_shape()[1]) == 1
+
+    print('Regression problem' if regression else 'Classification problem')
+
     print('Setting up the graph...')
     labels = tf.placeholder(tf.float32, shape=conv_net['output'].get_shape())
     with tf.name_scope('Cost'):
-        # difference = tf.abs(tf.subtract(conv_net['output'], labels))
-        difference = tf.nn.softmax_cross_entropy_with_logits(logits=conv_net['output'], labels=labels)
+        if regression:
+            difference = tf.abs(tf.subtract(conv_net['output'], labels))
+        else:
+            difference = tf.nn.softmax_cross_entropy_with_logits(logits=conv_net['output'], labels=labels)
         cost = tf.reduce_mean(difference, name='cost')
         tf.summary.scalar(cost.name, cost)
     optimizer = tf.train.AdadeltaOptimizer(learning_rate=learning_rate)
     train_step = optimizer.minimize(loss=cost, var_list=conv_net['variables'])
     with tf.name_scope('Accuracy'):
-        # correct_predictions = tf.less_equal(difference, tf.constant(accepted_error))  # Error tolerance
-        # correct_predictions = tf.less_equal(tf.abs(tf.subtract(tf.argmax(labels, 1), tf.argmax(conv_net['output'], 1))),
-        #                                     tf.constant(1))
-        correct_predictions = tf.equal(tf.argmax(labels, 1), tf.argmax(conv_net['output'], 1))
+        if regression:
+            correct_predictions = tf.less_equal(difference, tf.constant(accepted_error))  # Error tolerance
+        else:
+            correct_predictions = tf.equal(tf.argmax(labels, 1), tf.argmax(conv_net['output'], 1))
         accuracy = tf.reduce_mean(tf.cast(correct_predictions, tf.float32), name='accuracy')
         tf.summary.scalar(accuracy.name, accuracy)
     merged_summaries = tf.summary.merge_all()
@@ -266,16 +290,15 @@ def train_conv_net(conv_net, iterations, dropouts, train_batches, validation_bat
             tf.global_variables_initializer().run()
             print('Variables initialised')
             if tf.gfile.Exists(checkpoint_file_path):
-                with open(checkpoint_file_path) as checkpoint:
-                    model_path_line = checkpoint.readline()
-                # Initialise the global step to the last one of the previous run
-                restore_file_path = model_path_line.split(" ")[-1].strip('\n"')
-                last_global_step = int(restore_file_path.split('-')[-1])
+                restore_file_path, last_global_step = get_saved_model_path_and_last_step(checkpoint_file_path)
                 variables_saver.restore(tf.get_default_session(), restore_file_path)
                 print('Variables restored')
             if pictures_val is not None:
                 val_loss, val_accuracy = session.run([cost, accuracy], feed_dict={conv_net['input']: pictures_val, labels: distances_val})
-                print('Initial validation : loss = {:.4f}, accuracy = {:.4f}'.format(val_loss, val_accuracy))
+                val_text = 'Initial validation : loss = {:.4f}, accuracy = {:.4f}'.format(val_loss, val_accuracy)
+                print(val_text)
+                if logger:
+                    logger.log_text(val_text)
             print('Beginning training...')
             train_summary = None
             i = 0
@@ -300,9 +323,11 @@ def train_conv_net(conv_net, iterations, dropouts, train_batches, validation_bat
                             [train_step, cost, accuracy, merged_summaries],
                             feed_dict=arguments
                         )
-                    print('Training : loss = {:.4f}, accuracy = {:.4f}'.format(train_loss, train_accuracy))
-                    # print('Training : loss = {:.4f}, accuracy with {}m error tolerance = {:.4f}'.format(
-                    #     total_train_loss / folds, accepted_error, sum_train_accuracy / folds))
+                    if not regression:
+                        print('Training : loss = {:.4f}, accuracy = {:.4f}'.format(train_loss, train_accuracy))
+                    else:
+                        print('Training : loss = {:.4f}, accuracy with {}m error tolerance = {:.4f}'.format(
+                            train_loss, accepted_error, train_accuracy))
                     variables_saver.save(session, model_path, i)
                     if train_summary is not None:
                         train_summary_writer.add_summary(train_summary, i)
@@ -311,9 +336,13 @@ def train_conv_net(conv_net, iterations, dropouts, train_batches, validation_bat
                             [cost, accuracy, merged_summaries],
                             feed_dict={conv_net['input']: pictures_val, labels: distances_val}
                         )
-                        print("Validation : loss = {:.4f}, accuracy = {:.4f}".format(val_loss, val_accuracy))
-                        # print("Validation : loss = {:.4f}, accuracy with {}m error tolerance = {:.4f}".format(
-                        #     val_loss, accepted_error, val_accuracy))
+                        if not regression:
+                            val_text = "Validation : loss = {:.4f}, accuracy = {:.4f}".format(val_loss, val_accuracy)
+                        else:
+                            val_text = "Validation : loss = {:.4f}, accuracy with {}m error tolerance = {:.4f}".format(val_loss, accepted_error, val_accuracy)
+                        print(val_text)
+                        if logger:
+                            logger.log_text(val_text)
                         validation_summary_writer.add_summary(val_summary, i)
                         if val_loss <= accepted_error or val_accuracy >= accepted_accuracy:  # Accepted
                             break
@@ -322,18 +351,25 @@ def train_conv_net(conv_net, iterations, dropouts, train_batches, validation_bat
             train_summary_writer.close()
             validation_summary_writer.close()
             if i >= iterations:
-                print('Training finished')
+                end_msg = 'Training finished'
             else:
-                print('Training interrupted')
+                end_msg = 'Training interrupted'
+            print(end_msg)
+            if logger:
+                logger.log_text(end_msg)
             if pictures_test is not None:
                 print('Test...')
-                print("Loss = {0:.4f} | Accuracy = {1:.4f}".format(
-                    *session.run([cost, accuracy], feed_dict={conv_net['input']: pictures_test, labels: distances_test})
-                ))
-                # print("Loss = {0:.4f} | Accuracy with {2}m tolerance = {1:.4f}".format(
-                #     *session.run([cost, accuracy], feed_dict={conv_net['input']: pictures_test, labels: distances_test}),
-                #     accepted_error
-                # ))
+                if not regression:
+                    test_text = "Loss = {0:.4f} | Accuracy = {1:.4f}".format(
+                        *session.run([cost, accuracy], feed_dict={conv_net['input']: pictures_test, labels: distances_test}))
+                else:
+                    test_text = "Loss = {0:.4f} | Accuracy with {2}m tolerance = {1:.4f}".format(
+                        *session.run([cost, accuracy], feed_dict={conv_net['input']: pictures_test, labels: distances_test}),
+                        accepted_error
+                    )
+                print(test_text)
+                if logger:
+                    logger.log_text(test_text)
 
 
 def generate_datasets(original_directory, destination_directory, train_ratio=0.8, validation_rest_ratio=0.5):
@@ -382,35 +418,36 @@ def link_data(source, destination, start, end):
 def main(args):
     model_file_name = args[1]
     data_dir = args[2]
-    print('Constructing model of', model_file_name, '...')
-    with open(model_file_name+'.json') as cnn_json_file:
-        import json
-        cnn = convolutional_neural_network(24, 24, 1, json.load(cnn_json_file, object_pairs_hook=OrderedDict))
-    print('Variables')
-    for variable in cnn['variables']:
-        print(variable)
+    # print('Constructing model of', model_file_name, '...')
+    # with open(model_file_name+'.json') as cnn_json_file:
+    #     import json
+    #     cnn = convolutional_neural_network(96, 96, 1, json.load(cnn_json_file, object_pairs_hook=OrderedDict))
+    # print('Variables')
+    # for variable in cnn['variables']:
+    #     print(variable)
     train_dir = os.path.join(data_dir, 'train')
     val_dir = os.path.join(data_dir, 'validation')
-    downscale = 4
-    grayscale = int(cnn['input'].get_shape()[3]) == 1  # The size of the depth dimension is 1
-    classes = int(cnn['output'].get_shape()[1])
-    print('Loading training data ...')
+    # downscale = 1
+    # grayscale = int(cnn['input'].get_shape()[3]) == 1  # The size of the depth dimension is 1
+    # classes = int(cnn['output'].get_shape()[1])
+    # print('Loading training data ...')
     train = get_pictures_distances(train_dir)
-    train_batches = get_batches(train_dir, train, 200, grayscale=grayscale, downscale_factor=downscale, classes=classes)
-    print('Loading validation data ...')
-    val = get_pictures_distances(val_dir)
-    val_batch = get_batches(val_dir, val, len(val), grayscale=grayscale, downscale_factor=downscale, classes=classes)[0]
-    print('Data : training = {}, validation = {}'.format(len(train), len(val)))
-    train_conv_net(conv_net=cnn,
-                   train_batches=train_batches,
-                   validation_batch=val_batch,
-                   iterations=300,
-                   dropouts=[],
-                   data_directory=data_dir,
-                   model_path=os.path.join(os.path.realpath(model_file_name), 'CNN'),
-                   learning_rate=0.001,
-                   expand_data=True,
-                   )
+    print(len(balanced_data_min(train, 4)))
+    # train_batches = get_batches(train_dir, train, 200, grayscale=grayscale, downscale_factor=downscale, classes=classes)
+    # print('Loading validation data ...')
+    # val = get_pictures_distances(val_dir)
+    # val_batch = get_batches(val_dir, val, len(val), grayscale=grayscale, downscale_factor=downscale, classes=classes)[0]
+    # print('Data : training = {}, validation = {}'.format(len(train), len(val)))
+    # train_conv_net(conv_net=cnn,
+    #                train_batches=train_batches,
+    #                validation_batch=val_batch,
+    #                iterations=300,
+    #                dropouts=[],
+    #                data_directory=data_dir,
+    #                model_path=os.path.join(os.path.realpath(model_file_name), 'CNN'),
+    #                learning_rate=0.001,
+    #                expand_data=True,
+    #                )
 
 
 if __name__ == '__main__':
@@ -419,6 +456,9 @@ if __name__ == '__main__':
     #     print('Datasets generated')
     # except FileExistsError:
     #     print('Datasets already exist')
-    main(sys.argv)
+    picts_dists = get_pictures_distances(os.path.join(sys.argv[2], 'validation'))
+    bd = balanced_data_min(picts_dists, 4)
+    print(len(bd))
+    # main(sys.argv)
     # link_data('../../Data/Info-TP', '../../Data/Info-TP-Pass', '', '9999999999999')
     # link_data('../../Data/Info-Pass', '../../Data/Info-TP-Pass', '', '9999999999999')

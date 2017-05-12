@@ -7,10 +7,15 @@ import json
 import sys
 import traceback
 
+# from google.cloud import error_reporting
+# from google.cloud import logging
+
 import CNN
 
 
 def exceptions_handler(exception_class, exception_instance, tb):
+    # client = error_reporting.Client()
+    # client.report_exception()
     if isinstance(exception_instance, URLError):
         print('Connection error :', exception_instance.reason, file=sys.stderr)
     # elif isinstance(exception_instance, json.JSONDecodeError):  # Doesn't work in Python 3.4
@@ -57,6 +62,7 @@ def get_attributes() -> dict:
 if __name__ == '__main__':
     sys.excepthook = exceptions_handler
     attrs = get_attributes()
+    # logger = logging.Client().logger('GCP-script')
 
     if attrs:
         input_size = int(attrs.get('input_size', 96))
@@ -68,6 +74,7 @@ if __name__ == '__main__':
         batch_size = int(attrs.get('batch_size', 100))
         dropouts = eval(attrs.get('dropouts', '[]'))
         learning_rate = float(attrs.get('learning_rate', 0.01))
+        accepted_error = float(attrs.get('accepted_error', 0.2))
         expand_data = attrs.get('expand_data', '').lower() == 'true'
         shutdown_after = attrs.get('shutdown', '').lower() == 'true'
 
@@ -100,6 +107,8 @@ if __name__ == '__main__':
                                model_path=os.path.join(os.path.realpath(CNN_filename), 'CNN'),
                                learning_rate=learning_rate,
                                expand_data=expand_data,
+                               accepted_error=accepted_error,
+                               # logger=logger
                                )
 
         if shutdown_after:

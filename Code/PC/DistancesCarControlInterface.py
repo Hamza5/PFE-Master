@@ -190,7 +190,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.enginesPowerSlider.setValue(127)
             self.temperatureLcdNumber.display(0)
             self.dataCountLcdNumber.display(0)
-            self.distancesLineEdit.setText('|0.00|0.00|0.00|0.00|0.00|0.00|0.00|')
+            self.distancesLineEdit.setText('|0.00|0.00|0.00|')
             self.directionLineEdit.setText(self.DIRECTION_NONE_TEXT)
 
     def bluetoothError(self):
@@ -203,8 +203,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         try:
             text = bytes(data).decode()
             if text.startswith('E'):  # Error reported
-                self.dataCountLcdNumber.setStyleSheet("* {color : white; background-color:red;}")
-                self.statusbar.setStyleSheet("* {color : white; background-color:red;}")
+                self.dataCountLcdNumber.setStyleSheet("*:enabled {color : white; background-color:red;}")
+                self.statusbar.setStyleSheet("*:enabled {color : white; background-color:red;}")
                 if text == 'EC':
                     self.statusbar.showMessage('Erreur de capture !')
                 elif text == 'EM':

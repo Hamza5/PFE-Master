@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>510</width>
-    <height>806</height>
+    <width>450</width>
+    <height>832</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -62,10 +62,10 @@
          <item>
           <widget class="QLineEdit" name="distancesLineEdit">
            <property name="text">
-            <string>|0.00|0.00|0.00|0.00|0.00|0.00|0.00|</string>
+            <string>|0.00|0.00|0.00|</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            <set>Qt::AlignCenter</set>
            </property>
            <property name="readOnly">
             <bool>true</bool>
@@ -268,7 +268,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>510</width>
+     <width>450</width>
      <height>39</height>
     </rect>
    </property>
