@@ -177,9 +177,9 @@ augmente en parallèle avec sa profondeur.\cite{michael2015neural,Goodfellow-et-
 L'architecture du réseau est sauvegardée comme un fichier texte sous le format
 JSON (JavaScript Object Notation) \cite{introducing2012ecma}.
 L'utilisation de ce type de fichier
-permet de la créer, la copier et la modifier sans rien changer dans le
+permet de la créer, de la copier et de la modifier sans rien changer dans le
 programme responsable de la construction du réseau. Elle est représentée comme un objet
-ayant plusieurs attributs et leur valeur enregistrées dans un ordre précis.
+ayant plusieurs attributs et leurs valeurs enregistrés dans un ordre précis.
 Les attributs représentent les noms de couches et les valeurs contiennent
 leur description. Chaque valeur est un objet contenant lui-même d'autres attributs
 et d'autres valeurs dépendant du type de la couche décrite.
@@ -187,14 +187,14 @@ et d'autres valeurs dépendant du type de la couche décrite.
 Les couches convolutionnelles ont quatre attributs :
 
 \begin{itemize}
-  \item \texttt{field\_size} : une valeur numérique entière strictement positive
-  représentant la dimension horizontale et verticale du filtre de la convolution,
-  \item \texttt{stride\_size} : une valeur numérique entière strictement positive
-  représentant le pas de déplacement du filtre,
-  \item \texttt{padding} : une des deux valeurs : \texttt{SAME} qui signifie
-  l'utilisation de rembourrage par zéros, et \texttt{VALID} qui signifie le cas
-  contraire,
-  \item \texttt{depth} : une valeur numérique entière strictement positive représentant
+  \item \texttt{field\_size}, une valeur numérique entière strictement positive
+  représentant la dimension horizontale et verticale du filtre de la convolution;
+  \item \texttt{stride\_size}, une valeur numérique entière strictement positive
+  représentant le pas de déplacement du filtre;
+  \item \texttt{padding}, une des deux valeurs, l'une \texttt{SAME} qui signifie
+  l'utilisation de rembourrage par zéros, et l'autre \texttt{VALID} qui signifie le cas
+  contraire;
+  \item \texttt{depth}, une valeur numérique entière strictement positive représentant
   la profondeur de la couche, autrement dit, le nombre de matrices de paramètres
   partagées.
 \end{itemize}
@@ -229,7 +229,12 @@ et les rouges représentent les couches denses.
   \caption{Une représentation graphique de la première architecture}
 \end{figure}
 
+\vspace{2em}
+
 Le contenu du fichier qui décrit cette architecture est le suivant.
+
+\medskip
+
 \lstinputlisting[caption=La représentation textuelle de la première architecture]
 {../Code/PC/CNN-C5x16C5x16P2x2C3x32C3x32P2x2F64O4.json}
 
@@ -251,6 +256,8 @@ dernière partie.
   \includegraphics[width=\textwidth]{CNN2}
   \caption{Une représentation graphique de la deuxième architecture}
 \end{figure}
+
+\vspace{2.5em}
 
 \lstinputlisting[caption=La représentation textuelle de la deuxième architecture]
 {../Code/PC/CNN-C7x8C7x12P2x2C5x16C5x24P2x2C3x32C3x48F64O4.json}
@@ -280,10 +287,10 @@ $$
 
 avec $p$ le vecteur des valeurs calculées par le réseau et $y$ le vecteur des valeurs réelles.
 
-Comme les valeurs de $y$ sont binaires, seulement la probabilité de l'élément de
-la bonne classe qui sera prise en considération dans le calcul, et tous les autres
-probabilités seront éliminées, et la somme de produits de logarithmes devient
-juste un simple logarithme.
+Comme les valeurs de $y$ sont binaires, seule la probabilité de l'élément de
+la bonne classe sera prise en considération dans le calcul, et toutes les autres
+probabilités seront éliminées. La somme de produits de logarithmes devient
+donc un simple logarithme.
 Par exemple, si nous avons comme données :
 
 $$
@@ -303,7 +310,7 @@ p =
   0.9\\
   0.3\\
   0.2\\
-\end{pmatrix}
+\end{pmatrix},
 $$
 
 la valeur de l'entropie croisée est calculée comme suit :
@@ -318,24 +325,24 @@ $$
 \subsection{L'optimiseur}
 
 L’apprentissage est effectué en minimisant la valeur d'erreur par une des fonctions
-d'optimisation connus sous le nom d'\keyword{optimiseurs} qui sont basés sur la décente
+d'optimisation connues sous le nom d'\keyword{optimiseurs} qui sont basés sur la descente
 du gradient. Cette dernière consiste à changer les poids du modèle dans les sens inverses
-aux signes des dérivées partielles par un facteur nommé le \keyword{taux d'apprentissage}.
+aux signes des dérivées partielles par un facteur nommé \keyword{taux d'apprentissage}.
 Il faut choisir et changer sa valeur avec précaution car une mauvaise valeur
 risque d'empêcher l'optimiseur de converger vers l'optimum ou de gaspiller beaucoup
 d'itérations pour ce faire.\cite{DBLP:journals/corr/Ruder16}
 
 Dans ce travail, nous avons choisi l'optimiseur \keyword{Adadelta} \cite{DBLP:journals/corr/abs-1212-5701}
-car il rend le choix du taux d'apprentissage sans aucune importance grâce à sa
-formule de mise à jour de paramètres qu'elle les change indépendamment
-selon la fréquence de modification de chacune à travers le temps.\cite{DBLP:journals/corr/Ruder16}
+car il rend négligeable le choix du taux d'apprentissage. En effet, sa
+formule de mise à jour des paramètres permet de les changer indépendamment
+les uns des autres et en fonction de la fréquence de modification de chacun d'eux.\cite{DBLP:journals/corr/Ruder16}
 
 \subsection{L'exactitude}
 
 Afin de pouvoir évaluer les performances d'un réseau de neurones, il faut définir
 une formule d'exactitude permettant de calculer le nombre de résultats jugés
 corrects par rapport au nombre total. La formule que nous avons utilisée est
-la moyenne de comparaisons d'indices dont la valeur est maximale sur les
+la moyenne des comparaisons d'indices dont la valeur est maximale sur les
 vecteurs de prédictions $P_i$ et les vecteurs d'étiquettes $Y_i$. Nous pouvons représenter
 cela par la formule suivante.
 
@@ -343,7 +350,7 @@ $$
 Acc = \frac{\sum_{i=1}^N(\mathrm{argmax}(P_i) = \mathrm{argmax}(Y_i))}{N},
 $$
 
-où $N$ est le nombre de vecteurs de prédictions dans l'ensemble et
+où $N$ est le nombre de vecteurs de prédictions dans l'ensemble, et
 $\mathrm{argmax}$ est la fonction qui donne l'indice de l'élément qui a la plus grande
 valeur dans le vecteur numéro $i$.
 
@@ -369,21 +376,21 @@ P =
 \end{pmatrix},
 $$
 
-l'indice de l'élément ayant la valeur maximale sur chaque ligne dans les deux
+\noindent l'indice de l'élément ayant la valeur maximale sur chaque ligne dans les deux
 matrices est le même pour les lignes $1$ et $3$, ce qui n'est pas vrai pour la
 ligne $2$. L'exactitude dans ce cas est clairement égale à $\frac{2}{3} \approx 0.6667$
-qui signifie que $66.67~\%$ de prédictions du réseau sont corrects.
+qui signifie que $66.67~\%$ des prédictions du réseau sont correctes.
 
 \section{Conclusion}
 
 Avant d'arriver à fixer la structure de nos données et choisir les différentes
 architectures décrites dans ce chapitre, nous avons essayé plusieurs combinaisons
-de variations de ces dernières que nous n'avons pas pu les mentionner.
-Les tests que nous avons effectués ont montré les limitations de ces variations
-en termes de complexité et vitesse d'exécution, et donc ils nous ont obligé de
+de variations de ces dernières que nous n'avons pas mentionnées.
+Les tests que nous avons effectués ont montré leurs limitations
+en termes de complexité et de vitesse d'exécution, et cela nous a donc obligé à
 transiter vers les modèles présentées ici.
 
-Le prochain chapitre portera sur l'exécution de l'apprentissage automatique sur
-ces modèles et ces structures en utilisant les ensembles de données que nous avons
-collecté. Nous suivrons l'amélioration des performances du modèles et nous
-enregistrerons les statistiques d'exécution obtenus en même temps.
+Le prochain chapitre portera sur l'exécution de l'apprentissage automatique de
+ces modèles et de ces structures en utilisant les ensembles de données que nous avons
+collectés. Nous suivrons l'amélioration des performances du modèles et nous
+enregistrerons les statistiques d'exécution obtenues en même temps.
