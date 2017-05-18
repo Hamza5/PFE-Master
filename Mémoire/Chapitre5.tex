@@ -1,0 +1,330 @@
+\chapter{Expérimentations et résultats}
+
+\section{Introduction}
+
+La réalisation d'une application basée sur l'exploitation des méthodes de
+l'apprentissage automatique est effectuée sur deux étapes : la première est
+la conception d'un modèle capable d'apprendre à faire le traitement demandé, et
+la deuxième est l'exécution de l'apprentissage de ce modèle en utilisant
+les données disponibles.
+
+La première étape était le sujet du chapitre précédent, où nous avons conçu nos
+architectures de réseaux de neurones convolutionnels et nous avons établi les
+structures comportant nos données. La deuxième étape, qui est le sujet de ce chapitre,
+consiste à fournir les données aux réseaux répétitivement afin de leur permettre
+de trouver la fonction générale du problème adressé qui projette chaque donnée
+entrante vers la classe de la sortie correspondante.
+
+Nous commençons par la description de nos données et leurs formats, suivi par
+la présentation des outils matériels et logiciels utilisés dans ce projet, et puis
+nous analysons les résultats obtenus de l'apprentissage automatique et nous
+finissons par la mise en œuvre du modèle dans une application que nous développons
+afin de permettre à un utilisateur de trouver la classe de distances à partir d'une
+image.
+
+\section{Les données utilisées}
+
+\subsection{Les sources}
+
+Nous avons collecté nos données à partir de deux endroits différents afin de
+construire deux ensembles de données, dont chacun contient de centaines d'images
+et leurs distances. Le plus petit ensemble de données a été
+pris des salles du \keyword{centre culturel universitaire (CCU) des sciences techniques},
+et l'autre ensemble a été pris au niveau du \keyword{département d'informatique} de
+notre université.
+
+L'ensemble de données du CCU contient 985 instances, où 788 instances sont
+utilisées pour effectuer l'apprentissage et les instances restantes sont réservées
+comme données de validation afin d'évaluer les performances du modèle.
+Par ailleurs, l'ensemble de données du département d'informatique contient 3068
+instances, dont 2454 sont utilisées pour l'apprentissage et les restantes pour
+la validation.
+
+Les images de l'ensemble de données du CCU représentent des scènes d'intérieur
+contenant des immeubles comme les chaises et les tables en plus des murs.
+Les niveaux de luminosité dans les scènes se diffère car certaines sont plus
+éclairé que d'autres à cause de l'utilisation de la lumière artificielle (les
+lampes des salles ou le feu du robot). La plupart des distances figurant dans
+cet ensemble sont petites. De ce fait, les données sont très biaisées.
+
+\bigskip
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{CCU1}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{CCU2}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{CCU3}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{CCU4}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{CCU5}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{CCU6}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{CCU7}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{CCU8}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{CCU9}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{CCU10}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{CCU11}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{CCU12}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{CCU13}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{CCU14}\end{subfigure}
+\caption{Des images de l'ensemble de données du CCU}
+\end{figure}
+
+Les images de l'ensemble de données du département sont généralement des scènes
+d'extérieur consistant de sols, de plantes, de murs et de portes de couleurs uniformes.
+La variance de la luminosité n'est pas forte vu que la source de la lumière dans
+la majorité des images est le soleil. Le problème du biaisement des données est
+moins effectif dans cet ensemble bien qu'il y a peu de distances grandes par rapport
+au reste.
+
+\bigskip
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{Info1}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{Info2}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{Info3}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{Info4}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{Info5}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{Info6}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{Info7}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{Info8}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{Info9}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{Info10}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{Info11}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{Info12}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{Info13}\end{subfigure}
+\begin{subfigure}{0.125\textwidth}\includegraphics[width=\textwidth]{Info14}\end{subfigure}
+\caption{Des images de l'ensemble de données du département d'informatique}
+\end{figure}
+
+\subsection{Le format et l'organisation}
+
+Les données se composent de deux types : des données pour l'entrée du modèle
+qui sont les images capturées par la camera, et des données pour la sortie
+qui sont les distances respectives mesurées par les capteurs ultrasoniques.
+
+Chaque image est sauvegardée comme un fichier binaire sous le format JPEG \cite{wallace1992jpeg}
+(ayant l'extension \texttt{jpg}). Les images sont nommées par la composition du
+préfixe \texttt{IMG\_} et un identificateur unique représentant le temps de la
+prise. Elles sont toutes groupées dans un seul répertoire.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{Info-images}
+  \caption{Des fichiers d'images successifs de l'ensemble de données du département}
+\end{figure}
+
+Les distances sont sauvegardées dans un fichier sous format CSV (comma-separated
+values) \cite{shafranovich2005common}, qui est un format textuel ayant comme rôle de représenter
+les données tabulaires, où les lignes du fichier correspondent aux lignes du tableau
+et les valeurs entre les séparateurs des colonnes aux données du tableau.
+Le nombre de lignes dans ce fichier est égal au nombre d'images dans le
+même répertoire car chaque ligne correspond à une image.
+
+Le fichier qui contient les distances a le nom \texttt{Distances.txt} et est
+structuré en quatre colonnes séparées par le caractère \texttt{|}. La première
+colonne contient les identificateurs des images, et les colonnes suivantes
+représentes les distances mesurées pour chaque image.
+
+\bigskip
+
+\lstinputlisting[firstline=315,lastline=326,
+caption=La partie du fichier des distances correspondante aux fichiers précédents]
+{../Data/Info/Distances.txt}
+
+L'ensemble des images et le fichier de distances sont éclatés en deux sous-ensembles
+de tailles différents. Le plus grand sera utilisé pour effectuer l'apprentissage,
+et le plus petit sera réservé pour la validation. La structure de chaque
+sous-ensemble est identique à celle de l'ensemble d'origine.
+
+\section{Les technologies utilisées}
+
+L'un des problèmes majeurs dans l'apprentissage automatique avec les réseaux
+de neurones est leur consommation importante du temps d'exécution et de l'espace
+en mémoire centrale au moment de l'apprentissage.
+
+Afin de minimiser l'effet de ce problème, nous avons besoin de deux choses :
+
+\begin{itemize}
+  \item utiliser un matériel puissant contenant plusieurs unités de calcul
+  permettant le calcul parallèle, et possédant un espace considérable en mémoire
+  centrale et aussi en mémoire secondaire, pour pouvoir stocker et charger les
+  données de l'apprentissage ainsi que les paramètres trouvés et les performances
+  de sauvegardées au moment de l'apprentissage;
+  \item réaliser un programme optimal en termes de complexité et efficace de
+  point de vue d'exploitation des ressources matérielles.
+\end{itemize}
+
+\subsection{Le matériel}
+
+Nous avons choisi d'exécuter notre programme d'apprentissage sur des machines de
+\keyword{Google Cloud Platform}. Cette plateforme offre plusieurs services de calcul, de stockage,
+de développement et de déploiement des applications basées sur les technologies
+de \keyword{l'informatique en nuages} (cloud computing). Nous avons choisi cette plateforme spécialement vu la facilité
+de son utilisation et la qualité de ses services, en plus qu'elle offre un grand crédit
+comme bonus initial pour les nouveaux utilisateurs, ce qui nous a permis de profiter de toutes ses
+fonctionnalités gratuitement dans ce projet.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.5\textwidth]{gcp-logo}
+  \caption[Le logo officiel du Google Cloud Platform]{Le logo officiel du Google Cloud Platform \cite{gcp}}
+\end{figure}
+
+Le service qui nous intéresse est \keyword{Compute Engine}. Il nous permet de
+créer une machine virtuelle ayant les caractéristiques matérielles pour notre tâche.
+Les caractéristiques les plus importantes sont le nombre des unités de traitement
+centrales virtuelles (vCPU) et leur fréquence, la taille de la mémoire centrale
+(RAM), et l'espace du stockage permanent dans le disque dur.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{GCP-Compute}
+  \caption{L'interface de gestion d'une machine virtuelle dans Compute Engine}
+\end{figure}
+
+A l'aide de ce service, nous avons créé deux machines disposant de 4 vCPU
+de \keyword{Intel Xeon E5 Sandy Bridge} ayant une fréquence de base de 2.6 GHz et d'une
+RAM de 15 Go. Ils ont aussi un disque dur virtuel de 10 Go où une distribution
+de \keyword{GNU/Linux} est préinstallé : l'un contient \keyword{Debian 8} et l'autre
+contient \keyword{CentOS 7}.
+
+Ayant les mêmes caractéristiques, nous avons remarqué que notre programme s'exécute
+plus stablement sur la machine qui \keyword{Debian 8}
+comme système d'exploitation que celle qui a \keyword{CentOS 7}. Ce jugement a été fait à
+base de la possibilité de faire l'apprentissage d'un modèle plus large dans première machine
+que celle de la deuxième sans que le programme se termine à cause du manque de mémoire,
+ce qui n'est pas le cas pour la deuxième machine même avec un modèle réduit.
+
+\subsection{Le logiciel}
+
+Afin de réaliser un programme portable et efficace à la fois, nous avons choisi
+de l'implémenter sous \keyword{Python 3} \cite{python3} en utilisant la bibliothèque \keyword{TensorFlow} \cite{DBLP:journals/corr/AbadiABBCCCDDDG16}
+pour la création du modèle, l'apprentissage automatique et pour le chargement des images.
+Cette bibliothèque permet d'exécuter un code de bas niveau écrit en \keyword{C++} \cite{stroustrup1995c++}
+qui peut effectuer des calculs massivement parallèles en utilisant tous les unités
+de traitement disponibles et en bénéficiant des instructions de vectorisation matérielles
+existant dans ces unités. \keyword{TensorFlow} offre aussi un outil intégré
+appelé \keyword{TensorBoard} permettant de dessiner le graphe du modèle et les
+connexions entre ses composants, ainsi que le traçage des fonctions de performances.
+Nous avons également utilisé la bibliothèque \keyword{NumPy} \cite{walt2011numpy} pour la lecture,
+le traitement et la sauvegarde des données numériques.
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}{0.3\textwidth}\includegraphics[width=\textwidth]{python-logo}\end{subfigure}
+\begin{subfigure}{0.3\textwidth}\includegraphics[width=\textwidth]{TensorFlow}\end{subfigure}
+\begin{subfigure}{0.3\textwidth}\includegraphics[width=\textwidth]{numpy_logo}\end{subfigure}
+\caption{Les logos de Python, Tensorflow, et NumPy}
+\end{figure}
+
+
+\section{Le programme d'apprentissage}
+
+Nous avons écrit un programme permettant d'effectuer plusieurs tâches.
+D'abord, il lit la description du modèle à partir d'un fichier JSON dont
+sa structure est défini dans le chapitre précédent. Il est utilisé pour
+construire le modèle en mémoire.
+
+Ensuite, il fait le décodage et les transformations nécessaires des images
+compressées sur le disque en mémoire et le chargement des distances et leur prétraitement.
+Ce processus consomme un temps considérable et doit être évité dans les lancements
+prochains du programme. Pour cela, les données traitées sont sauvegardées
+sous forme brute dans le disque ce qui permet leur chargement direct.
+
+Par la suite, l'ensemble de l'apprentissage est divisé au moment d'exécution en
+sous-ensembles dites \keyword{batches} qui ont tous la même taille\footnote{
+En réalité, la taille du dernier sous-ensemble n'est pas forcément égale à la
+taille des autres, car cela dépend sur la divisibilité de la taille de l'ensemble
+sur le nombre de sous-ensembles. Par exemple, si nous avons 2454 données pour
+l'apprentissage et notre taille de batch est de 200, le dernier batch aura seulement
+54 instances car 2454 n'est pas divisible par 200, ce qui nous donne un reste de 54.}.
+L'ensemble de validation est chargé tel qu'il est car il est beaucoup plus petit.
+
+L'étape suivante est le lancement de l'apprentissage. Dans le cas où il y a des
+paramètres déjà enregistrés pour le modèle courant, ils sont chargés
+pour continuer l'optimisation à partir du point où le programme s'est arrêté la
+dernière fois. Dans l'autre cas, ils sont initialisés par des valeurs aléatoires.
+L'apprentissage se fait par le passage d'un sous-ensemble d'images dans le réseau
+de neurones suivi par le calcul d'erreur entre les classes de distances trouvées
+par le réseau et les classes attendues. Cette erreur est minimisée à chaque
+itération en appliquant la propagation arrière à l'aide de l'optimiseur.
+
+\`A la fin de chaque itération, les nouveaux poids générés pour chaque matrice de paramètres
+sont sauvegardés dans des fichiers spéciaux. Ainsi, les performances du réseau sont calculées
+et enregistrées au fur et à mesure de l'avancement de ce processus pour pouvoir
+suivre leur développement.
+
+\section{Le suivi des performances}
+
+\subsection{La technique}
+
+Au moment de l'apprentissage, des fichiers appelés \keyword{fichiers d'événements}
+contenant son avancement sont générés ou mis à jour. Ces fichiers sont persistants
+et peuvent être consultés même après la terminaison du processus. Ils contiennent les graphes
+représentant le changement des valeurs de l'erreur et de l'exactitude en fonction
+du nombre d'itérations et pour chacune des deux ensembles d'apprentissage et de
+validation. De plus, ils incluent une représentation graphique du modèle
+d'apprentissage ayant plusieurs niveaux de détails qui affiche chaque nœud et son
+rôle, ainsi que les différentes connexions entre eux et les dimensions des données
+transférées. Toutes ces informations peuvent être visualisées clairement avec
+l'outil \keyword{TensorBoard}.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{TensorBoard}
+  \caption{L'interface de TensorBoard traçant les courbes de fonctions}
+\end{figure}
+
+\subsection{Les exécutions}
+
+Nous avons effectué plusieurs exécutions en variant les configurations du modèle,
+des données et de l'environnement. Chacune d'elles consomma plusieurs heures.
+
+Nous avons commencé par l'ensemble de données du CCU. \`A base de cet ensemble,
+nous avons lancé l'apprentissage de nos deux modèles. Le premier apprentissage
+a été effectué sur des images de taille $48 \times 48$ (réduites par facteur de
+$\frac{1}{2}$) sur le modèle le moins profond décrit dans le chapitre précédent.
+
+Les graphes des exécutions sont présentés dans les figures suivantes. Les courbes oranges
+représentent les valeurs issues de l'évaluation des performances sur le dernier batch
+de données d'apprentissage et les bleues représentent celles issues de l'évaluation
+sur les données de validation.
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}{0.8\textwidth}
+  \includegraphics[width=\textwidth]{CNN-Med-CCU-Loss}
+  \caption{La fonction du coût}
+\end{subfigure}
+\begin{subfigure}{0.8\textwidth}
+  \includegraphics[width=\textwidth]{CNN-Med-CCU-Accuracy}
+  \caption{La fonction d'exactitude}
+\end{subfigure}
+\caption{Les performances du petit réseau en utilisant l'ensemble du CCU}
+\end{figure}
+
+\`A partir du graphe de la fonction du coût, nous remarquons que les courbes
+d'apprentissage et de validation se divergent et que cette dernière commence
+à stagner rapidement. D'autre part, l'exactitude du réseau ne s'améliore pas
+pendant les $1000$ itérations, donc le réseau n'est pas capable trouver les bons
+paramètres.
+
+Avec les mêmes données, nous avons fait une autre exécution en utilisant le grand
+modèle. Les graphes suivants ont été obtenus.
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}{0.8\textwidth}
+  \includegraphics[width=\textwidth]{CNN-Big-CCU-Loss}
+  \caption{La fonction du coût}
+\end{subfigure}
+\begin{subfigure}{0.8\textwidth}
+  \includegraphics[width=\textwidth]{CNN-Big-CCU-Accuracy}
+  \caption{La fonction d'exactitude}
+\end{subfigure}
+\caption{Les performances du grand réseau en utilisant l'ensemble du CCU}
+\end{figure}
+
+Nous avions les mêmes remarques que celles faites pour les graphes précédentes.
+De plus, nous voyons que l'exactitude de validation se diminue après l'itération
+$330$, ce qui indique un fort sur-apprentissage.

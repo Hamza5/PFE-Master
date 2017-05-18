@@ -47,10 +47,14 @@
 \linespread{1.3}
 
 % Paramètres du code
-\lstset{numbers=left,frame=single,breaklines,basicstyle=\ttfamily\footnotesize}
+\lstset{numbers=left,captionpos=b,frame=single,breaklines,basicstyle=\ttfamily\footnotesize}
 
 \begin{document}
+% Utiliser un font sans-serif
+% \renewcommand{\familydefault}{\sfdefault}
+% \include{Page_de_garde}
 
+\renewcommand{\familydefault}{\rmdefault}
 % Indexes
 % \tableofcontents
 % \listoffigures
@@ -86,11 +90,12 @@
 \include{Chapitre2}
 \include{Chapitre3}
 \include{Chapitre4}
-%\include{Chapitre5}
+% \setcounter{chapter}{4}
+\include{Chapitre5}
 % \include{Conclusion}
 
 \bibliographystyle{babplain}
 \parskip=-0.5em
-\bibliography{bibliographie}
+% \bibliography{bibliographie}
 
 \end{document}
