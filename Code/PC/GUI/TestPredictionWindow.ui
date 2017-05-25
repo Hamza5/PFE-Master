@@ -105,7 +105,7 @@
                <widget class="QLabel" name="cnnPredictionValueLabel">
                 <property name="styleSheet">
                  <string notr="true">*:enabled {
-color : lightblue;
+color : blue;
 }</string>
                 </property>
                 <property name="text">
@@ -124,7 +124,7 @@ color : lightblue;
                <widget class="QLabel" name="groundTruthValueLabel">
                 <property name="styleSheet">
                  <string notr="true">*:enabled {
-color : lightgreen;
+color : green;
 }</string>
                 </property>
                 <property name="text">
@@ -241,7 +241,7 @@ color : lightgreen;
             <widget class="QLabel" name="imagePredictionValueLabel">
              <property name="styleSheet">
               <string notr="true">* {
-color : lightblue;
+color : blue;
 }</string>
              </property>
              <property name="text">
@@ -267,8 +267,20 @@ color : lightblue;
      <height>39</height>
     </rect>
    </property>
+   <widget class="QMenu" name="toolsMenu">
+    <property name="title">
+     <string>O&amp;utils</string>
+    </property>
+    <addaction name="datasetGeneratorAction"/>
+   </widget>
+   <addaction name="toolsMenu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="datasetGeneratorAction">
+   <property name="text">
+    <string>&amp;Générateur des ensembles de données</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

@@ -76,7 +76,7 @@ if __name__ == '__main__':
         learning_rate = float(attrs.get('learning_rate', 0.01))
         accepted_error = float(attrs.get('accepted_error', 0.2))
         expand_data = attrs.get('expand_data', '').lower() == 'true'
-        shutdown_after = attrs.get('shutdown', '').lower() == 'true'
+        balanced = attrs.get('balanced', '').lower() == 'true'
 
         if CNN_filename and data_dir:
             print('Constructing model of', CNN_filename, '...')
@@ -92,9 +92,13 @@ if __name__ == '__main__':
 
             print('Loading training data...')
             train = CNN.get_pictures_distances(os.path.join(data_dir, 'train'))
+            if balanced:
+                train = CNN.balanced_data_min(train, classes)
             train_batches = CNN.get_batches(train_dir, train, batch_size, grayscale=grayscale, downscale_factor=downscale, classes=classes)
             print('Loading validation data...')
             val = CNN.get_pictures_distances(val_dir)
+            if balanced:
+                val = CNN.balanced_data_min(val, classes)
             val_batch = CNN.get_batches(val_dir, val, len(val), grayscale=grayscale, downscale_factor=downscale, classes=classes)[0]
             print('Data : training = {}, validation = {}'.format(len(train), len(val)))
 
@@ -111,5 +115,5 @@ if __name__ == '__main__':
                                # logger=logger
                                )
 
-        if shutdown_after:
+        if get_attribute('shutdown').lower() == 'true':
             os.execlp('sudo', 'sudo', 'shutdown', 'now')

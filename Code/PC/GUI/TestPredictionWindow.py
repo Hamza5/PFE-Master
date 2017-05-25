@@ -58,7 +58,7 @@ class Ui_CNNTesterWindow(object):
         self.gridLayout.addWidget(self.cnnPredictionLabel, 0, 0, 1, 1)
         self.cnnPredictionValueLabel = QtWidgets.QLabel(self.distanceGroupBox)
         self.cnnPredictionValueLabel.setStyleSheet("*:enabled {\n"
-"color : lightblue;\n"
+"color : blue;\n"
 "}")
         self.cnnPredictionValueLabel.setObjectName("cnnPredictionValueLabel")
         self.gridLayout.addWidget(self.cnnPredictionValueLabel, 0, 1, 1, 1)
@@ -67,7 +67,7 @@ class Ui_CNNTesterWindow(object):
         self.gridLayout.addWidget(self.groundTruthLabel, 1, 0, 1, 1)
         self.groundTruthValueLabel = QtWidgets.QLabel(self.distanceGroupBox)
         self.groundTruthValueLabel.setStyleSheet("*:enabled {\n"
-"color : lightgreen;\n"
+"color : green;\n"
 "}")
         self.groundTruthValueLabel.setObjectName("groundTruthValueLabel")
         self.gridLayout.addWidget(self.groundTruthValueLabel, 1, 1, 1, 1)
@@ -126,7 +126,7 @@ class Ui_CNNTesterWindow(object):
         self.gridLayout_3.addWidget(self.imagePredictionLabel, 1, 2, 1, 1)
         self.imagePredictionValueLabel = QtWidgets.QLabel(self.predictImageGroupBox)
         self.imagePredictionValueLabel.setStyleSheet("* {\n"
-"color : lightblue;\n"
+"color : blue;\n"
 "}")
         self.imagePredictionValueLabel.setObjectName("imagePredictionValueLabel")
         self.gridLayout_3.addWidget(self.imagePredictionValueLabel, 1, 4, 1, 1)
@@ -137,10 +137,16 @@ class Ui_CNNTesterWindow(object):
         self.menubar = QtWidgets.QMenuBar(CNNTesterWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 488, 39))
         self.menubar.setObjectName("menubar")
+        self.toolsMenu = QtWidgets.QMenu(self.menubar)
+        self.toolsMenu.setObjectName("toolsMenu")
         CNNTesterWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(CNNTesterWindow)
         self.statusbar.setObjectName("statusbar")
         CNNTesterWindow.setStatusBar(self.statusbar)
+        self.datasetGeneratorAction = QtWidgets.QAction(CNNTesterWindow)
+        self.datasetGeneratorAction.setObjectName("datasetGeneratorAction")
+        self.toolsMenu.addAction(self.datasetGeneratorAction)
+        self.menubar.addAction(self.toolsMenu.menuAction())
 
         self.retranslateUi(CNNTesterWindow)
         self.modeTabWidget.setCurrentIndex(0)
@@ -166,4 +172,6 @@ class Ui_CNNTesterWindow(object):
         self.imagePredictionLabel.setText(_translate("CNNTesterWindow", "Prédiction du réseau"))
         self.imagePredictionValueLabel.setText(_translate("CNNTesterWindow", "Aucune"))
         self.modeTabWidget.setTabText(self.modeTabWidget.indexOf(self.predictionTab), _translate("CNNTesterWindow", "Prédiction"))
+        self.toolsMenu.setTitle(_translate("CNNTesterWindow", "O&utils"))
+        self.datasetGeneratorAction.setText(_translate("CNNTesterWindow", "&Générateur des ensembles de données"))
 

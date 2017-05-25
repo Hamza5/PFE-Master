@@ -216,7 +216,8 @@ def mirrored_data(pictures, distances) -> (np.ndarray, np.ndarray):
 
 def balanced_data_min(pictures_distances, classes) -> dict:
     assert isinstance(pictures_distances, dict)
-    distances = np.asarray(list(pictures_distances.values()))
+    assert isinstance(classes, Integral)
+    distances = np.array(list(pictures_distances.values()))
     all_labels, counts = np.unique(np.uint8(distances / 4.5 * (classes-1)), return_counts=True)
     groups_min = np.min(counts)
     pictures_groups = {}
@@ -363,9 +364,9 @@ def train_conv_net(conv_net, iterations, dropouts, train_batches, validation_bat
                     test_text = "Loss = {0:.4f} | Accuracy = {1:.4f}".format(
                         *session.run([cost, accuracy], feed_dict={conv_net['input']: pictures_test, labels: distances_test}))
                 else:
-                    test_text = "Loss = {0:.4f} | Accuracy with {2}m tolerance = {1:.4f}".format(
+                    test_text = "Loss = {0:.4f} | Accuracy with {error}m tolerance = {1:.4f}".format(
                         *session.run([cost, accuracy], feed_dict={conv_net['input']: pictures_test, labels: distances_test}),
-                        accepted_error
+                        error=accepted_error
                     )
                 print(test_text)
                 if logger:
@@ -418,47 +419,43 @@ def link_data(source, destination, start, end):
 def main(args):
     model_file_name = args[1]
     data_dir = args[2]
-    # print('Constructing model of', model_file_name, '...')
-    # with open(model_file_name+'.json') as cnn_json_file:
-    #     import json
-    #     cnn = convolutional_neural_network(96, 96, 1, json.load(cnn_json_file, object_pairs_hook=OrderedDict))
-    # print('Variables')
-    # for variable in cnn['variables']:
-    #     print(variable)
+    print('Constructing model of', model_file_name, '...')
+    with open(model_file_name+'.json') as cnn_json_file:
+        import json
+        cnn = convolutional_neural_network(96, 96, 1, json.load(cnn_json_file, object_pairs_hook=OrderedDict))
+    print('Variables')
+    for variable in cnn['variables']:
+        print(variable)
     train_dir = os.path.join(data_dir, 'train')
     val_dir = os.path.join(data_dir, 'validation')
-    # downscale = 1
-    # grayscale = int(cnn['input'].get_shape()[3]) == 1  # The size of the depth dimension is 1
-    # classes = int(cnn['output'].get_shape()[1])
-    # print('Loading training data ...')
+    downscale = 1
+    grayscale = int(cnn['input'].get_shape()[3]) == 1  # The size of the depth dimension is 1
+    classes = int(cnn['output'].get_shape()[1])
+    print('Loading training data ...')
     train = get_pictures_distances(train_dir)
-    print(len(balanced_data_min(train, 4)))
-    # train_batches = get_batches(train_dir, train, 200, grayscale=grayscale, downscale_factor=downscale, classes=classes)
-    # print('Loading validation data ...')
-    # val = get_pictures_distances(val_dir)
-    # val_batch = get_batches(val_dir, val, len(val), grayscale=grayscale, downscale_factor=downscale, classes=classes)[0]
-    # print('Data : training = {}, validation = {}'.format(len(train), len(val)))
-    # train_conv_net(conv_net=cnn,
-    #                train_batches=train_batches,
-    #                validation_batch=val_batch,
-    #                iterations=300,
-    #                dropouts=[],
-    #                data_directory=data_dir,
-    #                model_path=os.path.join(os.path.realpath(model_file_name), 'CNN'),
-    #                learning_rate=0.001,
-    #                expand_data=True,
-    #                )
+    train_batches = get_batches(train_dir, train, 200, grayscale=grayscale, downscale_factor=downscale, classes=classes)
+    print('Loading validation data ...')
+    val = get_pictures_distances(val_dir)
+    val_batch = get_batches(val_dir, val, len(val), grayscale=grayscale, downscale_factor=downscale, classes=classes)[0]
+    print('Data : training = {}, validation = {}'.format(len(train), len(val)))
+    train_conv_net(conv_net=cnn,
+                   train_batches=train_batches,
+                   validation_batch=val_batch,
+                   iterations=300,
+                   dropouts=[],
+                   data_directory=data_dir,
+                   model_path=os.path.join(os.path.realpath(model_file_name), 'CNN'),
+                   learning_rate=0.001,
+                   expand_data=True,
+                   )
 
 
 if __name__ == '__main__':
-    # try:
-    #     generate_datasets(sys.argv[2], sys.argv[2], 0.8, 1)
-    #     print('Datasets generated')
-    # except FileExistsError:
-    #     print('Datasets already exist')
-    picts_dists = get_pictures_distances(os.path.join(sys.argv[2], 'validation'))
-    bd = balanced_data_min(picts_dists, 4)
-    print(len(bd))
+    try:
+        generate_datasets(sys.argv[2], sys.argv[2], 0.8, 1)
+        print('Datasets generated')
+    except FileExistsError:
+        print('Datasets already exist')
     # main(sys.argv)
     # link_data('../../Data/Info-TP', '../../Data/Info-TP-Pass', '', '9999999999999')
     # link_data('../../Data/Info-Pass', '../../Data/Info-TP-Pass', '', '9999999999999')
