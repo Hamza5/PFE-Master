@@ -18,8 +18,9 @@
 \usepackage{float} % Pour empêcher le déplacement des tableaux et des figures.
 \usepackage{babelbib} % Pour changer la langue dans la bibliographie
 \usepackage{amsmath} % Pour des fonctions mathématiques
-\usepackage[onelanguage,french,longend,boxruled,algoruled,linesnumbered,algochapter]{algorithm2e}
-\usepackage{listings}
+\usepackage[onelanguage,french,longend,boxruled,algoruled,linesnumbered,algochapter]{algorithm2e} % Pour les algorithmes
+\usepackage{listings} % Pour le code source et le contenu d'un fichier
+\usepackage{array}
 
 \graphicspath{ {pictures/} } % Spécifier le répertoire contenant les images
 \DisableLigatures[f]{encoding=*}
@@ -39,7 +40,7 @@
 \setlength{\headheight}{16pt}
 \pagestyle{fancyplain}
 \lhead{} % Enlever la section
-\rhead{\fancyplain{}{\footnotesize \itshape{\nouppercase{\leftmark}}}} % Titre du chapitre en miniscule avec taille 10
+\rhead{\fancyplain{}{\footnotesize \itshape{\nouppercase{\leftmark}}}} % Titre du chapitre en minuscule avec taille 10
 \cfoot{} % Déplacer le numéro de la page
 \rfoot{\fancyplain{\thepage}{\thepage}} % à droite de la page
 
@@ -50,11 +51,10 @@
 \lstset{numbers=left,captionpos=b,frame=single,breaklines,basicstyle=\ttfamily\footnotesize}
 
 \begin{document}
-% Utiliser un font sans-serif
-% \renewcommand{\familydefault}{\sfdefault}
+
+% \renewcommand{\sfdefault}{phv}
 % \include{Page_de_garde}
 
-\renewcommand{\familydefault}{\rmdefault}
 % Indexes
 % \tableofcontents
 % \listoffigures
@@ -96,6 +96,6 @@
 
 \bibliographystyle{babplain}
 \parskip=-0.5em
-% \bibliography{bibliographie}
+\bibliography{bibliographie}
 
 \end{document}

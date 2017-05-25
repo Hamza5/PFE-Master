@@ -96,7 +96,7 @@ au reste.
 \caption{Des images de l'ensemble de données du département d'informatique}
 \end{figure}
 
-\subsection{Le format et l'organisation}
+\subsection{Le format et l'organisation}\label{subsec:format}
 
 Les données se composent de deux types : des données pour l'entrée du modèle
 qui sont les images capturées par la camera, et des données pour la sortie
@@ -129,9 +129,9 @@ structuré en quatre colonnes séparées par le caractère \fbox{\texttt{,}}. La
 colonne contient les identificateurs des images, et les colonnes suivantes
 représentes les distances mesurées pour chaque image.
 
-\lstinputlisting[firstline=315,lastline=326,float=h,firstnumber=315,
+\lstinputlisting[firstline=723,lastline=734,float=h,firstnumber=723,
 caption=La partie du fichier des distances correspondante aux fichiers précédents]
-{../Data/Info/Distances.txt}
+{../Data/Info/train/Distances.txt}
 
 L'ensemble des images et du fichier de distances sont éclatés en deux sous-ensembles
 de tailles différentes. Le plus grand sera utilisé pour effectuer l'apprentissage,
@@ -214,7 +214,7 @@ le traitement et la sauvegarde des données numériques.
 \begin{subfigure}{0.3\textwidth}\includegraphics[width=\textwidth]{python-logo}\end{subfigure}
 \begin{subfigure}{0.3\textwidth}\includegraphics[width=\textwidth]{TensorFlow}\end{subfigure}
 \begin{subfigure}{0.3\textwidth}\includegraphics[width=\textwidth]{numpy_logo}\end{subfigure}
-\caption{Les logos de Python, Tensorflow, et NumPy}
+\caption{Les logos de Python, TensorFlow, et NumPy}
 \end{figure}
 
 
@@ -300,7 +300,7 @@ sur les données de validation.
   \includegraphics[width=\textwidth]{CNN-Med-CCU-Accuracy}
   \caption{La fonction d'exactitude}
 \end{subfigure}
-\caption{Les performances du petit réseau en utilisant l'ensemble du CCU}
+\caption{Les performances du petit réseau en utilisant l'ensemble du CCU\label{fig:med_ccu}}
 \end{figure}
 
 \`A partir du graphe de la fonction du coût, nous remarquons que les courbes
@@ -310,21 +310,330 @@ pendant les $1000$ itérations, donc le réseau n'est pas capable de trouver les
 paramètres.
 
 Avec les mêmes données, nous avons fait une autre exécution en utilisant le grand
-modèle. Les graphes suivants ont été obtenus.
+modèle. Les graphes de la figure \ref{fig:big_ccu} ont été obtenus.
 
 \begin{figure}[h]
 \centering
-\begin{subfigure}{0.8\textwidth}
+\begin{subfigure}{0.9\textwidth}
   \includegraphics[width=\textwidth]{CNN-Big-CCU-Loss}
   \caption{La fonction du coût}
 \end{subfigure}
-\begin{subfigure}{0.8\textwidth}
+\begin{subfigure}{0.9\textwidth}
   \includegraphics[width=\textwidth]{CNN-Big-CCU-Accuracy}
   \caption{La fonction d'exactitude}
 \end{subfigure}
-\caption{Les performances du grand réseau en utilisant l'ensemble du CCU}
+\caption{Les performances du grand réseau en utilisant l'ensemble du CCU\label{fig:big_ccu}}
 \end{figure}
 
 Nous avons recueilli les mêmes observations que celles faites pour les graphes précédents.
 De plus, nous voyons que l'exactitude de validation diminue après l'itération
 $330$, ce qui indique un fort sur-apprentissage.
+
+Puisque l'augmentation de la profondeur du modèle n'a donné que de mauvais
+résultats, nous pouvons conclure que le problème est causé par les données et non pas
+par le modèle. Nous devons donc changer l'ensemble de données utilisé. C'est
+la raison pour laquelle dans ce qui suit nous utilisons l'ensemble de données du département.
+
+De même, nous utilisons cet ensemble pour effectuer l'apprentissage automatique
+à l'aide des deux modèles utilisés précédemment. Pour chaque modèle, deux exécutions
+ont été effectuées, l'une sans changer les dimensions des images (c'est à dire en
+gardant leur taille originale de $96 \times 96$), et l'autre après la réduction
+de la taille vers $48 \times 48$.
+
+Les graphes de la figure \ref{fig:med_info} montrent le développement des performances
+du petit modèle en utilisant des images de taille de $48 \times 48$.
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}{0.64\textwidth}
+  \includegraphics[width=\textwidth]{CNN-Med-Info-Loss}
+  \caption{La fonction du coût}
+\end{subfigure}
+\begin{subfigure}{0.64\textwidth}
+  \includegraphics[width=\textwidth]{CNN-Med-Info-Accuracy}
+  \caption{La fonction d'exactitude}
+\end{subfigure}
+\caption{Les performances du petit réseau en utilisant l'ensemble du département\label{fig:med_info}}
+\end{figure}
+
+Il est remarquable que les courbes de la fonction du coût descendent rapidement
+et que celles de la fonction de l'exactitude montent normalement. La courbe de
+validation de la fonction du coût stagne entre les valeurs $0.91$ et $0.9$ à partir
+de l'itération $5300$. De même, la courbe de validation de la fonction d'exactitude
+cesse de monter après l'itération $5000$ et continue à prendre des valeurs entre
+$0.64$ et $0.65$. Cela montre que le modèle peut classifier avec un taux de
+succès de $65 \%$.
+
+En gardant la même taille d'images, nous effectuons l'apprentissage du grand modèle.
+Les graphes de la figure \ref{fig:big_info} représentent le changement des performances en fonction de
+nombre d'itérations.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.64\textwidth}
+  \includegraphics[width=\textwidth]{CNN-Big-Info-Loss}
+  \caption{La fonction du coût}
+\end{subfigure}
+\begin{subfigure}{0.64\textwidth}
+  \includegraphics[width=\textwidth]{CNN-Big-Info-Accuracy}
+  \caption{La fonction d'exactitude}
+\end{subfigure}
+\caption{Les performances du grand réseau en utilisant l'ensemble du département\label{fig:big_info}}
+\end{figure}
+
+Nous observons que les deux courbes dans les deux graphes divergent dès les
+premières itérations. D'une part, l'erreur de validation augmente au lieu de diminuer
+à partir de l'itération $4500$ approximativement. D'autre part, la valeur d'exactitude
+commence à stagner entre $0.65$ et $0.66$ à partir de l'itération $5000$. Contrairement
+aux courbes de validation, celles d'apprentissage continuent leur amélioration
+à travers le temps. Ces résultats indiquent que le modèle a pu trouver la bonne
+classe pour $66 \%$ des images figurant dans l'ensemble de validation.
+
+Vu que les résultats obtenus n'étaient pas vraiment satisfaisants, nous avons essayé
+d'utiliser les images sans redimensionnement, c'est à dire en gardant la taille
+originale de $96 \times 96$ pixels. L'apprentissage en utilisant une telle taille
+dure beaucoup plus longtemps : chaque exécution prend plusieurs jours car elle peut être
+interrompue par plusieurs problèmes, comme l'arrêt imprévisible de la machine ou
+une insuffisance de mémoire. C'est la raison pour laquelle nous avons évité
+d'utiliser les images avec leurs taille originale au début, mais à la fin nous
+sommes amenés à considérer ce choix comme une autre tentative pour améliorer les résultats.
+
+En continuant par le même principe, nous avons utilisé les données de l'ensemble
+du département pour faire l'apprentissage des deux modèles. La différence n'était
+pas importante, la valeur de l'exactitude pour les deux modèles n'a pas pu
+dépasser $0.67$, ce qui indique que la réduction de taille d'un facteur de $\frac{1}{2}$
+pour les images de l'ensemble n'avait pas une grande influence sur les résultats obtenus.
+
+\section{L'implémentation des modèles}
+
+Après avoir terminé l'apprentissage de nos modèles, nous réalisons une
+application qui permet à un utilisateur d'estimer la classe de distance correspondante
+à l'image fournie. Cette application fonctionne sur trois éléments :
+
+\begin{itemize}
+  \item un fichier contenant la description du modèle, sous format JSON,
+  \item le fichier du point de contrôle \texttt{checkpoint} qui pointe vers
+  l'emplacement des fichiers qui contiennent les valeurs des paramètres du modèle,
+  \item un repértoire représentant l'ensemble de test qui a le fichier \texttt{Distances.txt}
+  et les images correspondantes, ou bien l'image dont il faut prédire la classe de distance.
+\end{itemize}
+
+\subsection{Chargement du réseau de neurones convolutionel}
+
+La première interface graphique de l'application qui s'affiche à l'ouverture est
+une boîte de dialogue composée de trois parties. La première offre un champ pour
+saisir l'emplacement du fichier du réseau dans le disque dur. La deuxième permet
+à l'utilisateur de spécifier le chemin du fichier du point de contrôle qui permet
+de charger les poids du réseau.
+
+Dans chaque partie des deux premières, un bouton étiquetté <<Choisir>> est
+disponible pour faciliter la sélection du fichier en ouvrant une boîte de
+dialogue qui permet de sélectionner le fichier correspondant.
+La dernière partie permet de spécifier les paramètres d'images utilisées lors de
+l'apprentissage du modèle. Ces paramètres représentent les trois dimensions de l'image
+(la hauteur, la largeur et le nombre de canaux).
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.4\textwidth]{cnn_loader}
+  \caption{La boîte de dialogue de sélection des fichiers de configuration}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}{0.49\textwidth}
+  \includegraphics[width=\textwidth]{open_ConvNet}
+  \caption{Sélection du fichier du réseau}
+\end{subfigure}
+\begin{subfigure}{0.49\textwidth}
+  \includegraphics[width=\textwidth]{open_checkpoint}
+  \caption{Sélection du fichier de point de contrôle}
+\end{subfigure}
+\caption{Les boîtes de dialogue de sélection des fichiers}
+\end{figure}
+
+\subsection{Test et prédiction}
+
+Après avoir donné toutes ces informations, l'interface précédente est cachée
+pour qu'une autre s'ouvre. La nouvelle interface graphique contient deux sous-interfaces
+dont une est visible à la fois. L'une d'elles est celle du test et l'autre est
+celle de la prédiction. Toutes les deux contiennent un champ où l'utilisateur
+doit introduire le chemin de ses données.
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}{0.4\textwidth}
+  \includegraphics[width=\textwidth]{test_tab}
+  \caption{La sous-interface du test}
+\end{subfigure}
+\begin{subfigure}{0.4\textwidth}
+  \includegraphics[width=\textwidth]{predict_tab}
+  \caption{La sous-interface de la prédiction}
+\end{subfigure}
+\caption{Les sous-interfaces}
+\end{figure}
+
+\subsubsection{Le test}
+
+En utilisant l'interface du test, l'utilisateur peut spécifier le chemin d'un
+répertoire contenant son ensemble de données. Ce répertoire doit contenir le fichier
+\texttt{Distances.txt} qui doit être enregistré sous la structure décrite dans
+\ref{subsec:format}, et aussi toutes les images correspondant
+aux lignes de ce fichier, dont chacune a un nom respectant le format indiqué dans \ref{subsec:format}.
+
+L'utilisateur peut saisir le chemin manuellement dans le champ ou à l'aide du bouton
+<<Choisir>>. Dès que le chemin devient valide, l'ensemble de données est chargé
+et la première instance est sélectionnée automatiquement. L'utilisateur peut
+changer l'instance en modifiant le nombre affiché. Pour chaque instance, la classe
+prédite par le réseau est affichée en bleu et la classe réelle en vert. La première
+est trouvée par le passage de l'image à travers le réseau et la lecture du résultat,
+et la deuxième est récuperée à partir du fichier des distances.
+
+\parbox[][1em][]{\textwidth}{}
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}{0.32\textwidth}
+  \includegraphics[width=\textwidth]{test_tab_1}
+\end{subfigure}
+\begin{subfigure}{0.32\textwidth}
+  \includegraphics[width=\textwidth]{test_tab_2}
+\end{subfigure}
+\begin{subfigure}{0.32\textwidth}
+  \includegraphics[width=\textwidth]{test_tab_3}
+\end{subfigure}
+\caption{L'interface du test}
+\end{figure}
+
+\subsubsection{La prédiction}
+
+Contrairement à la première interface, la deuxième permet à l'utilisateur de
+spécifier le chemin d'une seule image ayant les mêmes propriétés que les images
+de test et dont la classe est inconnue. \`A cause de cela, seule la réponse
+du réseau est disponible. Nous ne pouvons donc pas comparer son résultat avec
+une référence. En effet, cette fonctionnalité représente le but de ce projet.
+
+Le fonctionnement de l'interface est pratiquement le même que celui de la première.
+Quand l'utilisateur saisit un chemin valide d'une image manuellement ou en utilisant
+le bouton <<Choisir>>, l'image est affichée et elle est passée au réseau pour
+déterminer sa classe de distances. Cette réponse est affichée sur l'interface.
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}{0.32\textwidth}
+  \includegraphics[width=\textwidth]{predict_tab_1}
+\end{subfigure}
+\begin{subfigure}{0.32\textwidth}
+  \includegraphics[width=\textwidth]{predict_tab_2}
+\end{subfigure}
+\begin{subfigure}{0.32\textwidth}
+  \includegraphics[width=\textwidth]{predict_tab_3}
+\end{subfigure}
+\caption{L'interface de la prédiction}
+\end{figure}
+
+\section{Le test des modèles}
+
+En utilisant notre application et des ensembles de données de test, nous pouvons
+réaliser l'évaluation de nos modèles. Nous prenons donc quelques instances de
+l'ensemble de validation du département qui sont des instances non vues par le
+réseau lors de l'apprentissage.
+
+L'ensemble de validation que nous avons créé contient $613$ instances. Vu la grandeur
+de ce nombre, nous ne pouvons pas présenter ici les résultats issues de toutes les
+images de l'ensemble. Nous nous limitons donc à quelques instances dont le réseau
+a pu trouver la bonne réponse et quelques autres dont il n'a pas trouvé la bonne réponse.
+
+\subsection{Le modèle le moins profond}
+
+Nous avons effectué les tests en utilisant des images de taille réduite ($48 \times 48$)
+et celles de taille originale ($96 \times 96$). La première colonne contient
+l'image utilisée, la seconde représente la classe prédite par le réseau, et la dernière
+représente la classe réelle. Les résultats sont disponibles dans les tableaux suivants.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|m{0.095\textwidth} m{0.1\textwidth} m{0.12\textwidth}|m{0.095\textwidth} m{0.1\textwidth} m{0.12\textwidth}|}
+    \hline
+    Image & Prédiction & Correction & Image & Prédiction & Correction \\
+    \hline
+    \includegraphics[width=0.09\textwidth]{test_info_2} & Petite & Petite & \includegraphics[width=0.09\textwidth]{test_info_4} & Petite & Petite \\
+    \includegraphics[width=0.09\textwidth]{test_info_6} & Petite & Grande & \includegraphics[width=0.09\textwidth]{test_info_8} & Moyenne & Moyenne \\
+    \includegraphics[width=0.09\textwidth]{test_info_10} & Moyenne & Moyenne & \includegraphics[width=0.09\textwidth]{test_info_12} & Petite & Inconnue \\
+    \includegraphics[width=0.09\textwidth]{test_info_14} & Petite & Petite & \includegraphics[width=0.09\textwidth]{test_info_16} & Moyenne & Moyenne \\
+    \includegraphics[width=0.09\textwidth]{test_info_18} & Moyenne & Moyenne & \includegraphics[width=0.09\textwidth]{test_info_20} & Petite & Petite \\
+    \hline
+  \end{tabular}
+  \caption{Résultats des tests sur le petit modèle en utilisant les images réduites}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|m{0.095\textwidth} m{0.1\textwidth} m{0.12\textwidth}|m{0.095\textwidth} m{0.1\textwidth} m{0.12\textwidth}|}
+    \hline
+    Image & Prédiction & Correction & Image & Prédiction & Correction \\
+    \hline
+    \includegraphics[width=0.09\textwidth]{test_info_2} & Petite & Petite & \includegraphics[width=0.09\textwidth]{test_info_4} & Petite & Petite \\
+    \includegraphics[width=0.09\textwidth]{test_info_6} & Grande & Grande & \includegraphics[width=0.09\textwidth]{test_info_8} & Moyenne & Moyenne \\
+    \includegraphics[width=0.09\textwidth]{test_info_10} & Moyenne & Moyenne & \includegraphics[width=0.09\textwidth]{test_info_12} & Inconnue & Inconnue \\
+    \includegraphics[width=0.09\textwidth]{test_info_14} & Inconnue & Petite & \includegraphics[width=0.09\textwidth]{test_info_16} & Moyenne & Moyenne \\
+    \includegraphics[width=0.09\textwidth]{test_info_18} & Moyenne & Moyenne & \includegraphics[width=0.09\textwidth]{test_info_20} & Petite & Petite \\
+    \hline
+  \end{tabular}
+  \caption{Résultats des tests sur le petit modèle en utilisant les images originales}
+\end{table}
+
+\subsection{Le modèle le plus profond}
+
+De plus, nous avons réalisé les mêmes expérimentations avec le grand modèle. Les
+résultats que nous avons obtenus sont présentés dans les tableaux suivants.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|m{0.095\textwidth} m{0.1\textwidth} m{0.12\textwidth}|m{0.095\textwidth} m{0.1\textwidth} m{0.12\textwidth}|}
+    \hline
+    Image & Prédiction & Correction & Image & Prédiction & Correction \\
+    \hline
+    \includegraphics[width=0.09\textwidth]{test_info_2} & Petite & Petite & \includegraphics[width=0.09\textwidth]{test_info_4} & Petite & Petite \\
+    \includegraphics[width=0.09\textwidth]{test_info_6} & Grande & Grande & \includegraphics[width=0.09\textwidth]{test_info_8} & Moyenne & Moyenne \\
+    \includegraphics[width=0.09\textwidth]{test_info_10} & Moyenne & Moyenne & \includegraphics[width=0.09\textwidth]{test_info_12} & Inconnue & Inconnue \\
+    \includegraphics[width=0.09\textwidth]{test_info_14} & Petite & Petite & \includegraphics[width=0.09\textwidth]{test_info_16} & Moyenne & Moyenne \\
+    \includegraphics[width=0.09\textwidth]{test_info_18} & Moyenne & Moyenne & \includegraphics[width=0.09\textwidth]{test_info_20} & Petite & Petite \\
+    \hline
+  \end{tabular}
+  \caption{Résultats des tests sur le grand modèle en utilisant les images réduites}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|m{0.095\textwidth} m{0.1\textwidth} m{0.12\textwidth}|m{0.095\textwidth} m{0.1\textwidth} m{0.12\textwidth}|}
+    \hline
+    Image & Prédiction & Correction & Image & Prédiction & Correction \\
+    \hline
+    \includegraphics[width=0.09\textwidth]{test_info_2} & Petite & Petite & \includegraphics[width=0.09\textwidth]{test_info_4} & Petite & Petite \\
+    \includegraphics[width=0.09\textwidth]{test_info_6} & Petite & Grande & \includegraphics[width=0.09\textwidth]{test_info_8} & Moyenne & Moyenne \\
+    \includegraphics[width=0.09\textwidth]{test_info_10} & Moyenne & Moyenne & \includegraphics[width=0.09\textwidth]{test_info_12} & Petite & Inconnue \\
+    \includegraphics[width=0.09\textwidth]{test_info_14} & Inconnue & Petite & \includegraphics[width=0.09\textwidth]{test_info_16} & Moyenne & Moyenne \\
+    \includegraphics[width=0.09\textwidth]{test_info_18} & Moyenne & Moyenne & \includegraphics[width=0.09\textwidth]{test_info_20} & Petite & Petite \\
+    \hline
+  \end{tabular}
+  \caption{Résultats des tests sur le grand modèle en utilisant les images originales}
+\end{table}
+
+\section{Conclusion}
+
+Dans ce chapitre, nous avons présenté les différentes approches que nous avons prises
+afin d'effectuer l'apprentissage de nos réseaux de neurones convolutionels. Ces
+approches consistent à varier les données et leurs dimensions, ainsi que les modèles
+utilisés. Nous avons également présenté la majorité des graphes de performances
+et les résultats obtenus après avoir fait la simulation avec des données de test,
+ainsi que l'application utilisée pour les réaliser.
+
+Avec un taux d'exactitude maximal égal à $67 \%$ approximativement, nous pouvons
+conclure que les résultats obtenus n'étaient pas très bons, et que cela est causé par
+plusieurs facteurs. D'une part, les données sont hétérogènes, car les images contiennent
+des objets de nature et de forme très différente. D'autre part, les capteurs
+ultrasoniques utilisés ne sont pas fiables et peuvent retourner de mauvaises valeurs
+dans certaines conditions, sans mentionner leur limite de mesure pour les objets
+distants. De plus, les ensembles de données que nous avons construits sont biaisés
+et nous n'avons pas le nombre nécessaire de données pour les équilibrer.
