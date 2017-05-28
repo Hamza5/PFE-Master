@@ -1,0 +1,55 @@
+\chapter*{Introduction générale}
+
+L'être humain, en utilisant ses yeux et son cerveau, est capable de distinguer facilement
+entre les niveaux de distances de différents objets qui se trouvent dans une scène.
+Par contre, les machines programmables, comme les ordinateurs, ne disposent d'aucune
+méthode algorithmique qui leur permet de ce faire à partir des images bidimensionnelles
+qui les reçoivent à travers les caméras ordinaires.
+
+L'extraction des profondeurs d'une image 2D, ou l'estimation de la distance
+d'un objet par rapport à la caméra, font partie des problèmes appartenant à une catégorie
+connue dans le domaine de la vision par ordinateur. Plusieurs approches ont été
+proposées pour les résoudre, chacune ayant ses propres contraintes, avantages, et
+inconvénients.
+
+La méthode utilisée dans ce travail est basée sur \keyword{l'apprentissage automatique
+supervisé} dont le principe est d'utiliser un ensemble de données contenant les
+images et les profondeurs correspondantes. Son avantage majeur est de pouvoir
+produire un modèle permettant d'estimer les profondeurs sans avoir à implémenter
+les détails du traitement explicitement.
+
+Cependant, les méthodes de l'apprentissage automatique supervisé nécessite
+un nombre considérable de données afin de pouvoir fonctionner correctement.
+L'obtention des données et la correspondance entre les entrées et les sorties
+est un travail qui se fait généralement de façon manuel dans la majorité des tâches
+et demande un effort important du côté des constructeurs de l'ensemble. C'est la
+raison pour laquelle la majorité des travaux qui concernent l'apprentissage automatique
+utilisent des ensembles prêts préparés dans des travaux antérieurs (par exemple
+MNIST \cite{lecun2010mnist} et CIFAR-10 \cite{krizhevsky2009learning}).
+
+En effet, dans certaines tâches, la génération de cet ensemble peut être automatisé
+et donc toutes les opérations précédentes sont effectuées par des programmes au lieu
+des personnes. Cela fait partie des méthodes de \keyword{l'apprentissage
+automatique auto-supervisé} qui n'est qu'un cas spécial de celui supervisé où
+l'ensemble de données est construit automatiquement.
+
+C'est dans ce contexte où se situe notre travail, qui est la composition de deux
+grandes tâches : d'abord, générer un ensemble de données contenant les images et les distances
+des obstacles correspondantes après avoir construit une machine mobile permettant
+de ce faire; ensuite, concevoir un modèle d'apprentissage automatique et utiliser
+l'ensemble de données pour effectuer son entraînement. Contrairement aux travaux
+antérieurs, la première tâche est réalisée en utilisant des capteurs ultrasoniques
+et non pas des capteurs lasers. Les modèles conçus dans la deuxième tâche sont
+des réseaux de neurones convolutionnels.
+
+Afin de détailler ce travail, nous avons organisé le mémoire comme suit.
+D'abord, le premier chapitre contient des concepts de base et des notions générales dans
+les domaines de la robotique, la vision par ordinateur, et l'apprentissage automatique.
+Ensuite, le deuxième chapitre est consacré à l'exposition de quelques travaux précédents
+autour de notre sujet. Par la suite, le troisième chapitre présente les parties
+matérielles et logicielles de notre machine et explique son fonctionnement.
+Suivi par le quatrième chapitre qui décrit les structures de nos données et les
+architectures de nos réseaux convolutionnels. Enfin, le cinquième chapitre présente
+les exécutions d'apprentissage que nous avons lancées et les résultats recueillis
+de nos tests. Nous concluons par un résumé de notre travail et des perspectives
+pour l'améliorer.
