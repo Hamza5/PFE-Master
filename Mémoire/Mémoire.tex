@@ -5,9 +5,8 @@
 \usepackage{lmodern} % Le latin modèrne
 \usepackage[top=2cm, bottom=2cm, left=3cm, right=2cm]{geometry} % Définir les marges de la page
 \usepackage[hidelinks,
-            urlcolor=blue,
             unicode=true,
-            pdftitle={Estimation de distances à partir d'images},
+            pdftitle={Estimation des distances des obstacles à partir des images à l'aide de l'apprentissage automatique auto-supervisé},
             pdfauthor={Hamza ABBAD}
             pdfdisplaydoctitle=true]{hyperref} % Pour les liens
 \usepackage{fancyhdr} % Pour le style de la page
@@ -17,6 +16,7 @@
 \usepackage{subcaption} % Pour mettre plusieurs images sur la même ligne
 \usepackage{float} % Pour empêcher le déplacement des tableaux et des figures.
 \usepackage{babelbib} % Pour changer la langue dans la bibliographie
+\usepackage{bibtopic} % Pour avoir plusieurs bibliographies
 \usepackage{amsmath} % Pour des fonctions mathématiques
 \usepackage[onelanguage,french,longend,boxruled,algoruled,linesnumbered,algochapter]{algorithm2e} % Pour les algorithmes
 \usepackage{listings} % Pour le code source et le contenu d'un fichier
@@ -38,11 +38,17 @@
 \date{}
 % Style de l'entête et le pied de la page
 \setlength{\headheight}{16pt}
-\pagestyle{fancyplain}
-\lhead{} % Enlever la section
-\rhead{\fancyplain{}{\footnotesize \itshape{\nouppercase{\leftmark}}}} % Titre du chapitre en minuscule avec taille 10
-\cfoot{} % Déplacer le numéro de la page
-\rfoot{\fancyplain{\thepage}{\thepage}} % à droite de la page
+\pagestyle{fancy}
+\fancyhead[L]{} % Enlever la section
+\fancyhead[R]{\footnotesize\slshape{\nouppercase{\leftmark}}} % Titre du chapitre en minuscule avec taille 10
+\fancyfoot[C]{}
+\fancyfoot[R]{\thepage} % Déplacer le numéro de la page vers la droite de la page
+
+\fancypagestyle{plain}{
+\renewcommand{\headrulewidth}{0pt}
+\fancyhf{}
+\fancyfoot[R]{\thepage}
+}
 
 % Espace entre les lignes
 \linespread{1.3}
@@ -50,14 +56,33 @@
 % Paramètres du code
 \lstset{numbers=left,captionpos=b,frame=single,breaklines,basicstyle=\ttfamily\footnotesize}
 
+% Code pris de https://tex.stackexchange.com/a/95616/109916 et corrigé
+% Début
+\makeatletter
+\newcommand{\emptypage}[1]{
+  \cleardoublepage
+  \begingroup
+  \let\ps@plain\ps@empty
+  \pagestyle{empty}
+  #1
+  \cleardoublepage
+  \endgroup}
+\makeatletter
+% Fin
+
 \begin{document}
 
 % \renewcommand{\sfdefault}{phv}
-% \include{Page_de_garde}
-
-% Indexes
-% \tableofcontents
-% \listoffigures
+\include{Page_de_garde}
+\emptypage{
+{
+\setlength{\parskip}{0.7em plus 0.2em minus 0.2em}
+\include{Remerciements}
+}
+\tableofcontents
+\listoffigures
+\listoftables
+}
 
 \setlength{\parskip}{0.6em plus 0.1em minus 0.1em}
 
@@ -73,7 +98,7 @@
 % Redéfinition des chapitres et sections pour les inclure dans le sommaire
 \makeatletter
 \let\oldchapter\chapter
-\newcommand{\@chapterstar}[1]{\cleardoublepage\phantomsection\addcontentsline{toc}{chapter}{#1}{\oldchapter*{#1}}}
+\newcommand{\@chapterstar}[1]{\cleardoublepage\phantomsection\addcontentsline{toc}{chapter}{#1}{\oldchapter*{#1}}\markboth{#1}{}}
 \newcommand{\@chapternostar}[1]{{\oldchapter{#1}}}
 \renewcommand{\chapter}{\@ifstar{\@chapterstar}{\@chapternostar}}
 \let\oldsection\section
@@ -85,16 +110,32 @@
 % Mes commandes
 \newcommand{\keyword}[1]{\emph{#1}}
 
-% \include{Introduction}
+\setcounter{page}{1}
+\include{Introduction}
+% Changer les captions pour cacher les références dans la table des figures
+\let\oldcaption\caption
+\renewcommand{\caption}[2]{\oldcaption[#1]{#1~#2}}
 \include{Chapitre1}
 \include{Chapitre2}
+\let\caption\oldcaption
 \include{Chapitre3}
 \include{Chapitre4}
 \include{Chapitre5}
 \include{Conclusion}
 
 \bibliographystyle{babplain}
-\parskip=-0.5em
-\bibliography{bibliographie}
+\renewcommand\btxauthorcolon{.}
+\emptypage{
+\begin{btSect}{bibliographie}
+\chapter*{Bibliographie}
+\btPrintCited
+\end{btSect}
+\begin{btSect}{webographie}
+\chapter*{Webographie}
+\btPrintCited
+\end{btSect}
+}
 
+\let\section\oldsection % pour éviter que le résumé soit visible dans le sommaire comme une section
+\include{Resume}
 \end{document}

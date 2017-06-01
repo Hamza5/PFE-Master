@@ -1,4 +1,4 @@
-\chapter{L'apprentissage supervisé avec les réseaux de neurones convolutionnels}
+\chapter{La conception des réseaux de neurones convolutionnels}
 
 \section{Introduction}
 
@@ -109,13 +109,14 @@ nombre de canaux dans l'image ($1$ pour les images en niveaux de gris).
 Nous avons proposé deux architectures de réseaux de neurones convolutionnels composées
 de plusieurs couches séquentielles de différents types. Ces architectures
 séquentielles relativement profondes ont une structure inspirée de celle du
-réseau \keyword{VGGNet} \cite{simonyan2014very}. La différence entre les deux
+réseau \keyword{VGGNet}~\cite{simonyan2014very}. La différence entre les deux
 réside dans la profondeur et les hyperparamètres de chacune d'elles.
 
 \begin{figure}[h]
 \begin{center}
 \includegraphics[width=0.5\textwidth]{imagenet_vgg16}
-\caption{L'architecture de la variante du réseau VGGNet qui a 16 couches \cite{blier2016abrief}}
+\caption[L'architecture de la variante du réseau VGGNet qui a 16 couches]
+{L'architecture de la variante du réseau VGGNet qui a 16 couches~\cite{blier2016abrief}}
 \end{center}
 \end{figure}
 
@@ -137,7 +138,7 @@ convolutionnelle sont filtrées par la fonction d'activation ReLU (Rectified Lin
 qui a la formule suivante.
 
 $$
-\mathrm{ReLU}(z) = \max(0,z) \cite{NIPS2012_4824}.
+\mathrm{ReLU}(z) = \max(0,z)~\cite{NIPS2012_4824}.
 $$
 
 Une couche de regroupement par le maximum est insérée après chaque ensemble de couches
@@ -148,7 +149,7 @@ inutiles. Pour chaque matrice de deux dimensions $A(N \times M)$, le regroupemen
 par le maximum $\mathrm{MaxPool}$ est défini par la formule suivante.
 
 $$
-\mathrm{MaxPool}(A) = \max(\{A_{n,m} | 1 \leq n \leq N, 1 \leq m \leq M\}) \cite{scherer2010evaluation}.
+\mathrm{MaxPool}(A) = \max(\{A_{n,m} | 1 \leq n \leq N, 1 \leq m \leq M\})~\cite{scherer2010evaluation}.
 $$
 
 Dans le dernier niveau du réseau, une couche dense est insérée afin de
@@ -161,7 +162,7 @@ qu'ils représentent la probabilité dans l'intervalle $[0-1]$ de chaque classe.
 Cette fonction est décrite par la formule suivante.
 
 $$
-\mathrm{Softmax}(z) = \frac{\mathrm{e}^{z_j}}{\sum^K_{k=1}\mathrm{e}^{z_k}}~\forall{j=\overline{1,K}} \cite{bridle1990probabilistic}.
+\mathrm{Softmax}(z) = \frac{\mathrm{e}^{z_j}}{\sum^K_{k=1}\mathrm{e}^{z_k}}~\forall{j=\overline{1,K}}~\cite{bridle1990probabilistic}.
 $$
 
 La raison pour laquelle l'architecture séquentielle est choisie est que les
@@ -170,12 +171,12 @@ les caractéristiques de bas niveau (par exemple les lignes et les contours). El
 ne sont pas nombreuses généralement, contrairement aux couches profondes qui détectent
 les caractéristiques de haut niveau (comme les formes et les objets).
 Cela est possible car la zone de couverture d'un neurone
-augmente en parallèle avec sa profondeur.\cite{michael2015neural,Goodfellow-et-al-2016}
+augmente en parallèle avec sa profondeur.~\cite{michael2015neural,Goodfellow-et-al-2016}
 
 \subsection{La représentation textuelle}
 
 L'architecture du réseau est sauvegardée comme un fichier texte sous le format
-JSON (JavaScript Object Notation) \cite{introducing2012ecma}.
+JSON (JavaScript Object Notation)~\cite{introducing2012ecma}.
 L'utilisation de ce type de fichier
 permet de la créer, de la copier et de la modifier sans rien changer dans le
 programme responsable de la construction du réseau. Elle est représentée comme un objet
@@ -330,12 +331,12 @@ du gradient. Cette dernière consiste à changer les poids du modèle dans les s
 aux signes des dérivées partielles par un facteur nommé \keyword{taux d'apprentissage}.
 Il faut choisir et changer sa valeur avec précaution car une mauvaise valeur
 risque d'empêcher l'optimiseur de converger vers l'optimum ou de gaspiller beaucoup
-d'itérations pour ce faire.\cite{DBLP:journals/corr/Ruder16}
+d'itérations pour ce faire.~\cite{DBLP:journals/corr/Ruder16}
 
-Dans ce travail, nous avons choisi l'optimiseur \keyword{Adadelta} \cite{DBLP:journals/corr/abs-1212-5701}
+Dans ce travail, nous avons choisi l'optimiseur \keyword{Adadelta}~\cite{DBLP:journals/corr/abs-1212-5701}
 car il rend négligeable le choix du taux d'apprentissage. En effet, sa
 formule de mise à jour des paramètres permet de les changer indépendamment
-les uns des autres et en fonction de la fréquence de modification de chacun d'eux.\cite{DBLP:journals/corr/Ruder16}
+les uns des autres et en fonction de la fréquence de modification de chacun d'eux.~\cite{DBLP:journals/corr/Ruder16}
 
 \subsection{L'exactitude}
 

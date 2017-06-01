@@ -1,7 +1,3 @@
-% Changer les captions pour cacher les références dans la table des figures
-\let\oldcaption\caption
-\renewcommand{\caption}[2]{\oldcaption[#1]{#1#2}}
-
 \chapter{Concepts de base}
 
 \section{Introduction}
@@ -33,6 +29,8 @@ C'est une discipline qui fait partie de la mécanique, de l'électrique, et de
 l'informatique en même temps. Elle s'intéresse à la conception, à la
 construction et au fonctionnement des \keyword{robots}, ainsi à la création
 des systèmes informatiques qui les contrôlent.
+
+\bigskip
 
 \subsection{Le robot}
 
@@ -71,7 +69,7 @@ La structure d'un robot comporte trois éléments du point de vue construction.
   savoir comment réaliser une opération ou prendre une décision. Cette
   programmation peut être réalisée par une combinaison des circuits intégrés dans
   les cas simples, ou à l'aide d'une série d'instructions exécutées sur un
-  microprocesseur dans les cas les plus complexes.\cite{wikipediaRobotics}
+  microprocesseur dans les cas les plus complexes.~\cite{wikipediaRobotics}
 \end{description}
 
 \subsection{Les composants électroniques}
@@ -81,7 +79,7 @@ ont des \keyword{terminaux} qui permettent leur connexion à travers des
 \keyword{câbles}. Chaque composant a un rôle précis dans le circuit qui peut être
 un traitement logique, une transformation du signal, ou la protection d'autres
 composants. Ils sont classés en trois types : \keyword{passifs},
-\keyword{actifs} et \keyword{électromagnétiques}.\cite{wikipediaElectronicComponent}
+\keyword{actifs} et \keyword{électromagnétiques}.~\cite{wikipediaElectronicComponent}
 
 \begin{description}
   \item[Les composants passifs] ne manipulent pas le signal électrique
@@ -134,6 +132,10 @@ que d'autres peuvent supporter une tension de $12$v.
   sont déterminés respectivement par le sens et l'intensité du courant électrique.
 \end{description}
 
+Pour construire un robot permettant de réaliser des tâches non triviales, il est
+souvent nécessaire d'avoir des connaissances dans d'autres domaines. Parmi ces
+domaines on trouve \keyword{la vision artificielle}.
+
 \section{Vision artificielle}
 
 La vision artificielle est une branche de l'informatique qui s'intéresse aux
@@ -145,7 +147,7 @@ la scène. Ces techniques sont appliquées sur des images d'une scène.
 
 \subsection{L'image}
 
-Dans la vision par ordinateur, une image est une matrice multidimensionelle.
+Dans la vision par ordinateur, une image est une matrice multidimensionnelle.
 Généralement elle est de deux dimensions (hauteur et largeur) si
 elle est monochrome. Dans les autres cas, elle est de trois dimensions, la troisième
 dimension étant le nombre de \keyword{canaux}.
@@ -185,16 +187,20 @@ par la suite déplacé toute au long de l'image pour générer les autres valeur
 qui vont former ensemble une autre image dont le contenu dépend des valeurs du
 filtre.
 
-\begin{figure}[h]
-\begin{subfigure}{0.49\textwidth}
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.45\textwidth}
 \includegraphics[width=\textwidth]{Conv1}
 \end{subfigure}
-\hfill
-\begin{subfigure}{0.49\textwidth}
+\begin{subfigure}{0.45\textwidth}
 \includegraphics[width=\textwidth]{Conv2}
 \end{subfigure}
 \caption{La convolution}{\cite{commonsConvolution}}
 \end{figure}
+
+Les sujets de la vision artificielle sont traités généralement en utilisant deux
+types de méthodes : les méthodes basées sur les notions géométriques,
+et les méthodes basées sur l'apprentissage automatique.
 
 \section{Apprentissage automatique}
 
@@ -218,7 +224,7 @@ Dans ce mode, chaque fois que le modèle génère un résultat, il sera informé
 si son résultat est acceptable ou non. Dans le cas non favorable, il modifiera
 ses paramètres pour essayer d'améliorer la solution. Le résultat d'une action
 prise par le modèle n'est jamais connu avant l'essai. Parmi les algorithmes de ce
-mode on trouve le \keyword{Q-learning}.
+mode on trouve le \keyword{Q-learning}~\cite{Watkins1992}.
 
 \subsection{Apprentissage non supervisé}
 
@@ -238,7 +244,7 @@ d'approximer une fonction continue, ou bien sur des problèmes de classification
 dont le but est de trouver la bonne classe pour une instance.
 
 Cet apprentissage peut être considéré comme un problème d'optimisation
-dans un espace multidimensionel formé de valeurs d'attributs discrètes ou
+dans un espace multidimensionnel formé de valeurs d'attributs discrètes ou
 continues. Le but est de minimiser la valeur d'erreur calculée par une
 \keyword{fonction de coût} qui estime la distance entre les valeurs retournées
 par le modèle et les valeurs attendues.
@@ -247,7 +253,7 @@ Parmi les techniques les plus utilisées dans ce mode on trouve
 \keyword{la régression linéaire}, \keyword{la régression logistique},
 \keyword{les machines à vecteurs de support},
 \keyword{les classifieurs bayésiens naïfs} et
-\keyword{les réseaux de neurones artificiels} auxqueles nous avons recours dans
+\keyword{les réseaux de neurones artificiels} auxquels nous avons recours dans
 ce projet.
 
 Les réseaux de neurones artificiels est une technique inspirée du cerveau humain.
@@ -256,7 +262,7 @@ contient plusieurs unités de calcul dites \keyword{perceptrons}.
 
 \begin{figure}[h]
 \begin{center}
-\includegraphics[width=0.5\textwidth]{neuron_model}
+\includegraphics[width=0.4\textwidth]{neuron_model}
 \caption{Le schéma d'un perceptron}{\cite{karpathy2016cs231n}}
 \end{center}
 \end{figure}
@@ -267,9 +273,9 @@ généralement d'émettre une valeur comprise entre $0$ et $1$.
 Il existe des connexions entre les perceptrons dont le nombre et le type dépend
 du type du réseau.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
-\includegraphics[width=0.5\textwidth]{ColoredNeuralNetwork}
+\includegraphics[width=0.35\textwidth]{ColoredNeuralNetwork}
 \caption{Un réseau de neurones artificiel}{\cite{commonsANN}}
 \end{center}
 \end{figure}
@@ -284,7 +290,7 @@ au point suivant.
 \section{Les réseaux convolutionels}
 
 Ils sont une modification des \keyword{réseaux d'alimentation vers l'avant} qui consiste à
-traiter des régions spaciales de la donnée au lieu de considérer sa globalité.
+traiter des régions spatiales de la donnée au lieu de considérer sa globalité.
 Ils se composent de trois couches de types différents :
 \keyword{les couches convolutionelles},
 \keyword{les couches de regroupement (mise en commun)} et
@@ -329,7 +335,7 @@ $P$, et la fonction d'activation.
 \subsection{Couches de regroupement}
 
 Le rôle de ces couches est de réduire la taille spatiale du résultat des couches
-précédentes en gardant l'information essentielle. Cette opération est souvant
+précédentes en gardant l'information essentielle. Cette opération est souvent
 appliquée en utilisant la valeur maximale entre les pixels ou par le calcul de
 la moyenne. Ces couches sont généralement placés après les couches
 convolutionelles.
@@ -364,7 +370,7 @@ Les hyperparamètres nécessaires pour ce type sont :
 Ce chapitre a été consacré aux notions de robotique, de vision artificielles
 et d'intelligence artificielle requises pour la compréhension du sujet.
 D'abord, nous avons présenté les types de robots et les composants qui assurent leur
-fonctionnement. Ensuite, nous avons défini les images de la perspective
+fonctionnement. Ensuite, nous avons défini les images du point de vue
 informatique et l'opération de la convolution. Enfin, nous avons présenté le
 domaine de l'apprentissage automatique en insistant sur les réseaux de
 neurones artificiels convolutionels.

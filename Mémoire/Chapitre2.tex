@@ -1,6 +1,4 @@
-% Changer les captions pour cacher les références dans la table des figures
-\let\caption\oldcaption
-\chapter{\'Etat de l'art}
+\chapter{Travaux antérieurs}
 
 
 \section{Introduction}
@@ -30,7 +28,7 @@ sur l'utilisation des techniques d'apprentissage automatique.
 \section{\'Evitement d'obstacles par la vision monoculaire}
 
 L'un des premiers travaux utilisant l'apprentissage automatique et qui ont eu
-des résultats satisfaisants est celui de Michels et al.\cite{michels2005high}
+des résultats satisfaisants est celui de Michels et al.~\cite{michels2005high}
 qui ont développé une méthode pour permettre à une voiture télécommandée de
 naviguer de façon autonome dans un environnement non structuré à une haute
 vitesse ($5m/s$).
@@ -50,7 +48,7 @@ l'environnement et les mesures de distance respectives.
 \begin{figure}[H]
 \begin{center}
 \includegraphics[width=0.7\textwidth]{HighSpeedObstacleAvoidanceRig}
-\caption{La plateforme qui prend les mesures et les photos}
+\caption{La plateforme qui prend les mesures et les photos}{\cite{michels2005high}}
 \end{center}
 \end{figure}
 
@@ -74,12 +72,12 @@ estimées des obstacles.
 
 \begin{figure}[H]
 \includegraphics[width=\textwidth]{RC_car}
-\caption{Une séquence d'images montrant l'évitement d'un obstacle}
+\caption{Une séquence d'images montrant l'évitement d'un obstacle}{\cite{michels2005high}}
 \end{figure}
 
 \section{Apprentissage de la profondeur d'une seule image}
 
-Saxena et al.\cite{saxena2005learning} ont travaillé sur l'estimation de la
+Saxena et al.~\cite{saxena2005learning} ont travaillé sur l'estimation de la
 profondeur d'une seule image par l'utilisation d'un apprentissage supervisé.
 Les images et les cartes de profondeur sont collectées à partir des scènes de
 l'extérieur fortement destructurées contenant plusieurs objets (arbres, bâtiments, etc).
@@ -91,7 +89,7 @@ pièces servant à calculer les vecteurs de caractéristiques sur différentes
 \begin{figure}[H]
 \begin{center}
 \includegraphics[width=0.75\textwidth]{FeaturesVectorScales}
-\caption{Le vecteur de caractéristiques à  différentes échelles}
+\caption{Le vecteur de caractéristiques à  différentes échelles}{\cite{saxena2005learning}}
 \end{center}
 \end{figure}
 
@@ -108,11 +106,11 @@ et le modèle laplacien respectivement.
 \begin{figure}[H]
 \begin{center}
 \includegraphics[width=0.75\textwidth]{DepthLearningResults}
-\caption{Quelques résultats de l'apprentissage de profondeur}
+\caption{Quelques résultats de l'apprentissage de profondeur}{\cite{saxena2005learning}}
 \end{center}
 \end{figure}
 
-Dans un autre travail, Saxena et al.\cite{saxena2009make3d} ont aussi utilisé les
+Dans un autre travail, Saxena et al.~\cite{saxena2009make3d} ont aussi utilisé les
 \keyword{champs aléatoires de Markov}
 pour estimer la structure 3D détaillée d'une scène. De même, leur travail -qui
 s'appelle \keyword{Make3D}- repose sur l'utilisation d'apprentissage supervisé et
@@ -128,13 +126,13 @@ utilisées dans leurs tests avec les résultats obtenus.
 
 \begin{figure}[H]
 \includegraphics[width=\textwidth]{make3D_tests}
-\caption{Quelques images transformées en 3D avec Make3D}
+\caption{Quelques images transformées en 3D avec Make3D}{\cite{saxena2005learning}}
 \end{figure}
 
 \section{Les réseaux de neurones convolutionels pour l'estimation de la profondeur}
 
 Un des travaux récents qui ont utilisé les \keyword{réseaux de neurones convolutionels}
-pour l'estimation de profondeur est celui de Eigen et al.\cite{eigen2014depth}.
+pour l'estimation de profondeur est celui de Eigen et al.~\cite{eigen2014depth}.
 
 L'approche consiste à développer un réseau de neurones convolutionel consitué de
 deux niveaux. Le premier prédit la profondeur à un niveau global, tandis que le
@@ -153,13 +151,13 @@ vues locales sur l'image.
 \begin{figure}[H]
 \begin{center}
 \includegraphics[width=0.6\textwidth]{Double_CNN_Architecture}
-\caption{L'architecture du réseau à deux niveaux}
+\caption{L'architecture du réseau à deux niveaux}{\cite{eigen2014depth}}
 \end{center}
 \end{figure}
 
 \vspace{-1em}
 
-Dans un travail ultérieur, Eigen et Fergus\cite{eigen2015predicting} ont étendu
+Dans un travail ultérieur, Eigen et Fergus~\cite{eigen2015predicting} ont étendu
 le modèle précédent par l'ajout de deux autres fonctionnalitées : l'estimation
 de la normale de chaque surface et l'étiquetage sémantique. Ils ont gardé le
 principe de réseaux multi-échelles qui ne nécessite aucun prétraitement de bas
@@ -178,13 +176,13 @@ sortie à un haut niveau de détails en utilisant toutes les informations préc�
 \begin{figure}[H]
 \begin{center}
 \includegraphics[width=0.5\textwidth]{CNN_Multi_Architecture}
-\caption{L'architecture du réseau à trois niveaux}
+\caption{L'architecture du réseau à trois niveaux}{\cite{eigen2015predicting}}
 \end{center}
 \end{figure}
 
 \section{Les champs de neurones convolutionels}
 
-Liu et al.\cite{liu2015deep} ont créé un modèle hybride qui bénifice de la combinaison
+Liu et al.~\cite{liu2015deep} ont créé un modèle hybride qui bénifice de la combinaison
 des \keyword{réseaux de neurones convolutionels} avec les \keyword{champs aléatoires
 conditionnels} (CRF) pour l'estimation de la profondeur. Le modèle est composé de deux
 parties : une partie qui calcule les similarités par paires entre les
@@ -196,7 +194,7 @@ probabilité de chaque profondeur en utilisant la formule de CRF.
 
 \begin{figure}[H]
 \includegraphics[width=\textwidth]{CRF_CNN_Architecture}
-\caption{L'architecture globale du champ de neurones convolutionel}
+\caption{L'architecture globale du champ de neurones convolutionel}{\cite{liu2015deep}}
 \end{figure}
 
 L'apprentissage a été effectué après avoir initialisé les couches par les poids

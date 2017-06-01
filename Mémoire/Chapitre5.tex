@@ -102,7 +102,7 @@ Les données se composent de deux types : des données pour l'entrée du modèle
 qui sont les images capturées par la camera, et des données pour la sortie
 qui sont les distances respectives mesurées par les capteurs ultrasoniques.
 
-Chaque image est sauvegardée comme un fichier binaire sous le format JPEG \cite{wallace1992jpeg}
+Chaque image est sauvegardée comme un fichier binaire sous le format JPEG~\cite{wallace1992jpeg}
 (ayant l'extension \texttt{jpg}). Les images sont nommées par la composition du
 préfixe \texttt{IMG\_} et un identificateur unique représentant le temps de la
 prise. Elles sont toutes groupées dans un seul répertoire.
@@ -118,7 +118,7 @@ prise. Elles sont toutes groupées dans un seul répertoire.
 \parbox[][1.5em][]{\textwidth}{}
 
 Les distances sont sauvegardées dans un fichier sous format CSV (comma-separated
-values) \cite{shafranovich2005common}, qui est un format textuel ayant comme rôle de représenter
+values)~\cite{shafranovich2005common}, qui est un format textuel ayant comme rôle de représenter
 les données tabulaires. Les lignes de ce fichier correspondent aux lignes du tableau
 et les valeurs entre les séparateurs des colonnes aux données du tableau.
 Le nombre de lignes dans ce fichier est égal au nombre d'images dans le
@@ -169,7 +169,7 @@ fonctionnalités gratuitement dans ce projet.
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.5\textwidth]{gcp-logo}
-  \caption[Le logo officiel du Google Cloud Platform]{Le logo officiel du Google Cloud Platform \cite{gcp}}
+  \caption[Le logo officiel du Google Cloud Platform]{Le logo officiel du Google Cloud Platform~\cite{gcp}}
 \end{figure}
 
 Le service qui nous intéresse est \keyword{Compute Engine}. Il nous permet de
@@ -198,15 +198,15 @@ de mémoire, il se termine sans que l'exécution soit achevée.
 \subsection{Le logiciel}
 
 Afin de réaliser un programme portable et efficace à la fois, nous avons choisi
-de l'implémenter sous \keyword{Python 3} \cite{python3} en utilisant la bibliothèque \keyword{TensorFlow} \cite{DBLP:journals/corr/AbadiABBCCCDDDG16}
+de l'implémenter sous \keyword{Python 3}~\cite{python3} en utilisant la bibliothèque \keyword{TensorFlow}~\cite{DBLP:journals/corr/AbadiABBCCCDDDG16}
 pour la création du modèle, l'apprentissage automatique et le chargement des images.
-Cette bibliothèque permet d'exécuter un code de bas niveau écrit en \keyword{C++} \cite{stroustrup1995c++}
+Cette bibliothèque permet d'exécuter un code de bas niveau écrit en \keyword{C++}~\cite{stroustrup1995c++}
 qui peut effectuer des calculs massivement parallèles en utilisant toutes les unités
 de traitement disponibles et en bénéficiant des instructions de vectorisation matérielles
 existant dans ces unités. \keyword{TensorFlow} offre aussi un outil intégré
 appelé \keyword{TensorBoard} permettant de dessiner le graphe du modèle et les
 connexions entre ses composants, ainsi que le traçage des fonctions de performances.
-Nous avons également utilisé la bibliothèque \keyword{NumPy} \cite{walt2011numpy} pour la lecture,
+Nous avons également utilisé la bibliothèque \keyword{NumPy}~\cite{walt2011numpy} pour la lecture,
 le traitement et la sauvegarde des données numériques.
 
 \begin{figure}[h]

@@ -3,7 +3,7 @@
 Dans ce mémoire nous avons présenté notre projet qui est l'estimation de la distance
 à partir des images en utilisant l'apprentissage automatique auto-supervisé.
 
-Afin d'atteindre notre but, nous avons commencé par la construction d'une machine
+Pour cela, nous avons d'abord construit d'une machine
 électronique complexe constituée de plusieurs modules et de différents composants.
 Elle est capable de se déplacer sur un terrain régulier, de mesurer
 les distances des objets par rapport à son corps, et de prendre des images dans son
@@ -14,36 +14,36 @@ des objets ayant des surfaces solides. En se déplaçant dans l'environnement, e
 prend périodiquement une photo et les distances des obstacles visibles. Les images
 et les distances respectives sont sauvegardées dans un ensemble de données.
 
-Par la suite, l'ensemble de données est fragmenté en deux : le grand sous-ensemble
+Cet ensemble de données est ensuite fragmenté en deux : le grand sous-ensemble
 est utilisé pour effectuer l'apprentissage du modèle, et l'autre est réservé
 comme données de validation. En même temps, des réseaux de neurones convolutionnels
-sont construits d'une telle structure permettant de réaliser l'objectif de ce projet.
-Les modèles sont alimentés par les données d'apprentissage et sont testés par leurs
-performances sont calculés en utilisant les données de validation jusqu'à atteindre
+sont construits à partir d'une structure telle qu'elle permette de réaliser l'objectif du projet.
+Les modèles sont alimentés par les données d'apprentissage et leurs
+performances sont calculées en utilisant les données de validation jusqu'à atteindre
 leurs limites d'amélioration.
 
-Comme les résultats obtenus n'étaient pas très bonnes, nous avons pensé à des
-idées qui peuvent perfectionner les modèles. Cependant, en raison de manque du temps et
+Comme les résultats obtenus n'étaient pas très bons, nous avons réfléchi aux moyens
+permettant de perfectionner les modèles. Mais, en raison du manque de temps et
 de ressources humaines et matérielles, nous n'avons pas pu les réaliser et nous
-les laissons donc comme perspectives.
+les proposons ici comme des perspectives d'étude ultérieure.
 
-Une idée est l'ajout plus de capteurs ultrasoniques et de meilleur qualité, ainsi
-que la désactivation de capture au moment de déplacement du robot, et la réduction de
-sa fréquence dans les autres moments. Cela permet de réduire le nombre de
+L'une de nos idées est l'ajout de nouveaux capteurs ultrasoniques et de meilleure qualité, ainsi
+que la désactivation de capture au moment du déplacement du robot et la réduction de
+sa fréquence dans les autres moments. Cela permettrait de réduire le nombre de
 distances fausses et les images floues causées par la vibration de la machine lors de la prise.
 
-Une autre consiste à collecter beaucoup plus de données (des dizaines de milliers)
-dans un seul environnement, puis les équilibrer avant le lancement de l'apprentissage,
-car cette opération assure qu'il s'exécute correctement sans que les résultats soient
+Une autre piste serait de collecter beaucoup plus de données (des dizaines de milliers)
+dans un seul environnement, puis de les équilibrer avant le lancement de l'apprentissage,
+car cette amélioration assurerait que l'apprentissage s'exécute correctement, sans que les résultats soient
 faussés par les poids des classes.
 
-Une fois que les données deviennent nombreuses, il serait possible d'ajouter plus
-que les quatre classes introduite dans ce travail afin d'obtenir un niveau supérieur
+Les données étant ainsi beaucoup plus nombreuses, il serait possible d'introduire plus
+que les quatre classes actuelles afin d'obtenir un niveau supérieur
 de précision. Il serait même possible d'aborder ce problème dans sa nature régressive.
 
-Enfin, nous savons bien que ce travail est loin d'être parfait, mais il est le
-premier -à notre connaissance- qui combine deux aspects : d'une part, la construction de la
-machine permettant de collecter les données à l'aide \underline{des capteurs ultrasoniques}
-et d'une camera ; et d'autre part, l'utilisation de ces données pour faire l'apprentissage
-de nos propre modèles. Nous souhaitons que ce travail soit une initiative pour d'autres
+Ce travail qui demande complément et approfondissement, est le
+premier à notre connaissance qui combine la construction d'une machine
+permettant de collecter les données à l'aide \underline{des capteurs ultrasoniques}
+et d'une camera et l'apprentissage des modèles (qui sont les notres)
+par l'utilisation de ces données. Nous souhaitons que ce travail soit une initiative pour d'autres
 recherches dans ce sujet.
