@@ -82,14 +82,14 @@ profondeur d'une seule image par l'utilisation d'un apprentissage supervisé.
 Les images et les cartes de profondeur sont collectées à partir des scènes de
 l'extérieur fortement destructurées contenant plusieurs objets (arbres, bâtiments, etc).
 
-Contrairement à Michels and all, les images sont divisées en de petites
+Contrairement à Michels et al.~\cite{michels2005high}, les images sont divisées en petites
 pièces servant à calculer les vecteurs de caractéristiques sur différentes
 échelles en utilisant des masques de convolution.
 
 \begin{figure}[H]
 \begin{center}
-\includegraphics[width=0.75\textwidth]{FeaturesVectorScales}
-\caption{Le vecteur de caractéristiques à  différentes échelles}{\cite{saxena2005learning}}
+\includegraphics[width=0.8\textwidth]{FeaturesVectorScales}
+\caption{Le vecteur de caractéristiques à différentes échelles}{\cite{saxena2005learning}}
 \end{center}
 \end{figure}
 
@@ -207,7 +207,7 @@ ces deux ensembles de données.
 Dans ce chapitre nous avons présenté quelques travaux antérieurs concernant
 l'estimation de distances ou de profondeurs à partir d'une seule image.
 Toutes ces méthodes utilisent les ensembles de données contenant des cartes de
-profondeurs générées à partir des scanners laser (comme SICK et Microsoft Kinect)
+profondeurs générées à partir des scanners laser ou infrarouge (comme SICK et Microsoft Kinect)
 car ils sont très précis pour calculer la distance d'un point.
 Cependant, ils ont quelques inconvénients, comme leur poids qui ne peut pas être négligeable
 et leur sensibilité à la lumière du soleil qui peut fausser les calculs, ce que
