@@ -129,12 +129,12 @@ utilisées dans leurs tests avec les résultats obtenus.
 \caption{Quelques images transformées en 3D avec Make3D}{\cite{saxena2005learning}}
 \end{figure}
 
-\section{Les réseaux de neurones convolutionels pour l'estimation de la profondeur}
+\section{Les réseaux de neurones convolutionnels pour l'estimation de la profondeur}
 
 Un des travaux récents qui ont utilisé les \keyword{réseaux de neurones convolutionels}
 pour l'estimation de profondeur est celui de Eigen et al.~\cite{eigen2014depth}.
 
-L'approche consiste à développer un réseau de neurones convolutionel consitué de
+L'approche consiste à développer un réseau de neurones convolutionnel consitué de
 deux niveaux. Le premier prédit la profondeur à un niveau global, tandis que le
 deuxième applique des raffinements successifs afin de générer une carte des
 profondeurs plus précise. Les deux niveaux acceptent l'image originale comme
@@ -164,7 +164,7 @@ principe de réseaux multi-échelles qui ne nécessite aucun prétraitement de b
 niveau.
 
 La nouvelle architecture de ce modèle est formée de trois sous réseaux
-convolutionels dont le résultat de chacun et l'image originale sont alimentés
+convolutionnels dont le résultat de chacun et l'image originale sont alimentés
 au suivant, les sous-réseaux étant plus profonds que ceux du travail précédent.
 Le premier permet de prédire des caractéristiques globales sur toute l'image.
 Le second produit des prédictions d'un niveau moyen de détails en intégrant les
@@ -183,18 +183,18 @@ sortie à un haut niveau de détails en utilisant toutes les informations préc�
 \section{Les champs de neurones convolutionels}
 
 Liu et al.~\cite{liu2015deep} ont créé un modèle hybride qui bénifice de la combinaison
-des \keyword{réseaux de neurones convolutionels} avec les \keyword{champs aléatoires
+des \keyword{réseaux de neurones convolutionnels} avec les \keyword{champs aléatoires
 conditionnels} (CRF) pour l'estimation de la profondeur. Le modèle est composé de deux
 parties : une partie qui calcule les similarités par paires entre les
 \keyword{superpixels} voisins qui sont transmis à une couche entièrement connectée,
-et l'autre partie qui est un réseau convolutionel constitué de cinq couches
-convolutionelles suivies par quatre autres entièrement connectées. Le résultat
+et l'autre partie qui est un réseau convolutionnel constitué de cinq couches
+convolutionnelles suivies par quatre autres entièrement connectées. Le résultat
 de chacune de ces deux parties est fourni à la couche finale qui calcule la
 probabilité de chaque profondeur en utilisant la formule de CRF.
 
 \begin{figure}[H]
 \includegraphics[width=\textwidth]{CRF_CNN_Architecture}
-\caption{L'architecture globale du champ de neurones convolutionel}{\cite{liu2015deep}}
+\caption{L'architecture globale du champ de neurones convolutionnel}{\cite{liu2015deep}}
 \end{figure}
 
 L'apprentissage a été effectué après avoir initialisé les couches par les poids
@@ -207,7 +207,7 @@ ces deux ensembles de données.
 Dans ce chapitre nous avons présenté quelques travaux antérieurs concernant
 l'estimation de distances ou de profondeurs à partir d'une seule image.
 Toutes ces méthodes utilisent les ensembles de données contenant des cartes de
-profondeurs générées à partir des scanners laser ou infrarouge (comme SICK et Microsoft Kinect)
+profondeurs générées à partir des scanners lasers ou infrarouges (comme SICK et Microsoft Kinect)
 car ils sont très précis pour calculer la distance d'un point.
 Cependant, ils ont quelques inconvénients, comme leur poids qui ne peut pas être négligeable
 et leur sensibilité à la lumière du soleil qui peut fausser les calculs, ce que
@@ -215,9 +215,9 @@ les rend peu pratiques pour l'utilisation dans les appareils qui peuvent être
 exposés aux rayons solaires. De plus, il sont relativement coûteux.
 
 A notre connaissance, tous les projets d'estimation de distances précédents
-n'ont utilisé que les scanners lasers. De ce fait, nous avons essayé d'utiliser
+n'ont utilisé que les scanners lasers ou infrarouges. De ce fait, nous avons essayé d'utiliser
 une autre option : les capteurs ultrasoniques. Bien que leur précision soit
-relativement plus faible que celle des scanners laser et que leur taux d'erreur
+relativement plus faible que celle des scanners lasers et infrarouges et que leur taux d'erreur
 puisse être élevé dans les scènes contenant des objets avec des surfaces
 irrégulières, ils ont des avantages comme leur légèreté et leur insensibilité
 à la lumière, et de plus, leur coût est très faible.
