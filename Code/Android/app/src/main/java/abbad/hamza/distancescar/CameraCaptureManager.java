@@ -22,6 +22,7 @@ class CameraCaptureManager {
             Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
             CapturingTask.picturesQueue.add(new CapturingTask.Picture(bitmap));
             Log.i(SerialConnectionManager.class.getName(), "Picture received in "+(System.currentTimeMillis()-CapturingTask.lastDistancesRequest.get())+"ms");
+            camera.startPreview();
         }
     };
 
@@ -105,9 +106,12 @@ class CameraCaptureManager {
 
     void toggleFlashMode() {
         Camera.Parameters parameters = camera.getParameters();
-        boolean enabled = parameters.getFlashMode().equals(Camera.Parameters.FLASH_MODE_TORCH);
-        parameters.setFlashMode(enabled ? Camera.Parameters.FLASH_MODE_OFF : Camera.Parameters.FLASH_MODE_TORCH);
-        camera.setParameters(parameters);
+        String flashMode = parameters.getFlashMode();
+        if (flashMode != null) {
+            boolean enabled = flashMode.equals(Camera.Parameters.FLASH_MODE_TORCH);
+            parameters.setFlashMode(enabled ? Camera.Parameters.FLASH_MODE_OFF : Camera.Parameters.FLASH_MODE_TORCH);
+            camera.setParameters(parameters);
+        }
     }
 
 }

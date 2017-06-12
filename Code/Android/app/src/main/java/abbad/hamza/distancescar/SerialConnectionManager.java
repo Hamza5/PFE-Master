@@ -216,13 +216,13 @@ class SerialConnectionManager {
 //            else
 //                moveForward();
 //        }
-        float average = trueDistancesAverage(d.dists);
-        if (average != 0) {
-            if (average < NEEDED_TURN_DISTANCE) {
+        float min = minimumDistances(d.dists);
+        if (min != 0) {
+            if (min < NEEDED_TURN_DISTANCE) {
                 moveBackward();
                 right = Math.random() > 0.5;
             }
-            else if (average < NEEDED_FORWARD_DISTANCE) {
+            else if (min < NEEDED_FORWARD_DISTANCE) {
                 if (right) turnRight();
                 else turnLeft();
             }
@@ -242,6 +242,13 @@ class SerialConnectionManager {
             return sum / valid;
         else
             return 0;
+    }
+
+    private float minimumDistances(float[] data) {
+        float min = data[0];
+        for (int i=1; i<data.length; i++)
+            if (data[i] < min) min = data[i];
+        return min;
     }
 
     void setNavigation(boolean enabled) {

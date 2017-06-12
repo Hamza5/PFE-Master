@@ -2,15 +2,18 @@ import csv
 import os
 import re
 import sys
+import bluetooth as bt
+from threading import Thread, Timer
 
-from PyQt5.QtBluetooth import QBluetoothSocket, QBluetoothServiceDiscoveryAgent, QBluetoothUuid, QBluetoothServiceInfo, QBluetoothLocalDevice
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog, QFileDialog
-from PyQt5.QtCore import Qt, QDateTime
+from PyQt5.QtCore import Qt, QDateTime, pyqtSignal, pyqtSlot
 
 from GUI.DistancesCarRemoteControler import Ui_MainWindow
 from GUI.CapturesDialog import Ui_CapturesDialog
+
+DISTANCES_CAR_BLUETOOTH_SERVICE_UUID = "ad6e04a5-2ae4-4c80-9140-34016e468ee7"
 
 
 class CapturesDialog(QDialog, Ui_CapturesDialog):
@@ -24,22 +27,76 @@ class CapturesDialog(QDialog, Ui_CapturesDialog):
         self.dir = directory
         with open(os.path.join(directory, self.DISTANCES_FILENAME), newline='') as distancesFile:
             self.distances = [line for line in csv.reader(distancesFile)]
-        self.setCapturesCount(len(self.distances))
-        self.captureNumberSpinBox.valueChanged.connect(self.setCurrentCapture)
+        self.set_captures_count(len(self.distances))
+        self.captureNumberSpinBox.valueChanged.connect(self.set_current_capture)
         self.captureNumberSpinBox.setValue(1)
         self.captureNumberSpinBox.setMinimum(1)
 
-    def setCapturesCount(self, count):
+    def set_captures_count(self, count):
         self.captureNumberSpinBox.setMaximum(count)
         self.capturesCountLcdNumber.display(count)
 
-    def setCurrentCapture(self, captureNumber):
-        capture_id = self.distances[captureNumber-1][0]
+    def set_current_capture(self, capture_number):
+        capture_id = self.distances[capture_number - 1][0]
         capture_filename = 'IMG_{}.jpg'.format(capture_id)
         capture = QPixmap(os.path.join(self.dir, capture_filename))
         self.captureViewLabel.setPixmap(capture)
         self.captureDateTimeEdit.setDateTime(QDateTime.fromMSecsSinceEpoch(int(capture_id)))
-        self.distancesLineEdit.setText('|'+'|'.join(self.distances[captureNumber-1][1:])+'|')
+        self.distancesLineEdit.setText('|' + '|'.join(self.distances[capture_number - 1][1:]) + '|')
+
+
+class BluetoothConnectionThread(Thread):
+
+    def __init__(self, parent_window):
+        super(BluetoothConnectionThread, self).__init__()
+        assert isinstance(parent_window, MainWindow)
+        self.window = parent_window
+
+    def run(self):
+        try:
+            self.window.btChanged.emit(1)
+            services = bt.find_service(uuid=DISTANCES_CAR_BLUETOOTH_SERVICE_UUID)
+            if len(services) > 0:
+                s = services[0]
+                self.window.btChanged.emit(2)
+                self.window.bluetoothSocket.connect((s['host'], s['port']))
+                self.window.btChanged.emit(3)
+                self.window.bluetoothReceiver = BluetoothReceivingTimer(self.window, 0.1)
+                self.window.bluetoothReceiver.run()
+            else:
+                self.window.btChanged.emit(0)
+        except bt.BluetoothError as e:
+            print(e.args, file=sys.stderr)
+            self.window.btError.emit(str(e))
+
+
+class BluetoothReceivingTimer:
+
+    def __init__(self, parent_window, delay):
+        assert isinstance(parent_window, MainWindow)
+        self.window = parent_window
+        self.interval = delay
+        self.timer = Timer(self.interval, self.run)
+
+    def run(self):
+        try:
+            self.window.bluetoothSocket.setblocking(False)
+            try:
+                data = self.window.bluetoothSocket.recv(1024)
+                self.window.btData.emit(data)
+            except bt.BluetoothError as e:
+                if int(str(e).lstrip('(').split(',')[0]) != 11:  # Raise errors other than that caused by the non received data
+                    raise e
+            self.timer = Timer(self.interval, self.run)
+            self.timer.start()
+        except bt.BluetoothError as e:
+            print(e, file=sys.stderr)
+            self.window.btError.emit(str(e))
+
+    def stop(self):
+        self.timer.cancel()
+        self.window.bluetoothSocket.close()
+        self.window.btChanged.emit(0)
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -60,7 +117,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     DIRECTION_BACKWARD_TEXT = "Arrière"
     DIRECTION_RIGHT_TEXT = "Droite"
     DIRECTION_LEFT_TEXT = "Gauche"
-    DISTANCES_CAR_BLUETOOTH_SERVICE_UUID = "ad6e04a5-2ae4-4c80-9140-34016e468ee7"
     STATUS_MESSAGES_TIMEOUT = 1500
     DISTANCES_REGEXP = re.compile(r'(?:\|(\d+\.\d+))+\|')
     TEMPERATURE_REGEXP = re.compile(r'T(\d+\.\d+)')
@@ -74,111 +130,109 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     BACKWARD_COMMAND = b'B'
     LEFT_COMMAND = b'L'
     RIGHT_COMMAND = b'R'
-    FLASH_COMMMAND = b'H'
+    FLASH_COMMAND = b'H'
+
+    btChanged = pyqtSignal(int)
+    btError = pyqtSignal(str)
+    btData = pyqtSignal(bytes)
 
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.bluetoothDevice = QBluetoothLocalDevice(self)
-        self.bluetoothSocket = QBluetoothSocket(QBluetoothServiceInfo.RfcommProtocol, self)
-        self.bluetoothDiscoveryAgent = QBluetoothServiceDiscoveryAgent(self)
-        self.bluetoothDiscoveryAgent.setUuidFilter(QBluetoothUuid(self.DISTANCES_CAR_BLUETOOTH_SERVICE_UUID))
-        self.bluetoothDiscoveryAgent.finished.connect(self.bluetoothDiscoveryFinished)
+        self.bluetoothSocket = bt.BluetoothSocket(bt.RFCOMM)
+        self.bluetoothConnectionThread = BluetoothConnectionThread(self)
+        self.bluetoothReceiver = BluetoothReceivingTimer(self, 0.1)
 
-        self.keyboardControlTextBrowser.keyPressEvent = self.keyPressed
-        self.keyboardControlTextBrowser.keyReleaseEvent = self.keyReleased
+        self.connected = False
+
+        self.keyboardControlTextBrowser.keyPressEvent = self.key_pressed
+        self.keyboardControlTextBrowser.keyReleaseEvent = self.key_released
 
         # Signals
         # Bluetooth connection management
-        self.connectionPushButton.clicked.connect(self.connectionButtonClicked)
-        self.bluetoothSocket.connected.connect(self.bluetoothConnected)
-        self.bluetoothSocket.disconnected.connect(self.bluetoothConnected)
-        self.bluetoothSocket.error.connect(self.bluetoothError)
-        self.bluetoothSocket.readyRead.connect(self.bluetoothDataAvailable)
+        self.btChanged.connect(self.bluetooth_connection_state_changed)
+        self.btError.connect(self.bluetooth_error)
+        self.btData.connect(self.bluetooth_data_available)
+        self.connectionPushButton.clicked.connect(self.connection_button_clicked)
         # Navigation
-        self.navigationPushButton.clicked.connect(self.navigationButtonClicked)
-        self.forwardPushButton.pressed.connect(self.moveForward)
+        self.navigationPushButton.clicked.connect(self.navigation_button_clicked)
+        self.forwardPushButton.pressed.connect(self.move_forward)
         self.forwardPushButton.released.connect(self.stop)
-        self.backwardPushButton.pressed.connect(self.moveBackward)
+        self.backwardPushButton.pressed.connect(self.move_backward)
         self.backwardPushButton.released.connect(self.stop)
-        self.rightPushButton.pressed.connect(self.turnRight)
+        self.rightPushButton.pressed.connect(self.turn_right)
         self.rightPushButton.released.connect(self.stop)
-        self.leftPushButton.pressed.connect(self.turnLeft)
+        self.leftPushButton.pressed.connect(self.turn_left)
         self.leftPushButton.released.connect(self.stop)
         # Power
-        self.enginesPowerSlider.valueChanged.connect(self.changePower)
+        self.enginesPowerSlider.valueChanged.connect(self.change_power)
         # Capture
-        self.enableCapturePushButton.clicked.connect(self.takePictureAndDistances)
+        self.enableCapturePushButton.clicked.connect(self.take_picture_and_distances)
         # Flash
-        self.flashPushButton.clicked.connect(self.toggleFlash)
+        self.flashPushButton.clicked.connect(self.toggle_flash)
 
         # Menu actions
-        self.showCapturesAction.triggered.connect(self.openCapturesDialog)
+        self.showCapturesAction.triggered.connect(self.open_captures_dialog)
 
         # Window position
         fg = self.frameGeometry()
         fg.moveCenter(QDesktopWidget().availableGeometry().center())
         self.move(fg.topLeft())
 
-    def openCapturesDialog(self):
+    def open_captures_dialog(self):
         directory = QFileDialog.getExistingDirectory(self, "Répertoire de captures", '../')
         if directory:
             dialog = CapturesDialog(self, directory)
             dialog.show()
 
-    def keyPressed(self, QKeyEvent):
-        if not QKeyEvent.isAutoRepeat():
-            if QKeyEvent.key() == Qt.Key_Up:
-                self.moveForward()
-            elif QKeyEvent.key() == Qt.Key_Down:
-                self.moveBackward()
-            elif QKeyEvent.key() == Qt.Key_Right:
-                self.turnRight()
-            elif QKeyEvent.key() == Qt.Key_Left:
-                self.turnLeft()
+    def key_pressed(self, key_event):
+        if not key_event.isAutoRepeat():
+            if key_event.key() == Qt.Key_Up:
+                self.move_forward()
+            elif key_event.key() == Qt.Key_Down:
+                self.move_backward()
+            elif key_event.key() == Qt.Key_Right:
+                self.turn_right()
+            elif key_event.key() == Qt.Key_Left:
+                self.turn_left()
 
-    def keyReleased(self, QKeyEvent):
-        if not QKeyEvent.isAutoRepeat():
-            if QKeyEvent.key() in (Qt.Key_Up, Qt.Key_Down, Qt.Key_Right, Qt.Key_Left):
+    def key_released(self, key_event):
+        if not key_event.isAutoRepeat():
+            if key_event.key() in (Qt.Key_Up, Qt.Key_Down, Qt.Key_Right, Qt.Key_Left):
                 self.stop()
-            elif QKeyEvent.key() == Qt.Key_PageUp:
+            elif key_event.key() == Qt.Key_PageUp:
                 self.enginesPowerSlider.setValue(self.enginesPowerSlider.value()+self.enginesPowerSlider.pageStep())
-            elif QKeyEvent.key() == Qt.Key_PageDown:
+            elif key_event.key() == Qt.Key_PageDown:
                 self.enginesPowerSlider.setValue(self.enginesPowerSlider.value()-self.enginesPowerSlider.pageStep())
-            elif QKeyEvent.key() == Qt.Key_C:
+            elif key_event.key() == Qt.Key_C:
                 self.enableCapturePushButton.click()
-            elif QKeyEvent.key() == Qt.Key_F:
+            elif key_event.key() == Qt.Key_F:
                 self.flashPushButton.click()
 
-    def connectionButtonClicked(self):
-        if self.bluetoothSocket.state() == QBluetoothSocket.UnconnectedState:
-            if self.bluetoothDevice.hostMode() == QBluetoothLocalDevice.HostPoweredOff:
-                self.bluetoothDevice.powerOn()  # This may not work, but let's try it anyway !
-            self.connectionPushButton.setEnabled(False)
-            self.connectionPushButton.setText(self.CONNECTION_BUTTON_SEARCH_TEXT)
-            self.bluetoothDiscoveryAgent.start()
-        else:
-            self.bluetoothSocket.disconnectFromService()
+    def closeEvent(self, close_event):
+        self.bluetoothReceiver.stop()
 
-    def bluetoothDiscoveryFinished(self):
-        services = self.bluetoothDiscoveryAgent.discoveredServices()
-        if len(services) == 0:
-            self.connectionPushButton.setText(self.CONNECTION_BUTTON_DISCONNECTED_TEXT)
-            self.statusbar.showMessage(self.CONNECTION_NOT_FOUND_STATUS, self.STATUS_MESSAGES_TIMEOUT)
-            self.connectionPushButton.setEnabled(True)
+    def connection_button_clicked(self):
+        if not self.connected:
+            self.bluetoothConnectionThread = BluetoothConnectionThread(self)
+            self.bluetoothConnectionThread.start()
         else:
-            self.connectionPushButton.setText(self.CONNECTION_BUTTON_CONNECTING_TEXT)
-            self.bluetoothSocket.connectToService(services[0])
+            self.bluetoothReceiver.stop()
 
-    def bluetoothConnected(self):
-        self.connectionPushButton.setEnabled(True)
-        if self.bluetoothSocket.state() == QBluetoothSocket.ConnectedState:
+    @pyqtSlot(int)
+    def bluetooth_connection_state_changed(self, state):
+        if state == 3:
+            self.connected = True
+        elif state == 0:
+            self.connected = False
+        if state == 3:
             self.connectionPushButton.setText(self.CONNECTION_BUTTON_CONNECTED_TEXT)
             self.statusbar.showMessage(self.CONNECTION_BUTTON_CONNECTED_TEXT, self.STATUS_MESSAGES_TIMEOUT)
             self.stateGroupBox.setEnabled(True)
             self.navigationGroupBox.setEnabled(True)
             self.controlGroupBox.setEnabled(True)
-        else:
+            self.connectionPushButton.setEnabled(True)
+        elif state == 0:
             self.connectionPushButton.setText(self.CONNECTION_BUTTON_DISCONNECTED_TEXT)
             self.statusbar.showMessage(self.CONNECTION_BUTTON_DISCONNECTED_TEXT, self.STATUS_MESSAGES_TIMEOUT)
             self.navigationPushButton.setChecked(False)
@@ -192,17 +246,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.dataCountLcdNumber.display(0)
             self.distancesLineEdit.setText('|0.00|0.00|0.00|')
             self.directionLineEdit.setText(self.DIRECTION_NONE_TEXT)
+            self.connectionPushButton.setEnabled(True)
+        elif state == 1:
+            self.connectionPushButton.setText(self.CONNECTION_BUTTON_SEARCH_TEXT)
+            self.connectionPushButton.setEnabled(False)
+        elif state == 2:
+            self.connectionPushButton.setText(self.CONNECTION_BUTTON_CONNECTING_TEXT)
+            self.connectionPushButton.setEnabled(False)
 
-    def bluetoothError(self):
-        self.statusbar.showMessage(self.bluetoothSocket.errorString(), self.STATUS_MESSAGES_TIMEOUT)
-        self.connectionPushButton.setText(self.CONNECTION_BUTTON_DISCONNECTED_TEXT)
-        self.connectionPushButton.setEnabled(True)
+    @pyqtSlot(str)
+    def bluetooth_error(self, text):
+        self.statusbar.showMessage(text, self.STATUS_MESSAGES_TIMEOUT)
+        self.btChanged.emit(0)
 
-    def bluetoothDataAvailable(self):
-        data = self.bluetoothSocket.readAll()
+    @pyqtSlot(bytes)
+    def bluetooth_data_available(self, data):
         try:
-            text = bytes(data).decode()
-            if text.startswith('E'):  # Error reported
+            text = data.decode()
+            if text.startswith('E'):  # Error reported by the smartphone
                 self.dataCountLcdNumber.setStyleSheet("*:enabled {color : white; background-color:red;}")
                 self.statusbar.setStyleSheet("*:enabled {color : white; background-color:red;}")
                 if text == 'EC':
@@ -210,7 +271,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 elif text == 'EM':
                     self.statusbar.showMessage('Erreur de la camera !')
                 elif text == 'ES':
-                    self.statusbar.showMessage('Erreur de la connexion série !')
+                    self.statusbar.showMessage('Erreur de la connexion en série !')
                 return
             else:
                 self.dataCountLcdNumber.setStyleSheet("")
@@ -250,9 +311,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except UnicodeError as ex:
             print(ex, file=sys.stderr)  # Some garbage
 
-    def navigationButtonClicked(self):
+    def navigation_button_clicked(self):
         if self.navigationPushButton.isChecked():
-            self.startNavigation()
+            self.start_navigation()
             self.statusbar.showMessage(self.NAVIGATION_STATUS_TEXT, self.STATUS_MESSAGES_TIMEOUT)
             self.navigationPushButton.setText(self.NAVIGATION_STOP_TEXT)
         else:
@@ -260,36 +321,36 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.navigationPushButton.setText(self.NAVIGATION_START_TEXT)
         self.controlGroupBox.setDisabled(self.navigationPushButton.isChecked())
 
-    def startNavigation(self):
-        self.bluetoothSocket.write(self.NAVIGATE_COMMAND)
+    def start_navigation(self):
+        self.bluetoothSocket.send(self.NAVIGATE_COMMAND)
 
     def stop(self):
-        self.bluetoothSocket.write(self.STOP_COMMAND)
+        self.bluetoothSocket.send(self.STOP_COMMAND)
 
-    def moveForward(self):
-        self.bluetoothSocket.write(self.FORWARD_COMMAND)
+    def move_forward(self):
+        self.bluetoothSocket.send(self.FORWARD_COMMAND)
 
-    def moveBackward(self):
-        self.bluetoothSocket.write(self.BACKWARD_COMMAND)
+    def move_backward(self):
+        self.bluetoothSocket.send(self.BACKWARD_COMMAND)
 
-    def turnRight(self):
-        self.bluetoothSocket.write(self.RIGHT_COMMAND)
+    def turn_right(self):
+        self.bluetoothSocket.send(self.RIGHT_COMMAND)
 
-    def turnLeft(self):
-        self.bluetoothSocket.write(self.LEFT_COMMAND)
+    def turn_left(self):
+        self.bluetoothSocket.send(self.LEFT_COMMAND)
 
-    def takePictureAndDistances(self):
-        self.bluetoothSocket.write(self.PICTURE_COMMAND)
+    def take_picture_and_distances(self):
+        self.bluetoothSocket.send(self.PICTURE_COMMAND)
         self.enableCapturePushButton.setText(self.CAPTURE_STOP_TEXT if self.enableCapturePushButton.isChecked() else self.CAPTURE_START_TEXT)
         if self.enableCapturePushButton.isChecked():
             self.statusbar.showMessage(self.CAPTURE_STATUS_TEXT, self.STATUS_MESSAGES_TIMEOUT)
 
-    def changePower(self, power):
+    def change_power(self, power):
         cmd = self.POWER_COMMAND+str(power).encode()
-        self.bluetoothSocket.write(cmd)
+        self.bluetoothSocket.send(cmd)
 
-    def toggleFlash(self):
-        self.bluetoothSocket.write(self.FLASH_COMMMAND)
+    def toggle_flash(self):
+        self.bluetoothSocket.send(self.FLASH_COMMAND)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
