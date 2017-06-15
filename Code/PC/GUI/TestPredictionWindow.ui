@@ -267,13 +267,6 @@ color : blue;
      <height>39</height>
     </rect>
    </property>
-   <widget class="QMenu" name="toolsMenu">
-    <property name="title">
-     <string>O&amp;utils</string>
-    </property>
-    <addaction name="datasetGeneratorAction"/>
-   </widget>
-   <addaction name="toolsMenu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="datasetGeneratorAction">

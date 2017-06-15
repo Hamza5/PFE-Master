@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -34,7 +35,7 @@ class CapturingTask implements Runnable {
             File file = new File(directory, DISTANCES_FILE_NAME);
             StringBuilder distancesPrinted = new StringBuilder(pictureID+",");
             for (float dist : dists) {
-                distancesPrinted.append(new DecimalFormat("0.00").format(dist));
+                distancesPrinted.append(new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.ENGLISH)).format(dist));
                 distancesPrinted.append(",");
             }
             distancesPrinted.replace(distancesPrinted.length()-1, distancesPrinted.length(), "\n");
@@ -90,6 +91,7 @@ class CapturingTask implements Runnable {
     CapturingTask(MainActivity parent, Handler handler) {
         mainActivity = parent;
         h = handler;
+//        savingDirectory = mainActivity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File[] externalDirs = mainActivity.getExternalFilesDirs(Environment.DIRECTORY_PICTURES);
         savingDirectory = externalDirs[externalDirs.length-1]; // The last one should be on the SD card
         dataCount = savingDirectory.list(new FilenameFilter() {

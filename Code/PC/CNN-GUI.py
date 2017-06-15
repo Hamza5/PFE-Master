@@ -6,7 +6,7 @@ import tensorflow as tf
 import numpy as np
 from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox, QApplication, QMainWindow, QWidget
-from tensorflow.python.framework.errors_impl import InvalidArgumentError
+from tensorflow.python.framework.errors_impl import InvalidArgumentError, NotFoundError
 
 from GUI.DatasetsGenerator import Ui_DatasetsGeneratorDialog
 from GUI.CNNLoaderDialog import Ui_CNNDialog
@@ -16,11 +16,14 @@ import CNN
 DISTANCES_FILENAME = "Distances.txt"
 
 
-def show_error(parent, message):
+def show_error(parent, message, details=''):
     assert isinstance(parent, QWidget)
     assert isinstance(message, str)
-    print(message, file=sys.stderr)
-    QMessageBox.critical(parent, 'Erreur', message)
+    assert isinstance(details, str)
+    msgBox = QMessageBox(QMessageBox.Critical, 'Erreur', message, parent=parent)
+    if details:
+        msgBox.setDetailedText(details)
+    msgBox.exec()
 
 
 class DatasetsGenerator(QDialog, Ui_DatasetsGeneratorDialog):
@@ -78,8 +81,8 @@ class CNNLoaderDialog(QDialog, Ui_CNNDialog):
             self.window.move(self.app.desktop().availableGeometry().center() - self.window.rect().center())
             self.window.show()
             self.hide()
-        except OSError:
-            show_error(self, 'Impossible de charger le fichier du réseau !')
+        except OSError as e:
+            show_error(self, 'Impossible de charger le fichier du réseau !', e.strerror)
         except json.JSONDecodeError:
             show_error(self, 'Le fichier est invalide !')
 
@@ -133,8 +136,9 @@ class EvaluationWindow(QMainWindow, Ui_CNNTesterWindow):
                                QImage.Format_RGB888)  # The image is stored in uint8
                 capture = QPixmap.fromImage(image)
                 self.predictCaptureViewLabel.setPixmap(capture)
-            except InvalidArgumentError:
-                show_error(self, 'Le fichier du point de contrôle est invalide !')
+            except (InvalidArgumentError, NotFoundError) as e:
+                show_error(self, 'Impossible de charger les poids du modèle !', e.message)
+                self.close()
             except Exception:
                 traceback.print_exception(*sys.exc_info())
         else:
@@ -160,7 +164,6 @@ class EvaluationWindow(QMainWindow, Ui_CNNTesterWindow):
                                                     picture_color.shape[0] / int(self.conv_net['input'].get_shape()[1]))
                     variables_saver.restore(session, saved_model_file_path)
                     [output] = session.run([self.conv_net['output']], feed_dict={self.conv_net['input']: picture_gray.reshape((1,)+picture_gray.shape)})
-            # print(output.reshape((-1,)))
             if output.shape[1] > 1:
                 self.cnnPredictionValueLabel.setText(self.DISTANCES_VALUES[np.argmax(output)])
                 self.groundTruthValueLabel.setText(self.DISTANCES_VALUES[int(distance / 4.5 * (output.shape[1] - 1))])
@@ -170,8 +173,9 @@ class EvaluationWindow(QMainWindow, Ui_CNNTesterWindow):
                            QImage.Format_RGB888)  # The image is stored in uint8
             capture = QPixmap.fromImage(image)
             self.captureViewLabel.setPixmap(capture)
-        except InvalidArgumentError:
-            show_error(self, 'Le fichier du point de contrôle est invalide !')
+        except (InvalidArgumentError, NotFoundError) as e:
+            show_error(self, 'Impossible de charger les poids du modèle !', e.message)
+            self.close()
         except Exception:
             traceback.print_exception(*sys.exc_info())
 

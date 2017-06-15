@@ -99,9 +99,14 @@ class CameraCaptureManager {
     }
 
     void takePicture() {
-        CapturingTask.lastPictureRequest.set(System.currentTimeMillis());
-        if (camera != null)
-            camera.takePicture(null, null, pictureCapturedCallback);
+        try {
+            CapturingTask.lastPictureRequest.set(System.currentTimeMillis());
+            if (camera != null) {
+                camera.takePicture(null, null, pictureCapturedCallback);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     void toggleFlashMode() {
