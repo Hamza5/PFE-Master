@@ -1,0 +1,4 @@
+model_checkpoint_path: "/home/hamza/PFE-Master/CNN-C5x16C5x16P2x2C3x32C3x32P2x2F64O4/CNN-1000"
+all_model_checkpoint_paths: "/home/hamza/PFE-Master/CNN-C5x16C5x16P2x2C3x32C3x32P2x2F64O4/CNN-998"
+all_model_checkpoint_paths: "/home/hamza/PFE-Master/CNN-C5x16C5x16P2x2C3x32C3x32P2x2F64O4/CNN-999"
+all_model_checkpoint_paths: "/home/hamza/PFE-Master/CNN-C5x16C5x16P2x2C3x32C3x32P2x2F64O4/CNN-1000"

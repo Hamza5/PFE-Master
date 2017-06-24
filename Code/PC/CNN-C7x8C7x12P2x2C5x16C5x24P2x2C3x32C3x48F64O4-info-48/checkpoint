@@ -1,0 +1,4 @@
+model_checkpoint_path: "/home/hamza/PFE/Code/PC/CNN-C7x8C7x12P2x2C5x16C5x24P2x2C3x32C3x48F64O4-info-48/CNN-10000"
+all_model_checkpoint_paths: "/home/hamza/PFE/Code/PC/CNN-C7x8C7x12P2x2C5x16C5x24P2x2C3x32C3x48F64O4-info-48/CNN-9998"
+all_model_checkpoint_paths: "/home/hamza/PFE/Code/PC/CNN-C7x8C7x12P2x2C5x16C5x24P2x2C3x32C3x48F64O4-info-48/CNN-9999"
+all_model_checkpoint_paths: "/home/hamza/PFE/Code/PC/CNN-C7x8C7x12P2x2C5x16C5x24P2x2C3x32C3x48F64O4-info-48/CNN-10000"
