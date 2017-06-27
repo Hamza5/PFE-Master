@@ -64,15 +64,15 @@ autre modèle qui permet de décider l'angle de déviation.
 Enfin, les deux modèles ont été implémentés pour contrôler le véhicule à
 distance. Ce véhicule dispose d'un émetteur qui lui permet d'envoyer l'image
 capturée vers l'ordinateur qui calcule les distances, choisit le degré de
-déviation et l'utilise pour commander le véhicule. La figure suivante présente
+déviation et l'utilise pour commander le véhicule. La figure \ref{fig:avoid} présente
 une séquence d'images montrant le changement de direction du véhicule lors de
 la détection d'un obstacle (un arbuste). Le premier rang montre les positions
 du véhicule, le second est sa vision, et le dernier représente les distances
-estimées des obstacles.
+estimées des obstacles par le système de la vision.
 
 \begin{figure}[H]
 \includegraphics[width=\textwidth]{RC_car}
-\caption{Une séquence d'images montrant l'évitement d'un obstacle}{\cite{michels2005high}}
+\caption{Une séquence d'images montrant l'évitement d'un obstacle\label{fig:avoid}}{\cite{michels2005high}}
 \end{figure}
 
 \section{Apprentissage de la profondeur d'une seule image}
@@ -87,11 +87,15 @@ pièces servant à calculer les vecteurs de caractéristiques sur différentes
 échelles en utilisant des masques de convolution.
 
 \begin{figure}[H]
-\begin{center}
+\centering
 \includegraphics[width=0.8\textwidth]{FeaturesVectorScales}
-\caption{Le vecteur de caractéristiques à différentes échelles}{\cite{saxena2005learning}}
-\end{center}
+\caption{Le vecteur de caractéristiques à différentes échelles\label{fig:scales_vector}}{\cite{saxena2005learning}}
 \end{figure}
+
+La figure \ref{fig:scales_vector} montre le vecteur de profondeurs
+absolus pour une pièce, qui inclut les voisins immédiats et les voisins les plus
+distants (à des échelles supérieurs). Les caractéristiques de la profondeur relative pour
+chaque pièce utilise un histogramme des sorties du filtre.
 
 De plus, il ont choisi la technique du \keyword{champ aléatoire de Markov} comme
 méthode d'apprentissage car elle est un modèle probabiliste permettant de
@@ -104,10 +108,9 @@ les deux dernières sont les cartes de profondeurs générées par le modèle ga
 et le modèle laplacien respectivement.
 
 \begin{figure}[H]
-\begin{center}
+\centering
 \includegraphics[width=0.75\textwidth]{DepthLearningResults}
 \caption{Quelques résultats de l'apprentissage de profondeur}{\cite{saxena2005learning}}
-\end{center}
 \end{figure}
 
 Dans un autre travail, Saxena et al.~\cite{saxena2009make3d} ont aussi utilisé les
@@ -126,8 +129,12 @@ utilisées dans leurs tests avec les résultats obtenus.
 
 \begin{figure}[H]
 \includegraphics[width=\textwidth]{make3D_tests}
-\caption{Quelques images transformées en 3D avec Make3D}{\cite{saxena2005learning}}
+\caption{Quelques images transformées en 3D avec Make3D\label{fig:make3D}}{\cite{saxena2005learning}}
 \end{figure}
+
+Dans la figure \ref{fig:make3D}, les rangs impairs contiennent les
+images de test utilisées et les rangs pairs contiennent les résultats obtenus par
+leur projet en utilisant ces images.
 
 \section{Les réseaux de neurones convolutionnels pour l'estimation de la profondeur}
 
@@ -149,10 +156,9 @@ structure multi-échelles du réseau qui permet de combiner la vue globale avec 
 vues locales sur l'image.
 
 \begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.6\textwidth]{Double_CNN_Architecture}
+\centering
+\includegraphics[width=\textwidth]{Double_CNN_Architecture}
 \caption{L'architecture du réseau à deux niveaux}{\cite{eigen2014depth}}
-\end{center}
 \end{figure}
 
 \vspace{-1em}
@@ -174,10 +180,9 @@ sortie à un haut niveau de détails en utilisant toutes les informations préc�
 \vspace{1em}
 
 \begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.5\textwidth]{CNN_Multi_Architecture}
+\centering
+\includegraphics[width=0.8\textwidth]{CNN_Multi_Architecture}
 \caption{L'architecture du réseau à trois niveaux}{\cite{eigen2015predicting}}
-\end{center}
 \end{figure}
 
 \section{Les champs de neurones convolutionels}
@@ -193,7 +198,8 @@ de chacune de ces deux parties est fourni à la couche finale qui calcule la
 probabilité de chaque profondeur en utilisant la formule de CRF.
 
 \begin{figure}[H]
-\includegraphics[width=\textwidth]{CRF_CNN_Architecture}
+\centering
+\includegraphics[width=0.9\textwidth]{CRF_CNN_Architecture}
 \caption{L'architecture globale du champ de neurones convolutionnel}{\cite{liu2015deep}}
 \end{figure}
 

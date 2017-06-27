@@ -1,4 +1,4 @@
-\chapter{La conception des réseaux de neurones convolutionnels}
+\chapter{Conception des réseaux de neurones convolutionnels}
 
 \section{Introduction}
 
@@ -86,11 +86,15 @@ Ces petits prétraitements ont été effectuées afin de réduire la taille de d
 fournies pour l'apprentissage, ce qui permet de l'accélérer significativement.
 
 \begin{figure}[h]
-\begin{center}
+\centering
 \includegraphics[width=0.4\textwidth]{Image-transformation}
-\caption{Les prétraitements appliqués sur les images}
-\end{center}
+\caption{Les prétraitements appliqués sur les images\label{fig:img_transform}}
 \end{figure}
+
+La figure \ref{fig:img_transform} montre les transformations appliquées
+sur les images. La première colonne représente les images originales, la seconde
+représente les images transformées en nivaux de gris, et la dernière représente
+les images après la réduction de la taille.
 
 \subsection{La transformation de données}
 
@@ -283,7 +287,7 @@ la formule d'erreur interclasses la plus adéquate est \keyword{l'entropie crois
 qui est décrite par la formule :
 
 $$
-H(p, y) = -\sum_i y_i \cdot \log(p_i),
+H(p, y) = -\sum_i y_i \cdot \log(p_i)~\cite{wikipediaCrossEntropy},
 $$
 
 avec $p$ le vecteur des valeurs calculées par le réseau et $y$ le vecteur des valeurs réelles.
@@ -348,7 +352,7 @@ vecteurs de prédictions $P_i$ et les vecteurs d'étiquettes $Y_i$. Nous pouvons
 cela par la formule suivante.
 
 $$
-Acc = \frac{\sum_{i=1}^N(\mathrm{argmax}(P_i) = \mathrm{argmax}(Y_i))}{N},
+Acc = \frac{\sum_{i=1}^N(\mathrm{argmax}(P_i) = \mathrm{argmax}(Y_i))}{N}~\cite{wikipediaEvaluation},
 $$
 
 où $N$ est le nombre de vecteurs de prédictions dans l'ensemble, et

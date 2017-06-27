@@ -179,13 +179,28 @@ plus utilisées est \keyword{la convolution}.
 C'est une opération de base qui consiste à effectuer la somme de la multiplication
 élémentaire entre une partie de l'image et la matrice de la convolution qui est
 généralement carrée et de taille beaucoup plus petite que celle de l'image.
-Elle est appelée \keyword{noyau} ou \keyword{filtre} de la convolution.
+Elle est appelée \keyword{noyau} ou \keyword{filtre} de la convolution. Cette
+opération est caractérisée par la formule suivante.
+
+$$
+f[x,y] * g[x,y] = \sum_{n_1=-\infty}^{+\infty} \sum_{n_2=-\infty}^{+\infty} f[n_1,n_2] \cdot g[x-n_1, y-n_2]~\cite{cs178}
+$$
 
 Au début, le filtre opère sur la partie supérieure gauche de l'image pour
 calculer la nouvelle valeur du pixel concerné. Il sera
 par la suite déplacé toute au long de l'image pour générer les autres valeurs
 qui vont former ensemble une autre image dont le contenu dépend des valeurs du
 filtre.
+
+Dans la figure \ref{fig:convolution} un filtre de taille $3 \times 3$ est convolué
+à travers tout l'image en commençant par positionner l'élément centrale du filtre
+sur le premier pixel (les bords sont générées pour cette image en reflétant les
+pixels externes). La nouvelle valeur de ce pixel est calculée en appliquant la
+formule précédente. Pour le premier pixel de la nouvelle image, la valeur est :
+
+$$
+k[1,1] = 0 \cdot 7 + -1 \cdot 7 + 0 \cdot 6 + -1 \cdot 7 + 5 \cdot 7 + -1 \cdot 6 + 0 \cdot 6 + -1 \cdot 6 + 0 \cdot 4 = 9.
+$$
 
 \begin{figure}[H]
 \centering
@@ -195,8 +210,11 @@ filtre.
 \begin{subfigure}{0.45\textwidth}
 \includegraphics[width=\textwidth]{Conv2}
 \end{subfigure}
-\caption{La convolution}{\cite{commonsConvolution}}
+\caption{La convolution\label{fig:convolution}}{\cite{commonsConvolution}}
 \end{figure}
+
+Par la suite, le filtre est déplacé par un pas de $1$ pixel à la fois et le même
+processus est répété pour chaque pixel de l'image originale.
 
 Les sujets de la vision artificielle sont traités généralement en utilisant deux
 types de méthodes : les méthodes basées sur les notions géométriques,
@@ -260,7 +278,7 @@ Les réseaux de neurones artificiels est une technique inspirée du cerveau huma
 Son architecture est composée de plusieurs \keyword{couches} dont chacune
 contient plusieurs unités de calcul dites \keyword{perceptrons}.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
 \includegraphics[width=0.4\textwidth]{neuron_model}
 \caption{Le schéma d'un perceptron}{\cite{karpathy2016cs231n}}
@@ -296,7 +314,7 @@ Ils se composent de trois couches de types différents :
 \keyword{les couches de regroupement (mise en commun)} et
 \keyword{les couches entièrement connectées (denses)}.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
 \includegraphics[width=\textwidth]{LeNet-5}
 \caption{Le réseau convolutionel le plus ancien : LeNet-5}{\cite{lecun1998gradient}}
@@ -341,12 +359,12 @@ la moyenne. Ces couches sont généralement placés après les couches
 convolutionelles.
 
 Les hyperparamètres requis pour cette couche sont les mêmes que ceux des couches
-convolutionelles, auxquelles il faut ajouter la fonction de regroupement
+convolutionnelles, auxquelles il faut ajouter la fonction de regroupement
 (maximum ou moyenne).
 
-\begin{figure}[h]
+\begin{figure}[H]
 \begin{center}
-\includegraphics[width=0.75\textwidth]{maxpool}
+\includegraphics[width=0.5\textwidth]{maxpool}
 \caption{L'opération de regroupement par le maximum}{\cite{karpathy2016cs231n}}
 \end{center}
 \end{figure}

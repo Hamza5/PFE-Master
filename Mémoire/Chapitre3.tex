@@ -1,4 +1,4 @@
-\chapter{La machine de l'acquisition des données}
+\chapter{Machine de l'acquisition des données}
 
 \section{Introduction}
 
@@ -154,11 +154,10 @@ placé tous ces modules dans leurs positions respectives. Par la suite, il sera
 chargé par un programme permettant de gérer continuellement les autres modules
 par l'envoi de commandes ou par la réception d'informations.
 
-\begin{figure}[h]
-\begin{center}
-\includegraphics[width=0.3\textwidth]{ArduinoMega2560}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.35\textwidth]{ArduinoMega2560}
 \caption{Une version compatible avec le microcontrôleur Arduino Mega 2560}
-\end{center}
 \end{figure}
 
 Il y a deux types de ports : les \keyword{ports numériques} à lecture et
@@ -178,10 +177,9 @@ sur le téléphone et permettant l'échange d'informations avec le microcontrôl
 en même temps qu'avec l'ordinateur hôte.
 
 \begin{figure}[H]
-\begin{center}
-\includegraphics[width=0.7\textwidth]{DistancesRobotCircuit}
+\centering
+\includegraphics[width=0.9\textwidth]{DistancesRobotCircuit}
 \caption{Le schéma des connexions entre les modules du robot}
-\end{center}
 \end{figure}
 
 Jusque là, nous avons présenté les composants matériels nécessaires pour la
@@ -211,6 +209,21 @@ L'ensemble des composants du robot est géré directement par deux logiciels, l'
 s'exécute sur le microcontrôleur, et l'autre sur le téléphone. Ce dernier
 envoie des commandes à l'autre qui contrôle directement le matériel.
 
+\subsection{Outils de développement}
+
+Le programme du microcontrôleur a été écrit en langage \keyword{C++ pour AVR}, qui est une version
+réduite du langage \keyword{C++} avec un support pour d'autres fonctions.
+Il a été édité, compilé et chargé dans la mémoire du microcontrôleur à l'aide de
+l'environnement de développement \keyword{PlatformIO}.
+
+L'application du téléphone a été écrite en langage \keyword{Java} en utilisant
+l'interface programmable applicative d'\keyword{Android} au niveau 19. Elle a été développée et installée
+en utilisant l'environnement de développement \keyword{Android Studio}.
+
+Le logiciel de l'ordinateur a été écrit en \keyword{Python 3} et en utilisant les
+bibliothèques \keyword{PyBluez} et \keyword{PyQt5}. Il a été créé en utilisant
+l'environnement de développement \keyword{PyCharm}.
+
 \subsection{Le programme du microcontrôleur}
 
 C'est un programme répétitif, testant à chaque fois s'il y a
@@ -232,7 +245,7 @@ Si l'action performée en reconnaissant une commande retourne un résultat (par
 exemple la température), il est envoyé au téléphone comme une chaîne de
 caractères. Le téléphone traîte le résultat comme nous détaillerons dans la prochaine partie.
 
-L'algorithme suivant présente le fonctionnement général du programme du
+L'algorithme \ref{alg:arduino} présente le fonctionnement général du programme du
 microcontrôleur. Il est constitué d'une boucle infinie (c'est-à-dire qu'elle
 s'exécute tant que l'appareil est allumé) qui attend la réception d'une commande
 et puis teste son type afin d'effectuer l'action nécessaire.
@@ -240,7 +253,7 @@ et puis teste son type afin d'effectuer l'action nécessaire.
 \smallskip
 
 \begin{algorithm}[h]
-\caption{Le programme du microcontrôleur}
+\caption{Le programme du microcontrôleur\label{alg:arduino}}
 \BlankLine
 \While{le microcontrôleur est allumé}{
   \If{il y a une commande reçue}{
